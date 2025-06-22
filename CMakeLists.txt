@@ -1,0 +1,22 @@
+message(STATUS "The CMake version used is ${CMAKE_VERSION}")
+cmake_minimum_required(VERSION 3.5...${CMAKE_VERSION})
+
+PROJECT(segfault
+  VERSION 0.1.0
+  DESCRIPTION ""
+  HOMEPAGE_URL "")
+
+set(SEGFAULT_VERSION_MAJOR 0 )
+set(SEGFAULT_VERSION_MINOR 1 )
+set(SEGFAULT_VERSION_PATCH 0 )
+set(SEGFAULT_VERSION ${SEGFAULT_VERSION_MAJOR}.${SEGFAULT_VERSION_MINOR}.${SEGFAULT_VERSION_PATCH} )
+set(PROJECT_VERSION "${SEGFAULT_VERSION}" )
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(SDL2 CONFIG REQUIRED)
+find_package(glm         REQUIRED)
+find_package(GLEW        REQUIRED)
+
+add_subdirectory(src/editor)
+add_subdirectory(src/runtime)
