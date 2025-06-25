@@ -72,4 +72,4 @@ namespace segfault::renderer {
             return mThread.get_id();
         }
 
-} // Implementation of RenderThread methods
+} // namespace segfault::renderer

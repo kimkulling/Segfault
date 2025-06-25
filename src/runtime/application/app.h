@@ -5,7 +5,7 @@
 
 namespace segfault::application {
 
-    class App {
+    class SEGFAULT_EXPORT App {
     public:
         App();
         ~App();
@@ -15,6 +15,13 @@ namespace segfault::application {
         void shutdown();
 
     private:
+        enum State {
+            Invalid = -1,
+            Init,
+            Running,
+            Shutdown,
+            Count
+        };
         renderer::RenderThread mRenderThread;
     };
 

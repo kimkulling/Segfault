@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/segfault.h"
+
 #include <thread>
 
 namespace segfault::renderer {

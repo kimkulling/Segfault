@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/segfault.h"
+
 namespace segfault::renderer {
 
     class RHI {

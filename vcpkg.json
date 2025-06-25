@@ -1,0 +1,8 @@
+{
+  "dependencies": [
+    "glew",
+    "glm",
+    "sdl2",
+    "gtest"
+  ]
+}
