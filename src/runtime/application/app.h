@@ -3,7 +3,10 @@
 #include "core/segfault.h"
 #include "renderer/renderthread.h"
 
+struct SDL_Window;
+
 namespace segfault::application {
+
 
     class SEGFAULT_EXPORT App {
     public:
@@ -11,7 +14,7 @@ namespace segfault::application {
         ~App();
 
         bool init(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char* title, bool fullscreen);
-        void run();
+        bool run();
         void shutdown();
 
     private:
@@ -22,7 +25,9 @@ namespace segfault::application {
             Shutdown,
             Count
         };
+        State mState;
         renderer::RenderThread mRenderThread;
+        SDL_Window *mSDL_Window;
     };
 
 } // namespace segfault::application
