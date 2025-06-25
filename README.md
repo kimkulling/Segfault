@@ -1,8 +1,10 @@
 # Segfault
-
-## ToDo
+## Roadmap
+### Done 
+### ToDo
 - Core Concepts
   - Define base architecture
+  - Define CMake-Build
   - Windows Management
     - Windows creation
     - Base handling of events
