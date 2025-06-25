@@ -12,6 +12,11 @@ PROJECT(segfault
 set( LIB_INSTALL_DIR "lib"      CACHE PATH "Path the built library files are installed to." )
 set( BIN_INSTALL_DIR "bin"      CACHE PATH "Path the tool executables are installed to." )
 
+# Set the default build output folders
+SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib )
+SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib )
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin )
+
 set(SEGFAULT_VERSION_MAJOR 0 )
 set(SEGFAULT_VERSION_MINOR 1 )
 set(SEGFAULT_VERSION_PATCH 0 )
