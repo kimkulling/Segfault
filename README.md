@@ -1,7 +1,7 @@
 # Segfault
 ## Roadmap
-### Done
-##ä ToDo
+### Done 
+### ToDo
 - Core Concepts
   - Define base architecture
   - Define CMake-Build
