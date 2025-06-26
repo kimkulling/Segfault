@@ -27,6 +27,7 @@ ADD_LIBRARY(segfault_runtime SHARED
 
 target_link_libraries(segfault_runtime PRIVATE
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    volk::volk volk::volk_headers
 )
 
 set_target_properties(segfault_runtime PROPERTIES FOLDER engine\\runtime )

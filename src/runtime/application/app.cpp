@@ -1,11 +1,14 @@
 #include "application/app.h"
+#include "core/segfault.h"
 #include <SDL.h>
 
 #include <iostream>
 
 namespace segfault::application {
-
-    enum LogType {
+    
+    using namespace segfault::core;
+    
+    enum class LogType {
         Invalid = -1,
         Error,
         Warn,
@@ -15,38 +18,38 @@ namespace segfault::application {
 
     void logMessage(LogType type, const char* msg) {
         switch (type) {
-            case Error:
+            case LogType::Error:
                 std::cout << "*Err*  : " << msg << std::endl;
                 break;
-            case Warn:
+            case LogType::Warn:
                 std::cout << "*Warn* : " << msg << std::endl;
                 break;
-            case Info:
+            case LogType::Info:
                 std::cout << "*Info* : " << msg << std::endl;
                 break;
         }
         std::cout << msg << std::endl;
     }
 
-    App::App() : mState(Invalid), mSDL_Window(nullptr) {
+    App::App() : mState(ModuleState::Invalid), mSDL_Window(nullptr) {
 
     }
 
     App::~App() {
-        if (mState != Shutdown) {
-            logMessage(Error, "App not shutdowned.");
+        if (mState != ModuleState::Shutdown) {
+            logMessage(LogType::Error, "App not shutdowned.");
         }
     }
 
     bool App::init(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char *title, bool fullscreen) {
         if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) == -1) {
-            logMessage(Error, "Cannot init sdl.");
+            logMessage(LogType::Error, "Cannot init sdl.");
             return false;
         }
-        mState = Init;
+        mState = ModuleState::Init;
         mSDL_Window = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
         if (mSDL_Window == nullptr) {
-            logMessage(Error, "Cannot init window.");
+            logMessage(LogType::Error, "Cannot init window.");
             return false;
         }
 
@@ -69,7 +72,7 @@ namespace segfault::application {
     void App::shutdown() {
         SDL_DestroyWindow(mSDL_Window);
         mSDL_Window = nullptr;
-        mState = Shutdown;
+        mState = ModuleState::Shutdown;
         SDL_Quit();
     }
 

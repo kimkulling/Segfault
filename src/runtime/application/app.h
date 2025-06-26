@@ -7,7 +7,6 @@ struct SDL_Window;
 
 namespace segfault::application {
 
-
     class SEGFAULT_EXPORT App {
     public:
         App();
@@ -18,14 +17,7 @@ namespace segfault::application {
         void shutdown();
 
     private:
-        enum State {
-            Invalid = -1,
-            Init,
-            Running,
-            Shutdown,
-            Count
-        };
-        State mState;
+        core::ModuleState mState;
         renderer::RenderThread mRenderThread;
         SDL_Window *mSDL_Window;
     };

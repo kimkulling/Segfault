@@ -35,4 +35,12 @@ namespace segfault::core {
 
     using guid = uint64_t;    
 
+    enum class ModuleState {
+        Invalid = -1,
+        Init,
+        Running,
+        Shutdown,
+        Count
+    };
+
 } // namespace segfault::core

@@ -1,21 +1,38 @@
 #include "RHI.h"
+#include "volk.h"
 
 namespace segfault::renderer {
     
-    RHI::RHI() {
+    struct RHIImpl {
+        VkInstance instance;
+    };
 
+    RHI::RHI() : mImpl(nullptr) {
+        // empty
     }
     
     RHI::~RHI() {
 
     }
     
-    void RHI::init() {
-        // Initialization code for the RHI
+    bool RHI::init() {
+        mImpl = new RHIImpl;
+        VkResult result = volkInitialize();
+        if (result != VK_SUCCESS) {
+            return false;
+        }
+
+        //mImpl->instance =
+        return true;
     }
     
-    void RHI::shutdown() {
-        // Cleanup code for the RHI
+    bool RHI::shutdown() {
+        volkFinalize();
+
+        delete mImpl;
+        mImpl = nullptr;
+
+        return true;
     }
     
     void RHI::beginFrame() {

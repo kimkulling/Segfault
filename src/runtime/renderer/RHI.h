@@ -4,15 +4,20 @@
 
 namespace segfault::renderer {
 
+    struct RHIImpl;
+
     class RHI {
     public:
         RHI();
         ~RHI();
-        void init();
-        void shutdown();
+        bool init();
+        bool shutdown();
         void beginFrame();
         void endFrame();
         void submitCommandBuffer();
+
+    private:
+        RHIImpl *mImpl;
     };
 
 } // namespace segfault::renderer
