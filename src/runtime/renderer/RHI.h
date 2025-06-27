@@ -2,6 +2,8 @@
 
 #include "core/segfault.h"
 
+struct SDL_Window;
+
 namespace segfault::renderer {
 
     struct RHIImpl;
@@ -10,7 +12,7 @@ namespace segfault::renderer {
     public:
         RHI();
         ~RHI();
-        bool init();
+        bool init(SDL_Window* window);
         bool shutdown();
         void beginFrame();
         void endFrame();
