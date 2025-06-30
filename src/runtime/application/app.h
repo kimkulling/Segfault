@@ -19,7 +19,7 @@ namespace segfault::application {
     private:
         core::ModuleState mState;
         renderer::RenderThread mRenderThread;
-        SDL_Window *mSDL_Window;
+        SDL_Window *mSdlWindow;
     };
 
 } // namespace segfault::application

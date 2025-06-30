@@ -2,6 +2,8 @@
 #include "volk.h"
 #include "SDL_vulkan.h"
 
+#include <vector>
+
 namespace segfault::renderer {
     
     struct RHIImpl {
@@ -34,22 +36,35 @@ namespace segfault::renderer {
         }
 
         VkApplicationInfo appInfo{};
-        createInstance(appInfo);
-
-        VkInstanceCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
+        createInstance(appInfo);        
 
         uint32_t extensionCount = 0;
         const char** extensions;
         SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, nullptr);
-        
-        
-        createInfo.enabledLayerCount = 0;
+        const char **extensionNames = new const char* [extensionCount];
+        SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, extensionNames);
+
+        const VkInstanceCreateInfo createInfo = {
+                VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, // sType
+                nullptr,                                // pNext
+                0,                                      // flags
+                &appInfo,                                // pApplicationInfo
+                0,                                      // enabledLayerCount
+                nullptr,                                // ppEnabledLayerNames
+                extensionCount,                         // enabledExtensionCount
+                extensionNames,                         // ppEnabledExtensionNames
+        };
+
         result = vkCreateInstance(&createInfo, nullptr, &mImpl->instance);
         if (result != VK_SUCCESS) {
             return false;
         }
+
+        uint32_t physicalDeviceCount;
+        vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, nullptr);
+        std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
+        vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, physicalDevices.data());
+        VkPhysicalDevice physicalDevice = physicalDevices[0];
 
         return true;
     }

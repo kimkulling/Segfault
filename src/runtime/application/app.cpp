@@ -31,7 +31,7 @@ namespace segfault::application {
         std::cout << msg << std::endl;
     }
 
-    App::App() : mState(ModuleState::Invalid), mSDL_Window(nullptr) {
+    App::App() : mState(ModuleState::Invalid), mSdlWindow(nullptr) {
 
     }
 
@@ -47,8 +47,8 @@ namespace segfault::application {
             return false;
         }
         mState = ModuleState::Init;
-        mSDL_Window = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-        if (mSDL_Window == nullptr) {
+        mSdlWindow = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        if (mSdlWindow == nullptr) {
             logMessage(LogType::Error, "Cannot init window.");
             return false;
         }
@@ -70,8 +70,8 @@ namespace segfault::application {
     }
     
     void App::shutdown() {
-        SDL_DestroyWindow(mSDL_Window);
-        mSDL_Window = nullptr;
+        SDL_DestroyWindow(mSdlWindow);
+        mSdlWindow = nullptr;
         mState = ModuleState::Shutdown;
         SDL_Quit();
     }
