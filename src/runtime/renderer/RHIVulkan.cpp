@@ -7,7 +7,10 @@
 namespace segfault::renderer {
     
     struct RHIImpl {
+        SDL_Window *window = nullptr;
         VkInstance instance;
+        VkPhysicalDevice physicalDevice;
+        VkSurfaceKHR surface;
     };
 
     RHI::RHI() : mImpl(nullptr) {
@@ -28,8 +31,9 @@ namespace segfault::renderer {
     }
 
     bool RHI::init(SDL_Window *window) {
-        VkResult result{};
         mImpl = new RHIImpl;
+        mImpl->window = window;
+        VkResult result{};
         result = volkInitialize();
         if (result != VK_SUCCESS) {
             return false;
@@ -64,7 +68,9 @@ namespace segfault::renderer {
         vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, nullptr);
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
         vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, physicalDevices.data());
-        VkPhysicalDevice physicalDevice = physicalDevices[0];
+        mImpl->physicalDevice = physicalDevices[0];
+
+        SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
         return true;
     }
@@ -89,4 +95,5 @@ namespace segfault::renderer {
     void RHI::submitCommandBuffer() {
         // Code to submit the command buffer for execution
     }
-}
+
+} // namespace segfault::renderer

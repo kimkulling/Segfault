@@ -7,6 +7,7 @@
 namespace segfault::application {
     
     using namespace segfault::core;
+    using namespace segfault::renderer;
     
     enum class LogType {
         Invalid = -1,
@@ -53,7 +54,12 @@ namespace segfault::application {
             return false;
         }
 
+
+        mRHI = new RHI;
+        mRHI->init(mSdlWindow);
+
         return true;
+
     }
 
     bool App::run() {

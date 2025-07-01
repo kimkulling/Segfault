@@ -2,6 +2,7 @@
 
 #include "core/segfault.h"
 #include "renderer/renderthread.h"
+#include "renderer/RHI.h"
 
 struct SDL_Window;
 
@@ -19,7 +20,8 @@ namespace segfault::application {
     private:
         core::ModuleState mState;
         renderer::RenderThread mRenderThread;
-        SDL_Window *mSdlWindow;
+        SDL_Window *mSdlWindow = nullptr;
+        renderer::RHI *mRHI = nullptr;
     };
 
 } // namespace segfault::application
