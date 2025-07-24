@@ -1,6 +1,8 @@
 #include "application/app.h"
 #include "core/segfault.h"
 #include <SDL.h>
+#include <SDL_vulkan.h>
+#include <volk.h>
 
 #include <iostream>
 
@@ -47,10 +49,13 @@ namespace segfault::application {
             logMessage(LogType::Error, "Cannot init sdl.");
             return false;
         }
+        SDL_Vulkan_LoadLibrary(nullptr);
         mState = ModuleState::Init;
-        mSdlWindow = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        mSdlWindow = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
         if (mSdlWindow == nullptr) {
-            logMessage(LogType::Error, "Cannot init window.");
+            std::string msg = std::string("Cannot init window: ");
+            msg += SDL_GetError();
+            logMessage(LogType::Error, msg.c_str());
             return false;
         }
 

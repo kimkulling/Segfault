@@ -30,6 +30,16 @@ namespace segfault::renderer {
         appInfo.apiVersion = VK_API_VERSION_1_0;
     }
 
+    bool checkValidationLayerSupport() {
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        return false;
+    }
+
     bool RHI::init(SDL_Window *window) {
         mImpl = new RHIImpl;
         mImpl->window = window;
@@ -40,7 +50,7 @@ namespace segfault::renderer {
         }
 
         VkApplicationInfo appInfo{};
-        createInstance(appInfo);        
+        createInstance(appInfo);
 
         uint32_t extensionCount = 0;
         const char** extensions;
@@ -63,8 +73,9 @@ namespace segfault::renderer {
         if (result != VK_SUCCESS) {
             return false;
         }
+        volkLoadInstance(mImpl->instance);
 
-        uint32_t physicalDeviceCount;
+        uint32_t physicalDeviceCount = 0;
         vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, nullptr);
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
         vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, physicalDevices.data());

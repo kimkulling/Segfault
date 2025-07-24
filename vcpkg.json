@@ -3,7 +3,12 @@
     "glew",
     "glm",
     "gtest",
-    "sdl2",
+    {
+      "name": "sdl2",
+      "features": [
+        "vulkan"
+      ]
+    },
     "volk"
   ]
 }
