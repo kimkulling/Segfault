@@ -38,6 +38,7 @@ namespace segfault::renderer {
         if (result != VK_SUCCESS) {
             return false;
         }
+        
 
         VkApplicationInfo appInfo{};
         createInstance(appInfo);        
@@ -63,7 +64,7 @@ namespace segfault::renderer {
         if (result != VK_SUCCESS) {
             return false;
         }
-
+        volkLoadInstance(mImpl->instance);
         uint32_t physicalDeviceCount;
         vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, nullptr);
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
