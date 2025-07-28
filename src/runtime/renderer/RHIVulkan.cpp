@@ -92,10 +92,9 @@ namespace segfault::renderer {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
         if (func != nullptr) {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-        }
-        else {
-            return VK_ERROR_EXTENSION_NOT_PRESENT;
-        }
+        } 
+
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
     bool RHI::init(SDL_Window *window) {
@@ -135,7 +134,7 @@ namespace segfault::renderer {
         };
 
 
-        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+        //VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         if (mImpl->enableValidationLayers && !checkValidationLayerSupport()) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
