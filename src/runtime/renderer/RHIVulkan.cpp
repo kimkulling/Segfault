@@ -6,11 +6,32 @@
 #include <iostream>
 #include <cassert>
 #include <optional>
+#include <set>
+#include <algorithm>
 
 namespace segfault::renderer {
 
+    const std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
+
+    const std::vector<const char*> deviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
+        std::optional<uint32_t> presentFamily;
+
+        bool isComplete() {
+            return graphicsFamily.has_value() && presentFamily.has_value();
+        }
+    };
+
+    struct SwapChainSupportDetails {
+        VkSurfaceCapabilitiesKHR capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
     };
 
     struct RHIImpl {
@@ -22,9 +43,69 @@ namespace segfault::renderer {
         VkQueue graphicsQueue{};
         QueueFamilyIndices indices{};
         VkSurfaceKHR surface{};
+        VkSwapchainKHR swapChain{};
+        std::vector<VkImage> swapChainImages{};
+        VkFormat swapChainImageFormat{};
+        VkExtent2D swapChainExtent{};
+
+        SwapChainSupportDetails querySwapChainSupport();
+        bool checkDeviceExtensionSupport();
+        bool isDeviceSuitable();
+        void createInstance(VkApplicationInfo& appInfo);
+        bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+        bool checkValidationLayerSupport();
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+        void setupDebugMessenger(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+        VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+            const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
+        QueueFamilyIndices findQueueFamilies(QueueFamilyIndices& indices);
+        bool createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice& device, QueueFamilyIndices& indices);
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+        void createSwapChain();
     };
     
-    static void createInstance(VkApplicationInfo &appInfo) {
+    SwapChainSupportDetails RHIImpl::querySwapChainSupport() {
+        SwapChainSupportDetails details;
+
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+
+        if (formatCount != 0) {
+            details.formats.resize(formatCount);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
+        }
+
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+
+        if (presentModeCount != 0) {
+            details.presentModes.resize(presentModeCount);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.presentModes.data());
+        }
+
+        return details;
+    }
+
+    
+    bool RHIImpl::checkDeviceExtensionSupport() {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
+
+        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+        for (const auto& extension : availableExtensions) {
+            requiredExtensions.erase(extension.extensionName);
+        }
+
+        return requiredExtensions.empty();
+    }
+
+    void RHIImpl::createInstance(VkApplicationInfo &appInfo) {
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = "Hello World";
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -33,15 +114,25 @@ namespace segfault::renderer {
         appInfo.apiVersion = VK_API_VERSION_1_0;
     }
 
-    const std::vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-    };
+    bool RHIImpl::isDeviceSuitable() {
+        indices = findQueueFamilies(indices);
 
-    const std::vector<const char*> deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+        bool extensionsSupported = checkDeviceExtensionSupport();
 
-    static bool checkValidationLayerSupport() {
+        bool swapChainAdequate = false;
+        if (extensionsSupported) {
+            SwapChainSupportDetails swapChainSupport = querySwapChainSupport();
+            swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        }
+
+        return indices.isComplete() && extensionsSupported && swapChainAdequate;
+    }
+
+    bool RHIImpl::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+        return true;
+    }
+
+    bool RHIImpl::checkValidationLayerSupport() {
         uint32_t layerCount = 0;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -77,7 +168,7 @@ namespace segfault::renderer {
         return VK_FALSE;
     }
 
-    static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
+    void RHIImpl::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
         createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
@@ -85,7 +176,7 @@ namespace segfault::renderer {
         createInfo.pfnUserCallback = debugCallback;
     }
 
-    static void setupDebugMessenger(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
+    void RHIImpl::setupDebugMessenger(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
         createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
@@ -93,7 +184,7 @@ namespace segfault::renderer {
         createInfo.pUserData = nullptr; // Optional
     }
 
-    static VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+    VkResult RHIImpl::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
             const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
         if (func != nullptr) {
@@ -103,17 +194,20 @@ namespace segfault::renderer {
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, QueueFamilyIndices &indices) {
+    QueueFamilyIndices RHIImpl::findQueueFamilies(QueueFamilyIndices &indices) {
         uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
         for (const auto& queueFamily : queueFamilies) {
+
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                VkBool32 presentSupport = false;                
                 indices.graphicsFamily = i;
+                indices.presentFamily = i;
             }
 
             ++i;
@@ -122,8 +216,8 @@ namespace segfault::renderer {
         return indices;
     }
 
-    static bool createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& indices) {
-        indices = findQueueFamilies(physicalDevice, indices);
+    bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& indices) {
+        indices = findQueueFamilies(indices);
 
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -137,7 +231,8 @@ namespace segfault::renderer {
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-        createInfo.enabledExtensionCount = 0;
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
         if (enableValidationLayers) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -150,6 +245,104 @@ namespace segfault::renderer {
         }
 
         return true;
+    }
+
+    VkSurfaceFormatKHR RHIImpl::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+        for (const auto& availableFormat : availableFormats) {
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+                return availableFormat;
+            }
+        }
+
+        return availableFormats[0];
+    }
+
+    VkPresentModeKHR RHIImpl::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+        for (const auto& availablePresentMode : availablePresentModes) {
+            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+                return availablePresentMode;
+            }
+        }
+
+        return VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    VkExtent2D  RHIImpl::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+            return capabilities.currentExtent;
+        }
+        
+        int width, height;
+        SDL_GetWindowSize(window, &width, &height);
+
+        VkExtent2D actualExtent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
+
+        actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+        return actualExtent;
+    }
+
+    void RHIImpl::createSwapChain() {
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport();
+
+        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+        VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
+        VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+
+       uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
+        if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+            imageCount = swapChainSupport.capabilities.maxImageCount;
+        }
+
+        VkSwapchainCreateInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = surface;
+
+        createInfo.minImageCount = imageCount;
+        createInfo.imageFormat = surfaceFormat.format;
+        createInfo.imageColorSpace = surfaceFormat.colorSpace;
+        createInfo.imageExtent = extent;
+        createInfo.imageArrayLayers = 1;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+        QueueFamilyIndices indices = findQueueFamilies(indices);
+        uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+
+        if (indices.graphicsFamily != indices.presentFamily) {
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        }
+        else {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0; // Optional
+            createInfo.pQueueFamilyIndices = nullptr; // Optional
+        }
+
+        createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+        createInfo.presentMode = presentMode;
+        createInfo.clipped = VK_TRUE;
+
+        createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+            return;
+        }
+
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+        swapChainImages.resize(imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+
+        swapChainImageFormat = surfaceFormat.format;
+        swapChainExtent = extent;
     }
 
     RHI::RHI() : mImpl(nullptr) {
@@ -170,10 +363,10 @@ namespace segfault::renderer {
         }
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        setupDebugMessenger(debugCreateInfo);
+        mImpl->setupDebugMessenger(debugCreateInfo);
 
         VkApplicationInfo appInfo{};
-        createInstance(appInfo);
+        mImpl->createInstance(appInfo);
 
         uint32_t extensionCount = 0;
         const char **extensions;
@@ -197,11 +390,11 @@ namespace segfault::renderer {
                 extensionNames.data()                           // ppEnabledExtensionNames
         };
 
-        if (mImpl->enableValidationLayers && !checkValidationLayerSupport()) {
+        if (mImpl->enableValidationLayers && !mImpl->checkValidationLayerSupport()) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
 
-            populateDebugMessengerCreateInfo(debugCreateInfo);
+            mImpl->populateDebugMessengerCreateInfo(debugCreateInfo);
             createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
         } else {
             createInfo.enabledLayerCount = 0;
@@ -221,21 +414,24 @@ namespace segfault::renderer {
         mImpl->physicalDevice = physicalDevices[0];
 
         
-        createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
+        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
 
         vkGetDeviceQueue(mImpl->device, mImpl->indices.graphicsFamily.value(), 0, &mImpl->graphicsQueue);
 
         SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
+        mImpl->createSwapChain();
+
         return true;
     }
     
     bool RHI::shutdown() {
-        volkFinalize();
+        vkDestroySwapchainKHR(mImpl->device, mImpl->swapChain, nullptr);
 
         vkDestroyDevice(mImpl->device, nullptr);
         delete mImpl;
         mImpl = nullptr;
+        volkFinalize();
 
         return true;
     }
