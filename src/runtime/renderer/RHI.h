@@ -12,7 +12,7 @@ namespace segfault::renderer {
     public:
         RHI();
         ~RHI();
-        bool init(SDL_Window* window);
+        bool init(const char* appName, SDL_Window* window);
         bool shutdown();
         void beginFrame();
         void endFrame();

@@ -51,7 +51,7 @@ namespace segfault::renderer {
         SwapChainSupportDetails querySwapChainSupport();
         bool checkDeviceExtensionSupport();
         bool isDeviceSuitable();
-        void createInstance(VkApplicationInfo& appInfo);
+        void createInstance(const char* appName, VkApplicationInfo& appInfo);
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         bool checkValidationLayerSupport();
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
@@ -68,7 +68,8 @@ namespace segfault::renderer {
     
     SwapChainSupportDetails RHIImpl::querySwapChainSupport() {
         SwapChainSupportDetails details;
-
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
+        
         uint32_t formatCount;
         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
 
@@ -87,7 +88,6 @@ namespace segfault::renderer {
 
         return details;
     }
-
     
     bool RHIImpl::checkDeviceExtensionSupport() {
         uint32_t extensionCount;
@@ -105,9 +105,9 @@ namespace segfault::renderer {
         return requiredExtensions.empty();
     }
 
-    void RHIImpl::createInstance(VkApplicationInfo &appInfo) {
+    void RHIImpl::createInstance(const char *appName, VkApplicationInfo &appInfo) {
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Hello World";
+        appInfo.pApplicationName = appName;
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.pEngineName = "SegFault";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -203,11 +203,13 @@ namespace segfault::renderer {
 
         int i = 0;
         for (const auto& queueFamily : queueFamilies) {
-
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-                VkBool32 presentSupport = false;                
-                indices.graphicsFamily = i;
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
+            if (presentSupport) {
                 indices.presentFamily = i;
+            }
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                indices.graphicsFamily = i;
             }
 
             ++i;
@@ -268,13 +270,12 @@ namespace segfault::renderer {
     }
 
     VkExtent2D  RHIImpl::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+        int width, height;
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;
         }
-        
-        int width, height;
-        SDL_GetWindowSize(window, &width, &height);
 
+        SDL_GetWindowSize(window, &width, &height);
         VkExtent2D actualExtent = {
             static_cast<uint32_t>(width),
             static_cast<uint32_t>(height)
@@ -317,8 +318,7 @@ namespace segfault::renderer {
             createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
             createInfo.queueFamilyIndexCount = 2;
             createInfo.pQueueFamilyIndices = queueFamilyIndices;
-        }
-        else {
+        } else {
             createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
             createInfo.queueFamilyIndexCount = 0; // Optional
             createInfo.pQueueFamilyIndices = nullptr; // Optional
@@ -353,20 +353,21 @@ namespace segfault::renderer {
         assert(mImpl == nullptr);
     }
 
-    bool RHI::init(SDL_Window *window) {
-        mImpl = new RHIImpl;
-        mImpl->window = window;
+    bool RHI::init(const char *appName, SDL_Window *window) {
         VkResult result{};
         result = volkInitialize();
         if (result != VK_SUCCESS) {
             return false;
         }
 
+        mImpl = new RHIImpl;
+        mImpl->window = window;
+
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         mImpl->setupDebugMessenger(debugCreateInfo);
 
         VkApplicationInfo appInfo{};
-        mImpl->createInstance(appInfo);
+        mImpl->createInstance(appName, appInfo);
 
         uint32_t extensionCount = 0;
         const char **extensions;
@@ -412,13 +413,13 @@ namespace segfault::renderer {
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
         vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, physicalDevices.data());
         mImpl->physicalDevice = physicalDevices[0];
-
         
-        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
+        SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
+
+         mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
 
         vkGetDeviceQueue(mImpl->device, mImpl->indices.graphicsFamily.value(), 0, &mImpl->graphicsQueue);
 
-        SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
         mImpl->createSwapChain();
 

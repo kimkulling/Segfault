@@ -44,7 +44,7 @@ namespace segfault::application {
         }
     }
 
-    bool App::init(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char *title, bool fullscreen) {
+    bool App::init(const char *appName, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char *title, bool fullscreen) {
         if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) == -1) {
             logMessage(LogType::Error, "Cannot init sdl.");
             return false;
@@ -61,7 +61,7 @@ namespace segfault::application {
 
 
         mRHI = new RHI;
-        mRHI->init(mSdlWindow);
+        mRHI->init(appName, mSdlWindow);
 
         return true;
 
