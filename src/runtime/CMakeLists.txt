@@ -15,9 +15,9 @@ SET(segfault_application_src
     application/app.cpp
 )
 
-SOURCE_GROUP( core        FILES ${segfault_core_src} )
-SOURCE_GROUP( application FILES ${segfault_application_src} )
-SOURCE_GROUP( renderer    FILES ${segfault_renderer_src} )
+SOURCE_GROUP(core        FILES ${segfault_core_src} )
+SOURCE_GROUP(application FILES ${segfault_application_src} )
+SOURCE_GROUP(renderer    FILES ${segfault_renderer_src} )
 
 ADD_LIBRARY(segfault_runtime SHARED
     ${segfault_core_src}

@@ -47,6 +47,7 @@ namespace segfault::renderer {
         std::vector<VkImage> swapChainImages{};
         VkFormat swapChainImageFormat{};
         VkExtent2D swapChainExtent{};
+        std::vector<VkImageView> swapChainImageViews{};
 
         SwapChainSupportDetails querySwapChainSupport();
         bool checkDeviceExtensionSupport();
@@ -64,6 +65,7 @@ namespace segfault::renderer {
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         void createSwapChain();
+        void createImageViews();
     };
     
     SwapChainSupportDetails RHIImpl::querySwapChainSupport() {
@@ -203,16 +205,22 @@ namespace segfault::renderer {
 
         int i = 0;
         for (const auto& queueFamily : queueFamilies) {
-            VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
-            if (presentSupport) {
-                indices.presentFamily = i;
-            }
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 indices.graphicsFamily = i;
             }
 
-            ++i;
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
+
+            if (presentSupport) {
+                indices.presentFamily = i;
+            }
+
+            if (indices.isComplete()) {
+                break;
+            }
+
+            i++;
         }
 
         return indices;
@@ -226,13 +234,21 @@ namespace segfault::renderer {
         queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
         queueCreateInfo.queueCount = 1;
 
-        float queuePriority = 1.0f;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
+        // priorities
+        float queuePrioritys[2] = { 1.f, 1.f };
+        
+        queueCreateInfo.pNext = nullptr;        
+        queueCreateInfo.pQueuePriorities = &queuePrioritys[0];
 
         VkPhysicalDeviceFeatures deviceFeatures{};
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        
+        createInfo.pNext = nullptr;
+        createInfo.pQueueCreateInfos = &queueCreateInfo;
 
+        createInfo.queueCreateInfoCount = 1;
+        createInfo.pEnabledFeatures = &deviceFeatures;
         createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
         if (enableValidationLayers) {
@@ -345,6 +361,33 @@ namespace segfault::renderer {
         swapChainExtent = extent;
     }
 
+    void RHIImpl::createImageViews() {
+        swapChainImageViews.resize(swapChainImages.size());
+        for (size_t i = 0; i < swapChainImages.size(); i++) {
+            VkImageViewCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            createInfo.image = swapChainImages[i];
+
+            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            createInfo.format = swapChainImageFormat;
+
+            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            createInfo.subresourceRange.baseMipLevel = 0;
+            createInfo.subresourceRange.levelCount = 1;
+            createInfo.subresourceRange.baseArrayLayer = 0;
+            createInfo.subresourceRange.layerCount = 1;
+
+            if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
+                return;
+            }
+        }
+    }
+
     RHI::RHI() : mImpl(nullptr) {
         // empty
     }
@@ -422,13 +465,17 @@ namespace segfault::renderer {
 
 
         mImpl->createSwapChain();
+        mImpl->createImageViews();
 
         return true;
     }
     
     bool RHI::shutdown() {
-        vkDestroySwapchainKHR(mImpl->device, mImpl->swapChain, nullptr);
+        for (auto imageView : mImpl->swapChainImageViews) {
+            vkDestroyImageView(mImpl->device, imageView, nullptr);
+        }
 
+        vkDestroySwapchainKHR(mImpl->device, mImpl->swapChain, nullptr);
         vkDestroyDevice(mImpl->device, nullptr);
         delete mImpl;
         mImpl = nullptr;
