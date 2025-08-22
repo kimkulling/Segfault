@@ -8,8 +8,42 @@
 #include <optional>
 #include <set>
 #include <algorithm>
+#include <fstream>
 
 namespace segfault::renderer {
+
+    const char VS[] =
+        "#version 450\n"
+        "\n"
+        "layout(location = 0) out vec3 fragColor;\n"
+        "\n"
+        "vec2 positions[3] = vec2[](\n"
+        "    vec2(0.0, -0.5),\n"
+        "    vec2(0.5, 0.5),\n"
+        "    vec2(-0.5, 0.5)\n"
+        "    );\n"
+        "\n"
+        "vec3 colors[3] = vec3[](\n"
+        "    vec3(1.0, 0.0, 0.0),\n"
+        "    vec3(0.0, 1.0, 0.0),\n"
+        "    vec3(0.0, 0.0, 1.0)\n"
+        "    );\n"
+        "\n"
+        "void main() {\n"
+        "   gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);\n"
+        "   fragColor = colors[gl_VertexIndex];\n"
+        "}\n";
+
+    const char FS[] =
+        "#version 450\n"
+        "\n"
+        "layout(location = 0) in vec3 fragColor;\n"
+        "\n"
+        "layout(location = 0) out vec4 outColor;\n"
+        "\n"
+        "void main() {\n"
+        "    outColor = vec4(fragColor, 1.0);\n"
+        "}\n";
 
     const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
@@ -66,8 +100,27 @@ namespace segfault::renderer {
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         void createSwapChain();
         void createImageViews();
+        void createGraphicsPipeline();
     };
     
+    static std::vector<char> readFile(const std::string& filename) {
+        std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+        if (!file.is_open()) {
+            throw std::runtime_error("failed to open file!");
+        }
+
+        size_t fileSize = (size_t)file.tellg();
+        std::vector<char> buffer(fileSize);
+
+        file.seekg(0);
+        file.read(buffer.data(), fileSize);
+
+        file.close();
+
+        return buffer;
+    }
+
     SwapChainSupportDetails RHIImpl::querySwapChainSupport() {
         SwapChainSupportDetails details;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
@@ -388,6 +441,10 @@ namespace segfault::renderer {
         }
     }
 
+    void RHIImpl::createGraphicsPipeline() {
+
+    }
+
     RHI::RHI() : mImpl(nullptr) {
         // empty
     }
@@ -466,6 +523,7 @@ namespace segfault::renderer {
 
         mImpl->createSwapChain();
         mImpl->createImageViews();
+        mImpl->createGraphicsPipeline();
 
         return true;
     }
