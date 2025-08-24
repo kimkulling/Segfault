@@ -53,6 +53,7 @@ namespace segfault::renderer {
         VkShaderModule fragShaderModule{};
         VkRenderPass renderPass{};
         VkPipelineLayout pipelineLayout{};
+        std::vector<VkFramebuffer> swapChainFramebuffers;
 
         SwapChainSupportDetails querySwapChainSupport();
         bool checkDeviceExtensionSupport();
@@ -74,6 +75,7 @@ namespace segfault::renderer {
         void createImageViews();
         void createRenderPass();
         void createGraphicsPipeline();
+        void createFramebuffers();
     };
     
     static std::vector<char> readFile(const std::string& filename) {
@@ -588,6 +590,10 @@ namespace segfault::renderer {
         }
     }
 
+    void RHIImpl::createFramebuffers() {
+
+    }
+
     RHI::RHI() : mImpl(nullptr) {
         // empty
     }
@@ -668,7 +674,7 @@ namespace segfault::renderer {
         mImpl->createImageViews();
         mImpl->createRenderPass();
         mImpl->createGraphicsPipeline();
-
+        mIMpl->createFramebuffers();
         return true;
     }
     
