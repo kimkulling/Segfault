@@ -35,7 +35,7 @@ namespace segfault::renderer {
         std::vector<VkPresentModeKHR> presentModes;
     };
 
-    struct RHIImpl {
+    struct RHIImpl final {
         SDL_Window *window = nullptr;
         bool enableValidationLayers = false;
         VkInstance instance{};
@@ -53,8 +53,11 @@ namespace segfault::renderer {
         VkShaderModule fragShaderModule{};
         VkRenderPass renderPass{};
         VkPipelineLayout pipelineLayout{};
-        std::vector<VkFramebuffer> swapChainFramebuffers;
+        std::vector<VkFramebuffer> swapChainFramebuffers{};
+        VkCommandPool commandPool{};
 
+        RHIImpl() = default;
+        ~RHIImpl() = default;
         SwapChainSupportDetails querySwapChainSupport();
         bool checkDeviceExtensionSupport();
         bool isDeviceSuitable();
@@ -76,6 +79,7 @@ namespace segfault::renderer {
         void createRenderPass();
         void createGraphicsPipeline();
         void createFramebuffers();
+        void createCommandPool(QueueFamilyIndices& indices);
     };
     
     static std::vector<char> readFile(const std::string& filename) {
@@ -591,7 +595,39 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createFramebuffers() {
+        swapChainFramebuffers.resize(swapChainImageViews.size());
 
+        for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+            VkImageView attachments[] = {
+                swapChainImageViews[i]
+            };
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = renderPass;
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments = attachments;
+            framebufferInfo.width = swapChainExtent.width;
+            framebufferInfo.height = swapChainExtent.height;
+            framebufferInfo.layers = 1;
+
+            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+                throw std::runtime_error("failed to create framebuffer!");
+            }
+        }
+    }
+
+    void RHIImpl::createCommandPool(QueueFamilyIndices& indices) {
+        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(indices);
+
+        VkCommandPoolCreateInfo poolInfo{};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create command pool!");
+        }
     }
 
     RHI::RHI() : mImpl(nullptr) {
@@ -674,11 +710,17 @@ namespace segfault::renderer {
         mImpl->createImageViews();
         mImpl->createRenderPass();
         mImpl->createGraphicsPipeline();
-        mIMpl->createFramebuffers();
+        mImpl->createFramebuffers();
+        mImpl->createCommandPool(mImpl->indices);
+
         return true;
     }
     
     bool RHI::shutdown() {
+        vkDestroyCommandPool(mImpl->device, mImpl->commandPool, nullptr);
+        for (auto framebuffer : mImpl->swapChainFramebuffers) {
+            vkDestroyFramebuffer(mImpl->device, framebuffer, nullptr);
+        }
         vkDestroyShaderModule(mImpl->device, mImpl->fragShaderModule, nullptr);
         vkDestroyShaderModule(mImpl->device, mImpl->vertShaderModule, nullptr);
         vkDestroyPipelineLayout(mImpl->device, mImpl->pipelineLayout, nullptr);
