@@ -79,6 +79,10 @@ namespace segfault::application {
             
         return running;
     }
+
+    void App::drawFrame() {
+
+    }
     
     void App::shutdown() {
         SDL_DestroyWindow(mSdlWindow);

@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     }
     
     while (myApp.run()) {
-
+        myApp.drawFrame();
     }
     myApp.shutdown();
 
