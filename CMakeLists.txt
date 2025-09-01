@@ -8,7 +8,7 @@ PROJECT(segfault
   DESCRIPTION ""
   HOMEPAGE_URL "")
 
-  # Cache these to allow the user to override them manually.
+# Cache these to allow the user to override them manually.
 set( LIB_INSTALL_DIR "lib"      CACHE PATH "Path the built library files are installed to." )
 set( BIN_INSTALL_DIR "bin"      CACHE PATH "Path the tool executables are installed to." )
 
@@ -34,6 +34,7 @@ include_directories( BEFORE
     src/runtime
 )
 
+add_subdirectory(src/contrib/cppcore)
 add_subdirectory(src/editor)
 add_subdirectory(src/runtime)
 add_subdirectory(src/tools)
