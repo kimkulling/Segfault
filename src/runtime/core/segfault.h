@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/config.h"
+
 #include <cstdint>
 
 #if defined(_WIN32) || defined(_WIN64)

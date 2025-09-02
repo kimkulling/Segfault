@@ -764,6 +764,7 @@ namespace segfault::renderer {
 
     void RHIImpl::drawFrame() {
         vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+        vkResetFences(device, 1, &inFlightFence);
 
         uint32_t imageIndex;
         vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
@@ -805,7 +806,7 @@ namespace segfault::renderer {
 
         vkQueuePresentKHR(presentQueue, &presentInfo);
 
-        vkResetFences(device, 1, &inFlightFence);
+        
     }
 
     RHI::RHI() : mImpl(nullptr) {
@@ -879,10 +880,9 @@ namespace segfault::renderer {
         
         SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
-         mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
+        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
 
         vkGetDeviceQueue(mImpl->device, mImpl->indices.graphicsFamily.value(), 0, &mImpl->graphicsQueue);
-
 
         mImpl->createSwapChain();
         mImpl->createImageViews();
@@ -923,20 +923,9 @@ namespace segfault::renderer {
         return true;
     }
     
-    void RHI::beginFrame() {
-        // Code to prepare for a new frame
-    }
     
     void RHI::drawFrame() {
-
-    }
-
-    void RHI::endFrame() {
-        // Code to finalize the frame
-    }
-    
-    void RHI::submitCommandBuffer() {
-        // Code to submit the command buffer for execution
+        mImpl->drawFrame();
     }
 
 } // namespace segfault::renderer

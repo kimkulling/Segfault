@@ -21,21 +21,49 @@ namespace segfault::application {
 
     void logMessage(LogType type, const char* msg) {
         switch (type) {
-            case LogType::Error:
-                std::cout << "*Err*  : " << msg << std::endl;
-                break;
-            case LogType::Warn:
-                std::cout << "*Warn* : " << msg << std::endl;
-                break;
-            case LogType::Info:
-                std::cout << "*Info* : " << msg << std::endl;
-                break;
+        case LogType::Error:
+            std::cout << "*Err*  : " << msg << std::endl;
+            break;
+        case LogType::Warn:
+            std::cout << "*Warn* : " << msg << std::endl;
+            break;
+        case LogType::Info:
+            std::cout << "*Info* : " << msg << std::endl;
+            break;
         }
         std::cout << msg << std::endl;
     }
 
-    App::App() : mState(ModuleState::Invalid), mSdlWindow(nullptr) {
+    namespace {
+        bool initSDL() {
+            if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) == -1) {
+                logMessage(LogType::Error, "Cannot init sdl.");
+                return false;
+            }
 
+            if (SDL_Vulkan_LoadLibrary(nullptr) == -1) {
+                logMessage(LogType::Error, "Cannot load sdl-vulkan libs.");
+                return false;
+            }
+
+            return true;
+        }
+
+        SDL_Window* initWindow(const char* title, uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen) {
+            SDL_Window* sdlWindow = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+            if (sdlWindow == nullptr) {
+                std::string msg = std::string("Cannot init sdl-window: ");
+                msg += SDL_GetError();
+                logMessage(LogType::Error, msg.c_str());
+                return nullptr;
+            }
+
+            return sdlWindow;
+        }
+    }
+
+    App::App() : mState(ModuleState::Invalid), mSdlWindow(nullptr) {
+        // empty
     }
 
     App::~App() {
@@ -45,20 +73,15 @@ namespace segfault::application {
     }
 
     bool App::init(const char *appName, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char *title, bool fullscreen) {
-        if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) == -1) {
-            logMessage(LogType::Error, "Cannot init sdl.");
-            return false;
-        }
-        SDL_Vulkan_LoadLibrary(nullptr);
-        mState = ModuleState::Init;
-        mSdlWindow = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
-        if (mSdlWindow == nullptr) {
-            std::string msg = std::string("Cannot init window: ");
-            msg += SDL_GetError();
-            logMessage(LogType::Error, msg.c_str());
+        if (!initSDL()) {
             return false;
         }
 
+        mState = ModuleState::Init;
+        mSdlWindow = initWindow(title, x, y, width, height, fullscreen);
+        if (mSdlWindow == nullptr) {
+            return false;
+        }
 
         mRHI = new RHI;
         mRHI->init(appName, mSdlWindow);
@@ -70,18 +93,19 @@ namespace segfault::application {
     bool App::run() {
         bool running = true;
         SDL_Event event;
-        SDL_PollEvent(&event);
-        switch (event.type) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
             case SDL_QUIT:
                 running = false;
                 break;
+            }
         }
             
         return running;
     }
 
     void App::drawFrame() {
-
+        mRHI->drawFrame();
     }
     
     void App::shutdown() {
