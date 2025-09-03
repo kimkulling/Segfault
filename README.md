@@ -1,15 +1,17 @@
 # Segfault
 ## Roadmap
 ### Done 
-### ToDo
 - Core Concepts
   - Define base architecture
   - Define CMake-Build
   - Windows Management
     - Windows creation
     - Base handling of events
+
+### ToDo
+- Core Concepts
   - Rendering
-    - Define rener thread
+    - Define render thread
       - Define render graph concept
       - Define vulkan renderer
   - Assets
@@ -18,4 +20,3 @@
     - Simple UI
 - Game 
   - Start -> October
-
