@@ -90,7 +90,7 @@ namespace segfault::application {
 
     }
 
-    bool App::run() {
+    bool App::mainloop() {
         bool running = true;
         SDL_Event event;
         while (SDL_PollEvent(&event)) {

@@ -14,7 +14,7 @@ namespace segfault::application {
         ~App();
 
         bool init(const char* appName, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char* title, bool fullscreen);
-        bool run();
+        bool mainloop();
         void shutdown();
         void drawFrame();
 

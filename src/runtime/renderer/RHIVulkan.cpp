@@ -323,6 +323,8 @@ namespace segfault::renderer {
         }
         vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
+        vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+
         return true;
     }
 
@@ -882,7 +884,6 @@ namespace segfault::renderer {
 
         mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
 
-        vkGetDeviceQueue(mImpl->device, mImpl->indices.graphicsFamily.value(), 0, &mImpl->graphicsQueue);
 
         mImpl->createSwapChain();
         mImpl->createImageViews();

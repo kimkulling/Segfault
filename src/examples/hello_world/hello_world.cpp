@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
-    while (myApp.run()) {
+    while (myApp.mainloop()) {
         myApp.drawFrame();
     }
     myApp.shutdown();
