@@ -66,6 +66,8 @@ namespace segfault::renderer {
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
         VkPipeline graphicsPipeline{};
+        std::vector<VkFence> inFlightFences{};
+        bool framebufferResized = false;
 
         RHIImpl() = default;
         ~RHIImpl() = default;
@@ -780,10 +782,19 @@ namespace segfault::renderer {
 
     void RHIImpl::drawFrame() {
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-        vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], 
+                VK_NULL_HANDLE, &imageIndex);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+            recreateSwapChain();
+            framebufferResized = false;
+            return;
+        } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            throw std::runtime_error("failed to acquire swap chain image!");
+        }
+
+        vkResetFences(device, 1, &inFlightFences[currentFrame]);
         vkResetCommandBuffer(commandBuffers[currentFrame], 0);
         recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
         
@@ -820,8 +831,13 @@ namespace segfault::renderer {
 
         presentInfo.pResults = nullptr; // Optional
 
-        vkQueuePresentKHR(presentQueue, &presentInfo);   
-
+        result = vkQueuePresentKHR(presentQueue, &presentInfo);   
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+            recreateSwapChain();
+        } else if (result != VK_SUCCESS) {
+            throw std::runtime_error("failed to present swap chain image!");
+        }
+        
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
@@ -846,7 +862,6 @@ namespace segfault::renderer {
         createImageViews();
         createFramebuffers();
     }
-
 
     RHI::RHI() : mImpl(nullptr) {
         // empty
@@ -944,18 +959,12 @@ namespace segfault::renderer {
         }
 
         vkDestroyCommandPool(mImpl->device, mImpl->commandPool, nullptr);
-        for (auto framebuffer : mImpl->swapChainFramebuffers) {
-            vkDestroyFramebuffer(mImpl->device, framebuffer, nullptr);
-        }
+
         vkDestroyShaderModule(mImpl->device, mImpl->fragShaderModule, nullptr);
         vkDestroyShaderModule(mImpl->device, mImpl->vertShaderModule, nullptr);
         vkDestroyPipelineLayout(mImpl->device, mImpl->pipelineLayout, nullptr);
         vkDestroyRenderPass(mImpl->device, mImpl->renderPass, nullptr);
         
-        for (auto imageView : mImpl->swapChainImageViews) {
-            vkDestroyImageView(mImpl->device, imageView, nullptr);
-        }
-
         vkDestroySwapchainKHR(mImpl->device, mImpl->swapChain, nullptr);
         vkDestroyDevice(mImpl->device, nullptr);
         delete mImpl;
@@ -964,7 +973,6 @@ namespace segfault::renderer {
 
         return true;
     }
-    
     
     void RHI::drawFrame() {
         mImpl->drawFrame();
