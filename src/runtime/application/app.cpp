@@ -100,6 +100,7 @@ namespace segfault::application {
                     break;
 
                 case SDL_WINDOWEVENT_RESIZED:
+                    onResize();
                     break;
             }
         }
@@ -109,6 +110,11 @@ namespace segfault::application {
 
     void App::drawFrame() {
         mRHI->drawFrame();
+    }
+
+    void App::onResize() {
+
+
     }
     
     void App::shutdown() {

@@ -15,6 +15,7 @@ namespace segfault::renderer {
         bool init(const char* appName, SDL_Window* window);
         bool shutdown();
         void drawFrame();
+        void resize();
 
     private:
         RHIImpl *mImpl;

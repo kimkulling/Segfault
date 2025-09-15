@@ -19,6 +19,9 @@ namespace segfault::application {
         void drawFrame();
 
     private:
+        void onResize();
+
+    private:
         core::ModuleState mState;
         renderer::RenderThread mRenderThread;
         SDL_Window *mSdlWindow = nullptr;
