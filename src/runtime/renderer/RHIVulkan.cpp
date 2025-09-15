@@ -832,7 +832,8 @@ namespace segfault::renderer {
         presentInfo.pResults = nullptr; // Optional
 
         result = vkQueuePresentKHR(presentQueue, &presentInfo);   
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+            framebufferResized = false;
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
             throw std::runtime_error("failed to present swap chain image!");
@@ -976,6 +977,10 @@ namespace segfault::renderer {
     
     void RHI::drawFrame() {
         mImpl->drawFrame();
+    }
+
+    void RHI::resize() {
+        mImpl->framebufferResized = true;
     }
 
 } // namespace segfault::renderer
