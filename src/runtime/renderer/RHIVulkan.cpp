@@ -39,8 +39,8 @@ namespace segfault::renderer {
     struct RHIImpl final {
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-        SDL_Window *window = nullptr;
-        bool enableValidationLayers = false;
+        SDL_Window *window{nullptr};
+        bool enableValidationLayers{false};
         VkInstance instance{};
         VkPhysicalDevice physicalDevice{};
         VkDevice device{};
@@ -66,7 +66,6 @@ namespace segfault::renderer {
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
         VkPipeline graphicsPipeline{};
-        std::vector<VkFence> inFlightFences{};
         bool framebufferResized = false;
 
         RHIImpl() = default;
