@@ -12,6 +12,10 @@
 #include <set>
 
 namespace segfault::renderer {
+    struct Vertex {
+        glm::vec2 pos;
+        glm::vec3 color;
+    };
 
     const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
@@ -66,7 +70,6 @@ namespace segfault::renderer {
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
         VkPipeline graphicsPipeline{};
-        std::vector<VkFence> inFlightFences{};
         bool framebufferResized = false;
 
         RHIImpl() = default;
