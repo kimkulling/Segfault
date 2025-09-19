@@ -26,8 +26,8 @@ namespace segfault::renderer {
     };
 
     struct QueueFamilyIndices {
-        std::optional<uint32_t> graphicsFamily;
-        std::optional<uint32_t> presentFamily;
+        std::optional<uint32_t> graphicsFamily{};
+        std::optional<uint32_t> presentFamily{};
 
         bool isComplete() {
             return graphicsFamily.has_value() && presentFamily.has_value();
@@ -35,16 +35,16 @@ namespace segfault::renderer {
     };
 
     struct SwapChainSupportDetails {
-        VkSurfaceCapabilitiesKHR capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentModes;
+        VkSurfaceCapabilitiesKHR capabilities{};
+        std::vector<VkSurfaceFormatKHR> formats{};
+        std::vector<VkPresentModeKHR> presentModes{};
     };
 
     struct RHIImpl final {
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-        SDL_Window *window = nullptr;
-        bool enableValidationLayers = false;
+        SDL_Window *window{nullptr};
+        bool enableValidationLayers{false};
         VkInstance instance{};
         VkPhysicalDevice physicalDevice{};
         VkDevice device{};
@@ -65,12 +65,11 @@ namespace segfault::renderer {
         VkCommandPool commandPool{};
         std::vector<VkCommandBuffer> commandBuffers{};
         uint32_t currentFrame = 0;
-
-        std::vector<VkSemaphore> imageAvailableSemaphores;
-        std::vector<VkSemaphore> renderFinishedSemaphores;
-        std::vector<VkFence> inFlightFences;
+        std::vector<VkSemaphore> imageAvailableSemaphores{};
+        std::vector<VkSemaphore> renderFinishedSemaphores{};
+        std::vector<VkFence> inFlightFences{};
         VkPipeline graphicsPipeline{};
-        bool framebufferResized = false;
+        bool framebufferResized{false};
 
         RHIImpl() = default;
         ~RHIImpl() = default;

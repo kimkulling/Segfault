@@ -7,5 +7,4 @@ target_link_libraries(segfault_editor
         segfault_runtime
         SDL2::SDL2
         glm::glm
-        GLEW::GLEW
 )

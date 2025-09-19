@@ -27,7 +27,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL2  CONFIG  REQUIRED)
 find_package(glm           REQUIRED)
-find_package(GLEW          REQUIRED)
 find_package(volk  CONFIG REQUIRED)
 
 include_directories( BEFORE
