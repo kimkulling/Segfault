@@ -25,12 +25,14 @@ set(PROJECT_VERSION "${SEGFAULT_VERSION}" )
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(SDL2  CONFIG  REQUIRED)
-find_package(glm           REQUIRED)
-find_package(volk  CONFIG REQUIRED)
+find_package(SDL2          CONFIG REQUIRED)
+find_package(glm                  REQUIRED)
+find_package(volk          CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 include_directories( BEFORE
     src/runtime
+    src/contrib/cppcore/include
 )
 
 add_subdirectory(src/contrib/cppcore)

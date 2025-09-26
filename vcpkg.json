@@ -9,6 +9,7 @@
         "vulkan"
       ]
     },
-    "volk"
+    "volk",
+    "nlohmann-json"
   ]
 }
