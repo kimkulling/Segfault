@@ -11,28 +11,6 @@ namespace segfault::application {
     using namespace segfault::core;
     using namespace segfault::renderer;
     
-    enum class LogType {
-        Invalid = -1,
-        Error,
-        Warn,
-        Info,
-        Count
-    };
-
-    void logMessage(LogType type, const char* msg) {
-        switch (type) {
-        case LogType::Error:
-            std::cout << "*Err*  : " << msg << std::endl;
-            break;
-        case LogType::Warn:
-            std::cout << "*Warn* : " << msg << std::endl;
-            break;
-        case LogType::Info:
-            std::cout << "*Info* : " << msg << std::endl;
-            break;
-        }
-        std::cout << msg << std::endl;
-    }
 
     namespace {
         bool initSDL() {

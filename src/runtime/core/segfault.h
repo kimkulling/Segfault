@@ -3,6 +3,8 @@
 #include "core/config.h"
 
 #include <cstdint>
+#include <iostream>
+#include <string>
 
 #if defined(_WIN32) || defined(_WIN64)
 #    define SEGFAULT_WINDOWS
@@ -43,5 +45,28 @@ namespace segfault::core {
         Shutdown,
         Count
     };
+
+    enum class LogType {
+        Invalid = -1,
+        Error,
+        Warn,
+        Info,
+        Count
+    };
+
+    inline void logMessage(LogType type, const char* msg) {
+        switch (type) {
+        case LogType::Error:
+            std::cout << "*Err*  : " << msg << std::endl;
+            break;
+        case LogType::Warn:
+            std::cout << "*Warn* : " << msg << std::endl;
+            break;
+        case LogType::Info:
+            std::cout << "*Info* : " << msg << std::endl;
+            break;
+        }
+        std::cout << msg << std::endl;
+    }
 
 } // namespace segfault::core

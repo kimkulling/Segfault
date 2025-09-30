@@ -10,7 +10,6 @@
 #include <set>
 #include <algorithm>
 #include <fstream>
-#include <set>
 #include <array>
 
 namespace segfault::renderer {
@@ -146,6 +145,7 @@ namespace segfault::renderer {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
         if (!file.is_open()) {
+            core::logMessage(core::LogType::Error, "failed to open file!");
             throw std::runtime_error("failed to open file!");
         }
 
@@ -495,6 +495,7 @@ namespace segfault::renderer {
             createInfo.subresourceRange.layerCount = 1;
 
             if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
+                core::logMessage(core::LogType::Error, "failed to create image view");
                 return;
             }
         }
@@ -508,6 +509,7 @@ namespace segfault::renderer {
 
         VkShaderModule shaderModule;
         if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create shader mocule!");
             return VK_NULL_HANDLE;
         }
 
@@ -593,11 +595,6 @@ namespace segfault::renderer {
         vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
         vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-        //vertexInputInfo.vertexBindingDescriptionCount = 0;
-        //vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-        //vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        //vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
-
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -679,6 +676,7 @@ namespace segfault::renderer {
         pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
         if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create pipeline layout!");
             return;
         }
 
@@ -705,6 +703,7 @@ namespace segfault::renderer {
         pipelineInfo.basePipelineIndex = -1; // Optional
 
         if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create graphocs pipeline!");
             throw std::runtime_error("failed to create graphics pipeline!");
         }
     }
@@ -727,6 +726,7 @@ namespace segfault::renderer {
             framebufferInfo.layers = 1;
 
             if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+                core::logMessage(core::LogType::Error, "failed to create freamebuffer!");
                 throw std::runtime_error("failed to create framebuffer!");
             }
         }
@@ -741,6 +741,7 @@ namespace segfault::renderer {
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create command pool mocule!");
             throw std::runtime_error("failed to create command pool!");
         }
     }
@@ -754,6 +755,7 @@ namespace segfault::renderer {
         allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
         if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to allocate command buffers!");
             throw std::runtime_error("failed to allocate command buffers!");
         }
     }
@@ -765,6 +767,7 @@ namespace segfault::renderer {
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to begin recording command buffer!");
             throw std::runtime_error("failed to begin recording command buffer!");
         }
 
@@ -807,6 +810,7 @@ namespace segfault::renderer {
         vkCmdEndRenderPass(commandBuffer);
 
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to recording command buffer!");
             throw std::runtime_error("failed to record command buffer!");
         }
     }
@@ -828,7 +832,8 @@ namespace segfault::renderer {
             if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
                     vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
                     vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-               throw std::runtime_error("failed to create synchronization objects for a frame!"); 
+                core::logMessage(core::LogType::Error, "failed to create synchronization objects for a frame!");
+                throw std::runtime_error("failed to create synchronization objects for a frame!");
             }
         }
     }
@@ -844,6 +849,7 @@ namespace segfault::renderer {
             framebufferResized = false;
             return;
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            core::logMessage(core::LogType::Error, "failed to acquire swap chain image!");
             throw std::runtime_error("failed to acquire swap chain image!");
         }
 
@@ -868,6 +874,7 @@ namespace segfault::renderer {
         submitInfo.pSignalSemaphores = signalSemaphores;
 
         if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to submit draw command buffer!");
             throw std::runtime_error("failed to submit draw command buffer!");
         }
 
@@ -889,6 +896,7 @@ namespace segfault::renderer {
             framebufferResized = false;
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to present swap chain image!");
             throw std::runtime_error("failed to present swap chain image!");
         }
         
@@ -920,11 +928,6 @@ namespace segfault::renderer {
     uint32_t RHIImpl::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
         VkPhysicalDeviceMemoryProperties memProperties;
         vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-        /*for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-            if (typeFilter & (1 << i)) {
-                return i;
-            }
-        }*/
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
             if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -943,6 +946,7 @@ namespace segfault::renderer {
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create vertex buffer!");
             throw std::runtime_error("failed to create vertex buffer!");
         }
 
@@ -955,6 +959,7 @@ namespace segfault::renderer {
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
         if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to allocate vertex buffer memory!");
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
         vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
