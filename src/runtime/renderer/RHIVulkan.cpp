@@ -84,7 +84,7 @@ namespace segfault::renderer {
         VkDevice device{};
         VkQueue graphicsQueue{};
         VkQueue presentQueue{};
-        QueueFamilyIndices indices{};
+        QueueFamilyIndices queueFamilyIndices{};
         VkSurfaceKHR surface{};
         VkSwapchainKHR swapChain{};
         std::vector<VkImage> swapChainImages{};
@@ -209,7 +209,7 @@ namespace segfault::renderer {
     }
 
     bool RHIImpl::isDeviceSuitable() {
-        indices = findQueueFamilies(indices);
+        queueFamilyIndices = findQueueFamilies(queueFamilyIndices);
 
         bool extensionsSupported = checkDeviceExtensionSupport();
 
@@ -219,7 +219,7 @@ namespace segfault::renderer {
             swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
         }
 
-        return indices.isComplete() && extensionsSupported && swapChainAdequate;
+        return queueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate;
     }
 
     bool RHIImpl::checkDeviceExtensionSupport(VkPhysicalDevice device) {
@@ -288,7 +288,7 @@ namespace segfault::renderer {
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    QueueFamilyIndices RHIImpl::findQueueFamilies(QueueFamilyIndices &indices) {
+    QueueFamilyIndices RHIImpl::findQueueFamilies(QueueFamilyIndices &qfIndices) {
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
@@ -298,31 +298,31 @@ namespace segfault::renderer {
         int i = 0;
         for (const auto& queueFamily : queueFamilies) {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-                indices.graphicsFamily = i;
+                qfIndices.graphicsFamily = i;
             }
 
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
 
             if (presentSupport) {
-                indices.presentFamily = i;
+                qfIndices.presentFamily = i;
             }
 
-            if (indices.isComplete()) {
+            if (qfIndices.isComplete()) {
                 break;
             }
 
             i++;
         }
 
-        return indices;
+        return qfIndices;
     }
 
-    bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& indices) {
-        indices = findQueueFamilies(indices);
+    bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& qfIndices) {
+        qfIndices = findQueueFamilies(qfIndices);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+        std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value() };
 
         float queuePriority = 1.0f;
         for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -336,7 +336,7 @@ namespace segfault::renderer {
 
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+        queueCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         queueCreateInfo.queueCount = 1;
 
         // priorities
@@ -344,7 +344,6 @@ namespace segfault::renderer {
         
         queueCreateInfo.pNext = nullptr;        
         queueCreateInfo.pQueuePriorities = &queuePrioritys[0];
-
 
         VkPhysicalDeviceFeatures deviceFeatures{};
         VkDeviceCreateInfo createInfo{};
@@ -370,9 +369,9 @@ namespace segfault::renderer {
         if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
             return false;
         }
-        vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
-
-        vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+        
+        vkGetDeviceQueue(device, qfIndices.presentFamily.value(), 0, &presentQueue);
+        vkGetDeviceQueue(device, qfIndices.graphicsFamily.value(), 0, &graphicsQueue);
 
         return true;
     }
@@ -1041,7 +1040,7 @@ namespace segfault::renderer {
         
         SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
-        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->indices);
+        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->queueFamilyIndices);
 
 
         mImpl->createSwapChain();
@@ -1049,7 +1048,7 @@ namespace segfault::renderer {
         mImpl->createRenderPass();
         mImpl->createGraphicsPipeline();
         mImpl->createFramebuffers();
-        mImpl->createCommandPool(mImpl->indices);
+        mImpl->createCommandPool(mImpl->queueFamilyIndices);
         mImpl->createCommandBuffer();
         mImpl->createSyncObjects();
         mImpl->createVertexBuffer();
