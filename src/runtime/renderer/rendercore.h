@@ -6,10 +6,6 @@ namespace segfault::renderer {
 
     class RHI;
 
-    struct RenderPipelineState {
-
-    };
-
     struct RenderBuffer {
         core::guid id = 0;
         uint32_t size = 0;

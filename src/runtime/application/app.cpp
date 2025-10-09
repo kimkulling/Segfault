@@ -5,14 +5,24 @@
 #include <volk.h>
 
 #include <iostream>
-
+#include <sstream>
 namespace segfault::application {
     
     using namespace segfault::core;
     using namespace segfault::renderer;
     
-
     namespace {
+        std::string getSDLVersionString() {
+            SDL_version compiled;
+            SDL_VERSION(&compiled); // Makro: setzt die Kompilierzeit-Version
+
+            std::ostringstream oss;
+            oss << static_cast<int>(compiled.major) << "."
+                << static_cast<int>(compiled.minor) << "."
+                << static_cast<int>(compiled.patch);
+            return oss.str();
+        }
+
         bool initSDL() {
             if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) == -1) {
                 logMessage(LogType::Error, "Cannot init sdl.");
@@ -24,6 +34,10 @@ namespace segfault::application {
                 return false;
             }
 
+            logMessage(LogType::Info, "SDL initiated.");
+            const auto v = std::string("SDL Version:\t") + getSDLVersionString();
+            logMessage(LogType::Info, v.c_str());
+            
             return true;
         }
 
@@ -51,6 +65,7 @@ namespace segfault::application {
     }
 
     bool App::init(const char *appName, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char *title, bool fullscreen) {
+        logMessage(LogType::Info, "Segfault v0.01");
         if (!initSDL()) {
             return false;
         }
@@ -69,7 +84,7 @@ namespace segfault::application {
     }
 
     bool App::mainloop() {
-        bool running = true;
+        bool running{ true };
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -91,11 +106,13 @@ namespace segfault::application {
     }
 
     void App::onResize() {
-
-
+        mRHI->resize();
     }
     
     void App::shutdown() {
+        if (mSdlWindow == nullptr) {
+
+        }
         SDL_DestroyWindow(mSdlWindow);
         mSdlWindow = nullptr;
         mState = ModuleState::Shutdown;
