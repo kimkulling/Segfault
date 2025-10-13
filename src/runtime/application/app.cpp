@@ -12,9 +12,16 @@ namespace segfault::application {
     using namespace segfault::renderer;
     
     namespace {
+        std::string getStartLog() {
+            std::string entry = "===========================================================================\n";
+            entry.append(" SegFault version 0.0.l\n");
+            entry.append("===========================================================================");
+            return entry;
+        }
+
         std::string getSDLVersionString() {
-            SDL_version compiled;
-            SDL_VERSION(&compiled); // Makro: setzt die Kompilierzeit-Version
+            SDL_version compiled{};
+            SDL_VERSION(&compiled);
 
             std::ostringstream oss;
             oss << static_cast<int>(compiled.major) << "."
@@ -34,8 +41,7 @@ namespace segfault::application {
                 return false;
             }
 
-            logMessage(LogType::Info, "SDL initiated.");
-            const auto v = std::string("SDL Version:\t") + getSDLVersionString();
+            const auto v = std::string("SDL version:") + getSDLVersionString() + std::string(" initiated.");            
             logMessage(LogType::Info, v.c_str());
             
             return true;
@@ -65,7 +71,7 @@ namespace segfault::application {
     }
 
     bool App::init(const char *appName, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char *title, bool fullscreen) {
-        logMessage(LogType::Info, "Segfault v0.01");
+        logMessage(LogType::Print, getStartLog().c_str());
         if (!initSDL()) {
             return false;
         }
