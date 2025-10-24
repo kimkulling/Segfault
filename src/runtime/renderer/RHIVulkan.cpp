@@ -46,9 +46,14 @@ namespace segfault::renderer {
     };
 
     const std::vector<Vertex> vertices = {
-        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    };
+
+    const std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0
     };
 
     const std::vector<const char*> validationLayers = {
@@ -106,6 +111,8 @@ namespace segfault::renderer {
         bool framebufferResized{false};
         VkBuffer vertexBuffer{};
         VkDeviceMemory vertexBufferMemory{};
+        VkBuffer indexBuffer{};
+        VkDeviceMemory indexBufferMemory{};
 
         RHIImpl() = default;
         ~RHIImpl() = default;
@@ -141,6 +148,7 @@ namespace segfault::renderer {
         void recreateSwapChain();
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         void createVertexBuffer();
+        void createIndexBuffer();
     };
     
     static std::vector<char> readFile(const std::string& filename) {
@@ -866,8 +874,10 @@ namespace segfault::renderer {
         VkBuffer vertexBuffers[] = { vertexBuffer };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        //vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -1012,10 +1022,29 @@ namespace segfault::renderer {
         memcpy(data, vertices.data(), (size_t)bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
-
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
         copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+        vkDestroyBuffer(device, stagingBuffer, nullptr);
+        vkFreeMemory(device, stagingBufferMemory, nullptr);
+    }
+
+    void RHIImpl::createIndexBuffer() {
+        VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+        void* data;
+        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        memcpy(data, indices.data(), (size_t)bufferSize);
+        vkUnmapMemory(device, stagingBufferMemory);
+
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+
+        copyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
         vkDestroyBuffer(device, stagingBuffer, nullptr);
         vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -1104,6 +1133,7 @@ namespace segfault::renderer {
         mImpl->createCommandBuffer();
         mImpl->createSyncObjects();
         mImpl->createVertexBuffer();
+        mImpl->createIndexBuffer();
 
         return true;
     }
@@ -1112,6 +1142,9 @@ namespace segfault::renderer {
         mImpl->cleanupSwapChain();
         vkDestroyBuffer(mImpl->device, mImpl->vertexBuffer, nullptr);
         vkFreeMemory(mImpl->device, mImpl->vertexBufferMemory, nullptr);
+
+        vkDestroyBuffer(mImpl->device, mImpl->indexBuffer, nullptr);
+        vkFreeMemory(mImpl->device, mImpl->indexBufferMemory, nullptr);
 
         for (size_t i = 0; i < RHIImpl::MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(mImpl->device, mImpl->renderFinishedSemaphores[i], nullptr);
