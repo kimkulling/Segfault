@@ -182,7 +182,7 @@ namespace segfault::renderer {
             vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
         }
 
-        uint32_t presentModeCount;
+        uint32_t presentModeCount{};
         vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
         if (presentModeCount != 0) {
@@ -194,7 +194,7 @@ namespace segfault::renderer {
     }
     
     bool RHIImpl::checkDeviceExtensionSupport() {
-        uint32_t extensionCount;
+        uint32_t extensionCount{};
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
 
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
@@ -262,10 +262,10 @@ namespace segfault::renderer {
     }
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData) {
+            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT messageType,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+            void* pUserData) {
 
         std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
@@ -431,7 +431,7 @@ namespace segfault::renderer {
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
-       uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 
         if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
             imageCount = swapChainSupport.capabilities.maxImageCount;

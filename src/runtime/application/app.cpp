@@ -41,7 +41,7 @@ namespace segfault::application {
                 return false;
             }
 
-            const auto v = std::string("SDL version:") + getSDLVersionString() + std::string(" initiated.");            
+            const auto v = std::string("SDL version ") + getSDLVersionString() + std::string(" initiated.");            
             logMessage(LogType::Info, v.c_str());
             
             return true;
