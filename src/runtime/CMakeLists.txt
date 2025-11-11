@@ -1,5 +1,9 @@
 SET(segfault_core_src
     core/segfault.h
+    core/filearchive.h
+    core/ifilemanager.h
+    core/genericfilemanager.h
+    core/genericfilemanager.cpp
 )
 
 SET(segfault_renderer_src
