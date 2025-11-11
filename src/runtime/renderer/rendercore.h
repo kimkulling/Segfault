@@ -2,6 +2,8 @@
 
 #include "core/segfault.h"
 
+#include <glm/glm.hpp>
+
 namespace segfault::renderer {
 
     class RHI;
@@ -11,6 +13,12 @@ namespace segfault::renderer {
         uint32_t size = 0;
         uint32_t stride = 0;
         uint32_t offset = 0;
+    };
+
+    struct UniformBufferObject {
+        glm::mat4 model;
+        glm::mat4 view;
+        glm::mat4 proj;
     };
 
     struct DrawCommand {
