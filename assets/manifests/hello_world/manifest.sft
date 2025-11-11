@@ -1,0 +1,11 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "project" : "hello_world",
+    "assets {
+        "Shader {
+            "name" : "default",
+            "vs" : "default.vs",
+            "fs" : "default.fs"
+        }
+    }
+}

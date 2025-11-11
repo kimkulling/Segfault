@@ -1,10 +1,16 @@
 #include "core/segfault.h"
+#include "core/filearchive.h"
+#include "core/genericfilemanager.h"
 #include <cppcore/Common/TStringBase.h>
 
+#include <nlohmann/json.hpp>
 #include <iostream>
 #include <string>
 
 static const cppcore::TStringBase<char> ManifestName("Manifest", 8);
+
+using json = nlohmann::json;
+using namespace segfault::core;
 
 struct MemoryStatistics {
     size_t inputSize{ 0l };
@@ -25,7 +31,9 @@ static void showHelp() {
 
 bool readManifest(const std::string& input, MemoryStatistics& stats) {
     std::cout << "Try to read input manifest " << input << std::endl;
-    return true;
+    GenericFileManager fileManager;
+    auto file = fileManager.createFileReader(input.c_str());
+    return true;    
 }
 
 bool writeAssetArchive(const std::string& output, MemoryStatistics& stats) {
