@@ -15,8 +15,8 @@ cmake CMakeLists.txt --preset=default
 Compile the shader 
 ```
 cd assets/shaders
-glsl default.vert -o vert.spv
-glsl default.frag -o frag.spv
+glslc default.vert -o vert.spv
+glslc default.frag -o frag.spv
 mkdir ../../bin/debug/shaders
 cp *spv ../../bin/debug/shaders
 ```

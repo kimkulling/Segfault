@@ -11,6 +11,7 @@ public:
     FileArchive *createFileReader(const char *name) final;
     FileArchive *createFileWriter(const char *name) final;
     void close(FileArchive *archive) final;
+    bool exist(const char* name) final;
     bool getArchiveStat(const char *name, FileStat &stat) final;
 };
 

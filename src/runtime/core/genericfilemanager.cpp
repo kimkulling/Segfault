@@ -44,6 +44,14 @@ void GenericFileManager::close(FileArchive *archive) {
     delete archive;
 }
 
+bool GenericFileManager::exist(const char* name) {
+        if (name == nullptr) {
+        return false;
+    }
+    struct stat buffer{};
+    return (stat(name, &buffer) == 0);
+}
+
 bool GenericFileManager::getArchiveStat(const char *name, FileStat &stat) {
     if (name == nullptr) {
         return false;

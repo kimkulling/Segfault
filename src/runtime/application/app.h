@@ -8,11 +8,14 @@ struct SDL_Window;
 
 namespace segfault::application {
 
-    class SEGFAULT_EXPORT App {
+    class SEGFAULT_EXPORT App final {
     public:
+        // No copying
+        App(const App &rhs) = delete;
+        App& operator = (const App& rhs) = delete;
+
         App();
         ~App();
-
         bool init(const char* appName, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char* title, bool fullscreen);
         bool mainloop();
         void shutdown();

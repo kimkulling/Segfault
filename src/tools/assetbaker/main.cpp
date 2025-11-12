@@ -31,8 +31,8 @@ static void showHelp() {
 
 bool readManifest(const std::string& input, MemoryStatistics& stats) {
     std::cout << "Try to read input manifest " << input << std::endl;
-    GenericFileManager fileManager;
-    auto file = fileManager.createFileReader(input.c_str());
+    GenericFileManager fm;
+    auto file = fm.createFileReader(input.c_str());
     return true;    
 }
 
