@@ -4,7 +4,7 @@
 
 namespace segfault::core {
 
-class GenericFileManager final : public IFileManager {
+class SEGFAULT_EXPORT GenericFileManager final : public IFileManager {
 public:
     GenericFileManager() = default;
     ~GenericFileManager() final = default;

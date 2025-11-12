@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/segfault.h"
+
 #include <memory.h>
 
 namespace segfault::core {
@@ -10,7 +12,7 @@ struct FileStat {
     size_t filesize{};
 };
 
-class IFileManager {
+class SEGFAULT_EXPORT IFileManager {
 public:
     virtual ~IFileManager() = default;
     virtual FileArchive *createFileReader(const char *name) = 0;
