@@ -362,7 +362,7 @@ namespace segfault::renderer {
             queueCreateInfo.queueFamilyIndex = queueFamily;
             queueCreateInfo.queueCount = 1;
             queueCreateInfo.pQueuePriorities = &queuePriority;
-            queueCreateInfos.push_back(queueCreateInfo);
+            queueCreateInfos.add(queueCreateInfo);
         }
 
         VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -1248,7 +1248,6 @@ namespace segfault::renderer {
         SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
         mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->queueFamilyIndices);
-
 
         mImpl->createSwapChain();
         mImpl->createImageViews();
