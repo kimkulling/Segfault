@@ -28,6 +28,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(SDL2          CONFIG REQUIRED)
 find_package(glm                  REQUIRED)
 find_package(volk          CONFIG REQUIRED)
+find_package(Vulkan               REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 include_directories( BEFORE
