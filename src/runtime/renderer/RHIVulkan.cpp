@@ -331,7 +331,7 @@ namespace segfault::renderer {
     bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& qfIndices) {
         qfIndices = findQueueFamilies(qfIndices);
 
-        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        cppcore::TArray<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value() };
 
         float queuePriority = 1.0f;
@@ -341,7 +341,7 @@ namespace segfault::renderer {
             queueCreateInfo.queueFamilyIndex = queueFamily;
             queueCreateInfo.queueCount = 1;
             queueCreateInfo.pQueuePriorities = &queuePriority;
-            queueCreateInfos.push_back(queueCreateInfo);
+            queueCreateInfos.add(queueCreateInfo);
         }
 
         VkDeviceQueueCreateInfo queueCreateInfo{};

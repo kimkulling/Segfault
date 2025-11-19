@@ -2,6 +2,8 @@
 
 #include "core/config.h"
 
+#include <cppcore/Container/TArray.h>
+
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -71,5 +73,7 @@ namespace segfault::core {
                 break;
         }
     }
+
+    using StringArray = cppcore::TArray<std::string>;
 
 } // namespace segfault::core

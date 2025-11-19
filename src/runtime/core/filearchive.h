@@ -14,7 +14,6 @@ public:
     virtual size_t write(const uint8_t *buffer, size_t size);
     virtual FILE *getStream() const;
 
-
 private:
     FILE *mStream;
     bool mCanRead{false};
