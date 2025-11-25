@@ -22,7 +22,7 @@ namespace segfault::renderer {
     };
 
     struct DrawCommand {
-        RenderPipelineState rpState;
+        //RenderPipelineState rpState;
 
         uint32_t numVertices = 0;
         uint32_t numInstances = 0;
