@@ -54,25 +54,32 @@ ArgumentParser::ArgumentParser(int32_t argc, const char *ppArgv[], const std::st
         return;
     }
 
+    const uint32_t argcU = static_cast<uint32_t>(argc);
     if (argc > 1) {
-        while (mCurrentIndex < static_cast<uint32_t>(argc)) {
+        while (mCurrentIndex < argcU) {
             std::string argument(ppArgv[mCurrentIndex]);
             const std::string::size_type pos = argument.find(option);
             if (std::string::npos != pos) {
                 argument = argument.substr(pos + optionLen, argument.size() - (pos + optionLen));
                 if (isSupported(argument)) {
                     if (const uint32_t numValues = getNumValues(argument)) {
-                        // Check the number of expected values for being a new option
-                        for (uint32_t valIdx = mCurrentIndex + 1; valIdx < mCurrentIndex + numValues + 1; valIdx++) {
-                            std::string tmpVal(ppArgv[valIdx]);
-                            std::string::size_type pos1 = tmpVal.find(option);
-                            if (pos1 != std::string::npos) {
-                                setInvalid();
-                                break;
+                        // Ensure there are enough values and none of them is a new option
+                        if (mCurrentIndex + numValues >= argcU) {
+                            setInvalid();
+                        } else {
+                            for (uint32_t valIdx = mCurrentIndex + 1;
+                                 valIdx <= mCurrentIndex + numValues;
+                                 ++valIdx) {
+                                std::string tmpVal(ppArgv[valIdx]);
+                                const std::string::size_type pos1 = tmpVal.find(option);
+                                if (pos1 != std::string::npos) {
+                                    setInvalid();
+                                    break;
+                                }
                             }
                         }
                     }
-
+                        
                     // Store the data if its valid
                     if (mIsValid) {
                         if ((mCurrentIndex + 1) < static_cast<uint32_t>(argc)) {
