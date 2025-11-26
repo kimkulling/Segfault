@@ -31,7 +31,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace segfault::core {
 
 //--------------------------------------------------------------------------------------------------------------------
-///	@ingroup    Engine
+///	@ingroup    Runtime
 ///
 ///	@brief	Helper class to handle incoming arguments.
 ///
@@ -100,22 +100,22 @@ public:
     ///	@brief	Returns true, if argument is supported.
     ///	@param	arg         [in] Argument to check for support.
     ///	@return	true, if argument is supported.
-    bool isSupported( const std::string &arg ) const;
+    bool isSupported(const std::string &arg) const;
 
     ///	@brief	Returns the number of expected values from a given argument.
     ///	@param	argument	[in] The argument in the following form arg<numParam>.
     ///	@return	The number of expected parameters.
-    uint32_t getNumValues( const std::string &argument ) const;
+    uint32_t getNumValues(const std::string &argument) const;
 
     ///	@brief	Returns argument content.
     ///	@param	arg     	[in] Requested argument.
     ///	@return	Content of argument.
-    const std::string &getArgument( const std::string &arg ) const;
+    const std::string &getArgument(const std::string &arg) const;
 
     ///	@brief	Returns true, if requested argument is part of the managed argument list.
     ///	@param	arg     	[in] Argument name.
     ///	@return	True, if argument was detected in managed argument list. False if not.
-    bool hasArgument( const std::string &arg ) const;
+    bool hasArgument(const std::string &arg) const;
 
     ///	@brief	Will validate the detected arguments from the command line.
     ///	@return	true, if the arguments are all valid, false if not.
@@ -146,14 +146,14 @@ protected:
 
 private:
     cppcore::TArray<Argument> mSupportedArguments;	// List with supported arguments
-    StringArray mDetectedArgs; // List with detected arguments
-    StringArray mStoredArguments; // List with store arguments
-    uint32_t mCurrentIndex;					            // The current index for iteration
-    std::string mLastError;                              // The last errors
+    StringArray mDetectedArgs;                      // List with detected arguments
+    StringArray mStoredArguments;                   // List with store arguments
+    uint32_t mCurrentIndex;					        // The current index for iteration
+    std::string mLastError;                         // The last errors
     bool mIsValid;							        // The valid flag
 };
 
-inline void ArgumentParser::addError( const std::string &error ) {
+inline void ArgumentParser::addError(const std::string &error) {
     mLastError += error;
 }
 
@@ -162,7 +162,7 @@ inline const std::string &ArgumentParser::getLastErrors() const {
 }
 
 inline bool ArgumentParser::hasSupportedArguments() const {
-    return ( !mSupportedArguments.isEmpty() );
+    return (!mSupportedArguments.isEmpty());
 }
 
 inline void ArgumentParser::reset() {

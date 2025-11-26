@@ -10,7 +10,9 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #    define SEGFAULT_WINDOWS
-#    define _CRT_SECURE_NO_WARNINGS
+#    ifndef _CRT_SECURE_NO_WARNINGS
+#        define _CRT_SECURE_NO_WARNINGS
+#    endif
 #    ifndef WIN32_LEAN_AND_MEAN
 #        define WIN32_LEAN_AND_MEAN // Minimal windows header
 #    endif // WIN32_LEAN_AND_MEAN
