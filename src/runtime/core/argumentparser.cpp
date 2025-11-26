@@ -23,11 +23,6 @@ static bool parseExpectedArgs(const std::string &userDefinedArgs, const std::str
         TArray<ArgumentParser::Argument> &supportedArgs, std::string &error) {
     error.clear();
     StringArray extractedArgs, extractedDescs;
-    if (extractedDescs.size() != extractedArgs.size()) {
-        error += "Missing description for arguments";
-        return false;
-    }
-
     Tokenizer::tokenize(userDefinedArgs, extractedArgs, ":");
     Tokenizer::tokenize(desc, extractedDescs, ":");
     uint32_t numParam(0);
