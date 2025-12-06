@@ -1,0 +1,52 @@
+import subprocess
+import argparse
+import shutil
+
+from pathlib import Path
+from os import listdir
+from os.path import isfile, join
+
+def compile_shader(shadername, shader_out):
+    if len(shadername) == 0:
+        return 
+
+    cmd = []
+    cmd.append("glslc")
+    cmd.append(shadername)
+    cmd.append("-o")
+    cmd.append(shader_out)
+    print(str(cmd))
+    process_handle = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    output, error = process_handle.communicate()
+    if error is None:
+        print("Shader " + shadername + " compiled.")
+    else:
+        print("Error {error} while compilation.", error)
+
+def copy_shader(source, dest):
+    print("source " + source)
+    shutil.copy(source, dest)
+
+shader_names = ["default.vert", "default.frag"]
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--shader', type=str, default='./', help='The folder containing the shaders')
+    
+    args = parser.parse_args()
+    print("shader folder: " + str(args.shader))
+    shader_files = [f for f in listdir(args.shader) if isfile(join(args.shader, f))]
+    print("shader files = " + str(shader_files))
+    for shader in shader_files:
+        if shader in shader_names:
+            path = Path(shader)
+            shader_out = path.suffix[1:len(path.suffix)] + ".spv"
+            compile_shader(args.shader + shader, shader_out)
+
+    
+            copy_shader(shader_out, "../bin/debug")
+
+if __name__=="__main__":
+    main()
+
+

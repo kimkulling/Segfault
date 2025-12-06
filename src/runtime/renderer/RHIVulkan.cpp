@@ -20,8 +20,8 @@
 namespace segfault::renderer {
 
     struct Vertex {
-        glm::vec2 pos;
-        glm::vec3 color;
+        glm::vec2 pos{};
+        glm::vec3 color{};
 
         static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
             std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
@@ -323,7 +323,7 @@ namespace segfault::renderer {
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
 
-        int i = 0;
+        int i{ 0 };
         for (const auto& queueFamily : queueFamilies) {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 qfIndices.graphicsFamily = i;
@@ -340,7 +340,7 @@ namespace segfault::renderer {
                 break;
             }
 
-            i++;
+            ++i;
         }
 
         return qfIndices;
@@ -349,10 +349,10 @@ namespace segfault::renderer {
     bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& qfIndices) {
         qfIndices = findQueueFamilies(qfIndices);
 
-        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
         std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value() };
 
-        float queuePriority = 1.0f;
+        float queuePriority{ 1.0f };
         for (uint32_t queueFamily : uniqueQueueFamilies) {
             VkDeviceQueueCreateInfo queueCreateInfo{};
             queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -683,7 +683,6 @@ namespace segfault::renderer {
         rasterizer.depthBiasClamp = 0.0f; // Optional
         rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
 
-        
         VkPipelineMultisampleStateCreateInfo multisampling{};
         multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         multisampling.sampleShadingEnable = VK_FALSE;
@@ -713,7 +712,6 @@ namespace segfault::renderer {
         colorBlending.blendConstants[1] = 0.0f; // Optional
         colorBlending.blendConstants[2] = 0.0f; // Optional
         colorBlending.blendConstants[3] = 0.0f; // Optional
-
         
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
