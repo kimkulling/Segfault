@@ -7,6 +7,38 @@ from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 
+
+def compile_shader(shadername: str, shader_out: str) -> bool:
++    if not shadername:
++        return False
++
++    cmd = ["glslc", shadername, "-o", shader_out]
++    print("Running:", " ".join(cmd))
++
++    try:
++        result = subprocess.run(
++            cmd,
++            stdout=subprocess.PIPE,
++            stderr=subprocess.PIPE,
++            text=True,
++            check=False,
++        )
++    except OSError as exc:
++        print(f"Failed to invoke glslc: {exc}")
++        return False
++
++    if result.returncode == 0:
++        print(f"Shader {shadername} compiled.")
++        if result.stdout:
++            print(result.stdout)
++        return True
++
++    print(f"Error while compiling {shadername} (exit code {result.returncode}):")
++    if result.stderr:
++        print(result.stderr)
++    return False
+
+
 def compile_shader(shadername, shader_out, verbose):
     if len(shadername) == 0:
         return 
@@ -16,16 +48,24 @@ def compile_shader(shadername, shader_out, verbose):
     cmd.append(shadername)
     cmd.append("-o")
     cmd.append(shader_out)
-    process_handle = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    output, error = process_handle.communicate()
-    if error is None:
+    print("Running:", " ".join(cmd))
+    try:
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)    
+    except OSError as exc:
+        print(f"Failed to invoke glslc: {exc}")
+        return False
+
+    if result.returncode == 0:
         print("Shader " + shadername + " compiled.")
         if verbose and output is not None:
-            if len(output) != 0:
-                print(str(output))
-    else:
-        print("Error {error} while compilation.", error)
-
+            if result.stdout:
+                print(result.stdout)
+    
+    print(f"Error while compiling {shadername} (exit code {result.returncode}):")
+    if result.stderr:
+        print(result.stderr)
+    return False
+    
 def copy_shader(source, dest):
     if not os.path.exists(dest):
         print("Create folder " + dest)
