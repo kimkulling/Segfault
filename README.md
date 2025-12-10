@@ -51,4 +51,4 @@ cd bin
   - Editor
     - Simple UI
 - Game 
-  - Start -> October
+  - Start -> January 2026
