@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <sstream>
+
 namespace segfault::application {
     
     using namespace segfault::core;
@@ -15,6 +16,13 @@ namespace segfault::application {
         std::string getStartLog() {
             std::string entry = "===========================================================================\n";
             entry.append(" SegFault version 0.0.l\n");
+            entry.append("===========================================================================");
+            return entry;
+        }
+
+        std::string getEndLog() {
+            std::string entry = "===========================================================================\n";
+            entry.append(" SegFault run ended\n");
             entry.append("===========================================================================");
             return entry;
         }
@@ -123,6 +131,7 @@ namespace segfault::application {
         mSdlWindow = nullptr;
         mState = ModuleState::Shutdown;
         SDL_Quit();
+        logMessage(LogType::Print, getEndLog().c_str());
     }
 
 } // namespace segfault::application
