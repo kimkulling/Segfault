@@ -7,38 +7,6 @@ from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 
-
-def compile_shader(shadername: str, shader_out: str) -> bool:
-+    if not shadername:
-+        return False
-+
-+    cmd = ["glslc", shadername, "-o", shader_out]
-+    print("Running:", " ".join(cmd))
-+
-+    try:
-+        result = subprocess.run(
-+            cmd,
-+            stdout=subprocess.PIPE,
-+            stderr=subprocess.PIPE,
-+            text=True,
-+            check=False,
-+        )
-+    except OSError as exc:
-+        print(f"Failed to invoke glslc: {exc}")
-+        return False
-+
-+    if result.returncode == 0:
-+        print(f"Shader {shadername} compiled.")
-+        if result.stdout:
-+            print(result.stdout)
-+        return True
-+
-+    print(f"Error while compiling {shadername} (exit code {result.returncode}):")
-+    if result.stderr:
-+        print(result.stderr)
-+    return False
-
-
 def compile_shader(shadername, shader_out, verbose):
     if len(shadername) == 0:
         return 
