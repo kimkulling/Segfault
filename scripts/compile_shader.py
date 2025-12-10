@@ -7,7 +7,7 @@ from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 
-def compile_shader(shadername, shader_out):
+def compile_shader(shadername, shader_out, verbose):
     if len(shadername) == 0:
         return 
 
@@ -16,11 +16,13 @@ def compile_shader(shadername, shader_out):
     cmd.append(shadername)
     cmd.append("-o")
     cmd.append(shader_out)
-    print(str(cmd))
     process_handle = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     output, error = process_handle.communicate()
     if error is None:
         print("Shader " + shadername + " compiled.")
+        if verbose and output is not None:
+            if len(output) != 0:
+                print(str(output))
     else:
         print("Error {error} while compilation.", error)
 
@@ -35,6 +37,7 @@ shader_names = ["default.vert", "default.frag"]
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', action='store_true', default=False, help='The full output will be shown')
     parser.add_argument('--shader', type=str, default='./', help='The folder containing the shaders')
     
     args = parser.parse_args()
@@ -45,7 +48,7 @@ def main():
         if shader in shader_names:
             path = Path(shader)
             shader_out = path.suffix[1:len(path.suffix)] + ".spv"
-            compile_shader(args.shader + shader, shader_out)
+            compile_shader(args.shader + shader, shader_out, args.verbose)
 
             copy_shader(shader_out, "../bin/debug/shaders")
 
