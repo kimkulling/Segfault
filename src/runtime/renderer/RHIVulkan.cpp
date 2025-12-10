@@ -1044,9 +1044,7 @@ namespace segfault::renderer {
 
     void RHIImpl::recreateSwapChain() {
         vkDeviceWaitIdle(device);
-
         cleanupSwapChain();
-
         createSwapChain();
         createImageViews();
         createFramebuffers();
@@ -1178,6 +1176,9 @@ namespace segfault::renderer {
 
     RHI::~RHI() {
         assert(mImpl == nullptr);
+        if (mImpl != nullptr) {
+            delete mImpl;
+        }
     }
 
     bool RHI::init(const char *appName, SDL_Window *window) {
