@@ -1,6 +1,7 @@
 import subprocess
 import argparse
 import shutil
+import os
 
 from pathlib import Path
 from os import listdir
@@ -24,6 +25,9 @@ def compile_shader(shadername, shader_out):
         print("Error {error} while compilation.", error)
 
 def copy_shader(source, dest):
+    if not os.path.exists(dest):
+        print("Create folder " + dest)
+        os.makedirs(dest)
     print("source " + source)
     shutil.copy(source, dest)
 
@@ -43,8 +47,7 @@ def main():
             shader_out = path.suffix[1:len(path.suffix)] + ".spv"
             compile_shader(args.shader + shader, shader_out)
 
-    
-            copy_shader(shader_out, "../bin/debug")
+            copy_shader(shader_out, "../bin/debug/shaders")
 
 if __name__=="__main__":
     main()

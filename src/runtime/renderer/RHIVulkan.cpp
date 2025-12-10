@@ -173,7 +173,10 @@ namespace segfault::renderer {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
         if (!file.is_open()) {
-            core::logMessage(core::LogType::Error, "failed to open file!");
+            std::string errorMsg = "Failed to open file ";
+            errorMsg += filename;
+            errorMsg += ".";
+            core::logMessage(core::LogType::Error, errorMsg.c_str());
             throw std::runtime_error("failed to open file!");
         }
 
