@@ -1,9 +1,10 @@
 # Segfault
 ## Build instructions
-- Prerequisities:
-  - Make sure that the vulkan SDK is installed
+- **Prerequisities:**
+  - Vulkan SDK
+  - PYthon 3.11
   - Make sure that glslc from the SDK is in your PATH
-- Checkout the engine code with all submodules:
+- **Checkout the engine code with all submodules:**
 ```
 git checkout --recursive https://github.com/kimkulling/Segfault.git
 ```
