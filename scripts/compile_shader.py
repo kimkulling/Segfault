@@ -38,7 +38,7 @@ shader_names = ["default.vert", "default.frag"]
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', action='store_true', default=False, help='The full output will be shown')
-    parser.add_argument('--shader', type=str, default='./', help='The folder containing the shaders')
+    parser.add_argument('--shader', type=str, required=True, default='./', help='The folder containing the shaders')
     
     args = parser.parse_args()
     print("shader folder: " + str(args.shader))
