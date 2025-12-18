@@ -54,9 +54,9 @@ jobs:
         vulkan-use-cache: true
     - name: install_dependencies
       run: |
-        sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
-        sudo apt-get update -y -qq
-        sudo apt-get install libsdl2-dev libglm-dev libvulkan-volk-dev nlohmann-json3-dev
+        #sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+        #sudo apt-get update -y -qq
+        #sudo apt-get install libsdl2-dev libglm-dev libvulkan-volk-dev nlohmann-json3-dev
         
 
     - name: Set reusable strings
@@ -74,7 +74,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
+        -S ${{ github.workspace }} --preset=default
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
