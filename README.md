@@ -1,4 +1,7 @@
 # Segfault
+## Build status
+[![CMake on multiple platforms](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml)
+
 ## Build instructions
 - **Prerequisities:**
   - Vulkan SDK
