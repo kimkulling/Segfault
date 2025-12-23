@@ -1,9 +1,13 @@
 # Segfault
+## Build status
+[![CMake on multiple platforms](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml)
+
 ## Build instructions
-- Prerequisities:
-  - Make sure that the vulkan SDK is installed
+- **Prerequisities:**
+  - Vulkan SDK
+  - PYthon 3.11
   - Make sure that glslc from the SDK is in your PATH
-- Checkout the engine code with all submodules:
+- **Checkout the engine code with all submodules:**
 ```
 git checkout --recursive https://github.com/kimkulling/Segfault.git
 ```
@@ -14,15 +18,12 @@ cmake CMakeLists.txt --preset=default
 ```
 Compile the shader 
 ```
-cd assets/shaders
-glslc default.vert -o vert.spv
-glslc default.frag -o frag.spv
-mkdir ../../bin/debug/shaders
-cp *spv ../../bin/debug/shaders
+cd scripts
+python compile_shader.py
 ```
-- Run the first application on WINdows:
+- Run the first application on Windows:
 ```
-cd bin\debug
+cd bin\<config>
 .\hello_world.exe
 ```
 - Run the first application on Linux:
@@ -31,24 +32,24 @@ cd bin
 ./hello_world.exe
 ```
 
-## Roadmap
-### Done 
-- Core Concepts
-  - Define base architecture
-  - Define CMake-Build
-  - Windows Management
-    - Windows creation
-    - Base handling of events
-
-### ToDo
-- Core Concepts
-  - Rendering
-    - Define render thread
-      - Define render graph concept
-      - Define vulkan renderer
-  - Assets
-    - Define asset structure
-  - Editor
-    - Simple UI
-- Game 
-  - Start -> October
+## Roadmap for Version 0.0.1
+- [ ] Core Concepts 
+  - [ ] Define base architecture
+  - [x] Define CMake-Build
+  - [x] Windows Management
+    - [x] Windows creation
+    - [x] Base handling of events
+- [ ] Core Concepts
+  - [ ] Rendering
+    - [x] Define vulkan renderer
+      - [x] Base concept
+      - [ ] Textures
+      - [ ] Model loading
+    - [ ] Define render thread
+      - [ ] Define render graph concept
+  - [ ] Assets
+    - [ ] Define asset structure
+  - [ ] Editor
+    - [ ] Simple UI
+- [ ] Game
+  - [ ] Start with Pong -> January 2026

@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <sstream>
+
 namespace segfault::application {
     
     using namespace segfault::core;
@@ -22,6 +23,13 @@ namespace segfault::application {
         std::string getEndLog() {
             std::string entry = "===========================================================================\n";
             entry.append("= SegFault run finished ...                                               =\n");
+            entry.append("===========================================================================");
+            return entry;
+        }
+
+        std::string getEndLog() {
+            std::string entry = "===========================================================================\n";
+            entry.append(" SegFault run ended\n");
             entry.append("===========================================================================");
             return entry;
         }
