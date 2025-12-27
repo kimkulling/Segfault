@@ -27,13 +27,6 @@ namespace segfault::application {
             return entry;
         }
 
-        std::string getEndLog() {
-            std::string entry = "===========================================================================\n";
-            entry.append(" SegFault run ended\n");
-            entry.append("===========================================================================");
-            return entry;
-        }
-
         std::string getSDLVersionString() {
             SDL_version compiled{};
             SDL_VERSION(&compiled);

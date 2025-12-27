@@ -362,7 +362,7 @@ namespace segfault::renderer {
             queueCreateInfo.queueFamilyIndex = queueFamily;
             queueCreateInfo.queueCount = 1;
             queueCreateInfo.pQueuePriorities = &queuePriority;
-            queueCreateInfos.add(queueCreateInfo);
+            queueCreateInfos.push_back(queueCreateInfo);
         }
 
         VkDeviceQueueCreateInfo queueCreateInfo{};
