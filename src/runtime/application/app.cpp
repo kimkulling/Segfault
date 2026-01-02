@@ -15,14 +15,14 @@ namespace segfault::application {
     namespace {
         std::string getStartLog() {
             std::string entry = "===========================================================================\n";
-            entry.append("= SegFault version 0.0.l                                                  =\n");
+            entry.append("| SegFault version 0.0.l                                                  |\n");
             entry.append("===========================================================================");
             return entry;
         }
 
         std::string getEndLog() {
             std::string entry = "===========================================================================\n";
-            entry.append("= SegFault run finished ...                                               =\n");
+            entry.append("| SegFault run finished ...                                               |\n");
             entry.append("===========================================================================");
             return entry;
         }
@@ -52,6 +52,13 @@ namespace segfault::application {
             const auto v = std::string("SDL version ") + getSDLVersionString() + std::string(" initiated.");            
             logMessage(LogType::Info, v.c_str());
             
+            return true;
+        }
+
+        bool releaseSDL() {
+            SDL_Quit();
+            logMessage(LogType::Info, "Releasing sdl.");
+
             return true;
         }
 
@@ -131,7 +138,7 @@ namespace segfault::application {
         SDL_DestroyWindow(mSdlWindow);
         mSdlWindow = nullptr;
         mState = ModuleState::Shutdown;
-        SDL_Quit();
+        releaseSDL();
         logMessage(LogType::Print, getEndLog().c_str());
     }
 
