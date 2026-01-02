@@ -11,7 +11,7 @@ namespace segfault::core {
     }
 
     const std::string &Tokenizer::getTokenAt( uint32_t index ) const {
-        if ( m_Token.isEmpty() || m_Token.size() >= index ) {
+        if (m_Token.isEmpty() || index >= m_Token.size()) {
             return EmptyToken;
         }
 
