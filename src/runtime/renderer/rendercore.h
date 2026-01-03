@@ -21,6 +21,9 @@ namespace segfault::renderer {
         glm::mat4 proj;
     };
 
+    struct RenderPipelineState{
+    };
+    
     struct DrawCommand {
         //RenderPipelineState rpState;
 

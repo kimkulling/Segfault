@@ -1249,7 +1249,6 @@ namespace segfault::renderer {
 
         mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->queueFamilyIndices);
 
-
         mImpl->createSwapChain();
         mImpl->createImageViews();
         mImpl->createRenderPass();
