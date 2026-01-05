@@ -7,6 +7,7 @@ from pathlib import Path
 from os import listdir
 from os.path import isfile, join
 
+TargetFolder = 
 def compile_shader(shadername, shader_out, verbose):
     if len(shadername) == 0:
         return 
@@ -57,8 +58,12 @@ def main():
             path = Path(shader)
             shader_out = path.suffix[1:len(path.suffix)] + ".spv"
             compile_shader(args.shader + shader, shader_out, args.verbose)
-
-            copy_shader(shader_out, "../bin/debug/shaders")
+            if os.name == 'nt':
+                copy_shader(shader_out, "../bin/debug/shaders")
+            elif os.name == 'posix':
+                copy_shader(shader_out, "../bin/shaders")
+            else:
+                print('Error: unknown platform')
 
 if __name__=="__main__":
     main()
