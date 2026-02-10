@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="https://github.com/kimkulling/Segfault/blob/main/assets/SegFault.jpg" />
+</p>
 # Segfault
 ## Build status
 [![CMake on multiple platforms](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml)
