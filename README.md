@@ -5,23 +5,23 @@
 # Segfault
 ## Build status
 
-[![CMake on multiple platforms](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml/badge.svg)]
+[![CMake on multiple platforms](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/kimkulling/Segfault/actions/workflows/cmake-multi-platform.yml)
 
 ## Build instructions
-- **Prerequisities:**
+- **Prerequisites:**
   - Vulkan SDK
-  - PYthon 3.11
+  - Python 3.11
   - Make sure that glslc from the SDK is in your PATH
-- **Checkout the engine code with all submodules:**
+- **Clone the engine code with all submodules:**
 ```
-git checkout --recursive https://github.com/kimkulling/Segfault.git
+git clone --recursive https://github.com/kimkulling/Segfault.git
 ```
-- Got to the directory and run cmake:
+- Go to the directory and run cmake:
 ```
 cd SegFault
 cmake CMakeLists.txt --preset=default
 ```
-Compile the shader 
+- Compile the shader 
 ```
 cd scripts
 python compile_shader.py
@@ -44,7 +44,6 @@ cd bin
   - [x] Windows Management
     - [x] Windows creation
     - [x] Base handling of events
-- [ ] Core Concepts
   - [ ] Rendering
     - [x] Define vulkan renderer
       - [x] Base concept
