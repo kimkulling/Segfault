@@ -29,8 +29,9 @@ def compile_shader(shadername, shader_out, verbose):
         if verbose and output is not None:
             if result.stdout:
                 print(result.stdout)
-    
-    print(f"Error while compiling {shadername} (exit code {result.returncode}):")
+    else:
+        print(f"Error while compiling {shadername} (exit code {result.returncode}):")
+        
     if result.stderr:
         print(result.stderr)
     return False
@@ -61,7 +62,11 @@ def main():
             if sys.platform == "linux":
                 copy_shader(shader_out, "../bin/shaders")
             elif sys.platform == "win32":
-                copy_shader(shader_out, "../bin/shaders")
+                out = Path("../bin/")
+                if out.exists("debug"):
+                    copy_shader(shader_out, "../bin/debug/shaders")
+                else:
+                    copy_shader(shader_out, "../bin/release/shaders")
 
 if __name__=="__main__":
     main()
