@@ -2,6 +2,7 @@ import subprocess
 import argparse
 import shutil
 import os
+import sys
 
 from pathlib import Path
 from os import listdir
@@ -57,8 +58,10 @@ def main():
             path = Path(shader)
             shader_out = path.suffix[1:len(path.suffix)] + ".spv"
             compile_shader(args.shader + shader, shader_out, args.verbose)
-
-            copy_shader(shader_out, "../bin/debug/shaders")
+            if sys.platform == "linux":
+                copy_shader(shader_out, "../bin/shaders")
+            elif sys.platform == "win32":
+                copy_shader(shader_out, "../bin/shaders")
 
 if __name__=="__main__":
     main()
