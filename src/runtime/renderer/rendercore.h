@@ -27,11 +27,11 @@ namespace segfault::renderer {
     struct DrawCommand {
         //RenderPipelineState rpState;
 
-        uint32_t numVertices = 0;
-        uint32_t numInstances = 0;
-        uint32_t vertexOffset = 0;  
-        uint32_t instanceOffset = 0;
-        uint32_t indexCount = 0;
+        uint32_t numVertices{0};
+        uint32_t numInstances{0};
+        uint32_t vertexOffset{0};  
+        uint32_t instanceOffset{0};
+        uint32_t indexCount{0};
     };
 
     class RenderGraph {

@@ -22,7 +22,7 @@ namespace segfault::application {
 
         std::string getEndLog() {
             std::string entry = "===========================================================================\n";
-            entry.append("| SegFault run finished ...                                               |\n");
+            entry.append("|h         SegFault run finished ...                                               |\n");
             entry.append("===========================================================================");
             return entry;
         }

@@ -1312,4 +1312,3 @@ namespace segfault::renderer {
     }
 
 } // namespace segfault::renderer
-
