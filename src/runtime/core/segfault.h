@@ -58,13 +58,13 @@ namespace segfault::core {
     inline void logMessage(LogType type, const char* msg) {
         switch (type) {
             case LogType::Error:
-                std::cout << "*Err*  : " << msg << std::endl;
+                std::cout << "*ERR*  : " << msg << std::endl;
                 break;
             case LogType::Warn:
-                std::cout << "*Warn* : " << msg << std::endl;
+                std::cout << "*WARN* : " << msg << std::endl;
                 break;
             case LogType::Info:
-                std::cout << "*Info* : " << msg << std::endl;
+                std::cout << "*INFO* : " << msg << std::endl;
                 break;
             case LogType::Print:
                 std::cout << msg << std::endl;

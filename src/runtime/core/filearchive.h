@@ -15,7 +15,7 @@ public:
     virtual FILE *getStream() const;
 
 private:
-    FILE *mStream;
+    FILE *mStream{nullptr};
     bool mCanRead{false};
     bool mCanWrite{false};
 };
