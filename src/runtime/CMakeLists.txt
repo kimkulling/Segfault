@@ -1,9 +1,13 @@
 SET(segfault_core_src
+    core/argumentparser.h
+    core/argumentparser.cpp
     core/segfault.h
     core/filearchive.h
     core/ifilemanager.h
     core/genericfilemanager.h
     core/genericfilemanager.cpp
+    core/tokenizer.cpp
+    core/tokenizer.h
 )
 
 SET(segfault_renderer_src

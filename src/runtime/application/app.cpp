@@ -55,6 +55,13 @@ namespace segfault::application {
             return true;
         }
 
+        bool releaseSDL() {
+            SDL_Quit();
+            logMessage(LogType::Info, "Releasing sdl.");
+
+            return true;
+        }
+
         SDL_Window* initWindow(const char* title, uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen) {
             SDL_Window *sdlWindow = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
             if (sdlWindow == nullptr) {
@@ -96,7 +103,6 @@ namespace segfault::application {
         mRHI->init(appName, mSdlWindow);
 
         return true;
-
     }
 
     bool App::mainloop() {
@@ -134,7 +140,7 @@ namespace segfault::application {
         SDL_DestroyWindow(mSdlWindow);
         mSdlWindow = nullptr;
         mState = ModuleState::Shutdown;
-        SDL_Quit();
+        releaseSDL();
         logMessage(LogType::Print, getEndLog().c_str());
     }
 

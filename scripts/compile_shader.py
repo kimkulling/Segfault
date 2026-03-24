@@ -2,6 +2,7 @@ import subprocess
 import argparse
 import shutil
 import os
+import sys
 
 from pathlib import Path
 from os import listdir
@@ -16,16 +17,25 @@ def compile_shader(shadername, shader_out, verbose):
     cmd.append(shadername)
     cmd.append("-o")
     cmd.append(shader_out)
-    process_handle = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    output, error = process_handle.communicate()
-    if error is None:
+    print("Running:", " ".join(cmd))
+    try:
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)    
+    except OSError as exc:
+        print(f"Failed to invoke glslc: {exc}")
+        return False
+
+    if result.returncode == 0:
         print("Shader " + shadername + " compiled.")
         if verbose and output is not None:
-            if len(output) != 0:
-                print(str(output))
+            if result.stdout:
+                print(result.stdout)
     else:
-        print("Error {error} while compilation.", error)
-
+        print(f"Error while compiling {shadername} (exit code {result.returncode}):")
+        
+    if result.stderr:
+        print(result.stderr)
+    return False
+    
 def copy_shader(source, dest):
     if not os.path.exists(dest):
         print("Create folder " + dest)
@@ -49,8 +59,14 @@ def main():
             path = Path(shader)
             shader_out = path.suffix[1:len(path.suffix)] + ".spv"
             compile_shader(args.shader + shader, shader_out, args.verbose)
-
-            copy_shader(shader_out, "../bin/debug/shaders")
+            if sys.platform == "linux":
+                copy_shader(shader_out, "../bin/shaders")
+            elif sys.platform == "win32":
+                out = Path("../bin/")
+                if out.exists("debug"):
+                    copy_shader(shader_out, "../bin/debug/shaders")
+                else:
+                    copy_shader(shader_out, "../bin/release/shaders")
 
 if __name__=="__main__":
     main()
