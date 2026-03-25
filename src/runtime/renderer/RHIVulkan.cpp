@@ -121,7 +121,7 @@ namespace segfault::renderer {
         std::vector<VkFramebuffer> swapChainFramebuffers{};
         VkCommandPool commandPool{};
         std::vector<VkCommandBuffer> commandBuffers{};
-        uint32_t currentFrame = 0;
+        uint32_t currentFrame{0};
         std::vector<VkSemaphore> imageAvailableSemaphores{};
         std::vector<VkSemaphore> renderFinishedSemaphores{};
         std::vector<VkFence> inFlightFences{};
@@ -268,7 +268,7 @@ namespace segfault::renderer {
 
         bool extensionsSupported = checkDeviceExtensionSupport();
 
-        bool swapChainAdequate = false;
+        bool swapChainAdequate{false};
         if (extensionsSupported) {
             SwapChainSupportDetails swapChainSupport = querySwapChainSupport();
             swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
@@ -286,14 +286,14 @@ namespace segfault::renderer {
     }
 
     bool RHIImpl::checkValidationLayerSupport() {
-        uint32_t layerCount = 0;
+        uint32_t layerCount{0};
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
         std::vector<VkLayerProperties> availableLayers(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
         for (const char* layerName : validationLayers) {
-            bool layerFound = false;
+            bool layerFound{false};
 
             for (const auto& layerProperties : availableLayers) {
                 if (strcmp(layerName, layerProperties.layerName) == 0) {
@@ -348,7 +348,7 @@ namespace segfault::renderer {
     }
 
     QueueFamilyIndices RHIImpl::findQueueFamilies(QueueFamilyIndices &qfIndices) {
-        uint32_t queueFamilyCount = 0;
+        uint32_t queueFamilyCount{0};
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -360,7 +360,7 @@ namespace segfault::renderer {
                 qfIndices.graphicsFamily = i;
             }
 
-            VkBool32 presentSupport = false;
+            VkBool32 presentSupport{false};
             vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
 
             if (presentSupport) {
@@ -957,7 +957,7 @@ namespace segfault::renderer {
     void RHIImpl::drawFrame() {
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
-        uint32_t imageIndex;
+        uint32_t imageIndex{};
         VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], 
                 VK_NULL_HANDLE, &imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -1042,7 +1042,7 @@ namespace segfault::renderer {
     }
 
     uint32_t RHIImpl::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-        VkPhysicalDeviceMemoryProperties memProperties;
+        VkPhysicalDeviceMemoryProperties memProperties{};
         vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
@@ -1187,7 +1187,7 @@ namespace segfault::renderer {
         VkDeviceMemory stagingBufferMemory;
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-        void* data;
+        void *data{nullptr};
         vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, vertices.data(), (size_t)bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
@@ -1203,13 +1203,11 @@ namespace segfault::renderer {
     void RHIImpl::createIndexBuffer() {
         VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-            stagingBuffer, stagingBufferMemory);
+        VkBuffer stagingBuffer{};
+        VkDeviceMemory stagingBufferMemory{};
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-        void* data;
+        void *data{nullptr};
         vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, indices.data(), (size_t)bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
@@ -1234,7 +1232,6 @@ namespace segfault::renderer {
             createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                 uniformBuffers[i], uniformBuffersMemory[i]);
-
             vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
         }
     }
