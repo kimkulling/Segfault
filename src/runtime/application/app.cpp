@@ -15,14 +15,14 @@ namespace segfault::application {
     namespace {
         std::string getStartLog() {
             std::string entry = "===========================================================================\n";
-            entry.append("| SegFault version 0.0.l                                                  |\n");
+            entry.append("| SegFault version 0.0.l inited.\n");
             entry.append("===========================================================================");
             return entry;
         }
 
         std::string getEndLog() {
             std::string entry = "===========================================================================\n";
-            entry.append("|h         SegFault run finished ...                                               |\n");
+            entry.append("| SegFault run ended.\n");
             entry.append("===========================================================================");
             return entry;
         }
@@ -71,6 +71,8 @@ namespace segfault::application {
                 return nullptr;
             }
 
+            logMessage(LogType::Info, "SDL window initiated.");
+            
             return sdlWindow;
         }
     }
@@ -130,11 +132,11 @@ namespace segfault::application {
     }
     
     void App::shutdown() {
-        if (mSdlWindow == nullptr) {
-            logMessage(LogType::Error, "Invalid application state, cannot shutdown.");
-            return;
+        if (mSdlWindow == nullptr || mState == ModuleState::Shutdown) {
+            logMessage(LogType::Warn, "App already shutdowned.");
+            return; 
         }
-        
+
         SDL_DestroyWindow(mSdlWindow);
         mSdlWindow = nullptr;
         mState = ModuleState::Shutdown;

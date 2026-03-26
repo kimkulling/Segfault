@@ -3,6 +3,7 @@
     "glew",
     "glm",
     "gtest",
+    "nlohmann-json",
     {
       "name": "sdl2",
       "features": [
@@ -10,6 +11,6 @@
       ]
     },
     "volk",
-    "nlohmann-json"
+    "stb"
   ]
 }
