@@ -15,7 +15,7 @@ namespace segfault::application {
     namespace {
         std::string getStartLog() {
             std::string entry = "===========================================================================\n";
-            entry.append("| SegFault version 0.0.l inited.\n");
+            entry.append("| SegFault version 0.0.1 inited.\n");
             entry.append("===========================================================================");
             return entry;
         }
