@@ -83,7 +83,7 @@ namespace segfault::application {
 
     App::~App() {
         if (mState != ModuleState::Shutdown) {
-            logMessage(LogType::Error, "App not shutdowned.");
+            logMessage(LogType::Error, "App not in state Shutdown.");
         }
     }
 
@@ -133,7 +133,7 @@ namespace segfault::application {
     
     void App::shutdown() {
         if (mSdlWindow == nullptr || mState == ModuleState::Shutdown) {
-            logMessage(LogType::Warn, "App already shutdowned.");
+            logMessage(LogType::Warn, "App already in state Shutdown.");
             return; 
         }
 
