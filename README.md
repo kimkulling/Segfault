@@ -56,4 +56,4 @@ cd bin
   - [ ] Editor
     - [ ] Simple UI
 - [ ] Game
-  - [ ] Start with Legends of War -> April 2026
+  - [ ] Start with Legends of War -> June 2026
