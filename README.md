@@ -24,7 +24,7 @@ cmake CMakeLists.txt --preset=default
 - Compile the shader 
 ```
 cd scripts
-python compile_shader.py
+python compile_shader.py --shader ../assets/shader 
 ```
 - Run the first application on Windows:
 ```
@@ -56,4 +56,4 @@ cd bin
   - [ ] Editor
     - [ ] Simple UI
 - [ ] Game
-  - [ ] Start with Legends of War -> April 2026
+  - [ ] Start with Legends of War -> June 2026
