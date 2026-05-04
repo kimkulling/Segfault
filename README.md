@@ -24,7 +24,7 @@ cmake CMakeLists.txt --preset=default
 - Compile the shader 
 ```
 cd scripts
-python compile_shader.py
+python compile_shader.py --shader ../assets/shader 
 ```
 - Run the first application on Windows:
 ```
