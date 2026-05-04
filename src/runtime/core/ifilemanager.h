@@ -6,23 +6,23 @@
 
 namespace segfault::core {
 
-class FileArchive;
+    class FileArchive;
 
-struct FileStat {
-    size_t filesize{};
-};
+    struct FileStat {
+        size_t filesize{};
+    };
 
-class SEGFAULT_EXPORT IFileManager {
-public:
-    virtual ~IFileManager() = default;
-    virtual FileArchive *createFileReader(const char *name) = 0;
-    virtual FileArchive *createFileWriter(const char *name) = 0;
-    virtual void close(FileArchive *archive) = 0;
-    virtual bool exist(const char* name) = 0;
-    virtual bool getArchiveStat(const char *name, FileStat &stat) = 0;
+    class SEGFAULT_EXPORT IFileManager {
+    public:
+        virtual ~IFileManager() = default;
+        virtual FileArchive *createFileReader(const char *name) = 0;
+        virtual FileArchive *createFileWriter(const char *name) = 0;
+        virtual void close(FileArchive *archive) = 0;
+        virtual bool exist(const char* name) = 0;
+        virtual bool getArchiveStat(const char *name, FileStat &stat) = 0;
 
-protected:
-    IFileManager() = default;
-};
+    protected:
+        IFileManager() = default;
+    };
 
 } // namespace segfault::core
