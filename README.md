@@ -47,7 +47,7 @@ cd bin
   - [ ] Rendering
     - [x] Define vulkan renderer
       - [x] Base concept
-      - [ ] Textures
+      - [x] Textures
       - [ ] Model loading
     - [ ] Define render thread
       - [ ] Define render graph concept
