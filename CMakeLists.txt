@@ -31,6 +31,7 @@ find_package(volk          CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
 include_directories( BEFORE
+    /usr/include/stb
     src/runtime
     src/contrib/cppcore/include
 )
