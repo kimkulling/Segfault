@@ -456,7 +456,7 @@ namespace segfault::renderer {
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D  RHIImpl::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+    VkExtent2D RHIImpl::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
         int width, height;
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;

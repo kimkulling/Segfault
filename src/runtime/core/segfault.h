@@ -73,6 +73,10 @@ namespace segfault::core {
             case LogType::Print:
                 std::cout << msg << std::endl;
                 break;
+			case LogType::Invalid:
+			case LogType::Count:
+			default:
+                break;
         }
     }
 

@@ -63,10 +63,10 @@ def main():
                 copy_shader(shader_out, "../bin/shaders")
             elif sys.platform == "win32":
                 out = Path("../bin/")
-                if os.path.exists("debug"):
-                    copy_shader(shader_out, "../bin/debug/shaders")
+                if os.path.exists("../bin/Debug"):
+                    copy_shader(shader_out, "../bin/Debug/shaders")
                 else:
-                    copy_shader(shader_out, "../bin/release/shaders")
+                    copy_shader(shader_out, "../bin/Release/shaders")
 
 if __name__=="__main__":
     main()
