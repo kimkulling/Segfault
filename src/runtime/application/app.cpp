@@ -62,8 +62,8 @@ namespace segfault::application {
             return true;
         }
 
-        SDL_Window* initWindow(const char* title, uint32_t x, uint32_t y, uint32_t width, uint32_t height, bool fullscreen) {
-            SDL_Window *sdlWindow = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+        SDL_Window* initWindow(const char* title, const Rect &rect, bool fullscreen) {
+            SDL_Window *sdlWindow = SDL_CreateWindow(title, rect.x, rect.y, rect.width, rect.height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
             if (sdlWindow == nullptr) {
                 std::string msg = std::string("Cannot init sdl-window: ");
                 msg += SDL_GetError();
@@ -87,14 +87,19 @@ namespace segfault::application {
         }
     }
 
-    bool App::init(const char *appName, uint32_t x, uint32_t y, uint32_t width, uint32_t height, const char *title, bool fullscreen) {
+    bool App::init(const char *appName, const Rect &rect, const char *title, bool fullscreen) {
+        if (mState != ModuleState::Invalid) {
+            logMessage(LogType::Warn, "App already inited.");
+            return false; 
+        }
+        
         logMessage(LogType::Print, getStartLog().c_str());
         if (!initSDL()) {
             return false;
         }
 
         mState = ModuleState::Init;
-        mSdlWindow = initWindow(title, x, y, width, height, fullscreen);
+        mSdlWindow = initWindow(title, rect, fullscreen);
         if (mSdlWindow == nullptr) {
             return false;
         }

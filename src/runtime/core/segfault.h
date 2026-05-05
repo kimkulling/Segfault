@@ -42,6 +42,22 @@ namespace segfault::core {
 
     using guid = uint64_t;    
 
+    struct Rect {
+        uint32_t x{0};
+        uint32_t y{0};
+        uint32_t width{0};
+        uint32_t height{0};
+
+        Rect() = default;
+        Rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height) : x(x), y(y), width(width), height(height) {
+            // empty
+        }
+        ~Rect() = default;
+        bool operator==(const Rect& other) const {
+            return x == other.x && y == other.y && width == other.width && height == other.height;
+        }
+    };
+
     enum class ModuleState {
         Invalid = -1,
         Init,
