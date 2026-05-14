@@ -23,7 +23,7 @@
 namespace segfault::renderer {
 
     struct Vertex {
-        glm::vec2 pos{};
+        glm::vec3 pos{};
         glm::vec3 color{};
         glm::vec2 texCoord{};
 
@@ -60,14 +60,20 @@ namespace segfault::renderer {
     };
 
     const std::vector<Vertex> vertices = {
-        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+
+        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
     };
 
     const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
+        0, 1, 2, 2, 3, 0,
+        4, 5, 6, 6, 7, 4
     };
 
     const std::vector<const char*> validationLayers = {
@@ -139,6 +145,9 @@ namespace segfault::renderer {
         VkImageView textureImageView{};
         VkSampler textureSampler;
         VkDeviceMemory textureImageMemory{};
+        VkImage depthImage{};
+        VkDeviceMemory depthImageMemory{};
+        VkImageView depthImageView{};
 
         RHIImpl() = default;
         ~RHIImpl() = default;
@@ -167,6 +176,7 @@ namespace segfault::renderer {
         void createGraphicsPipeline();
         void createFramebuffers();
         void createCommandPool(QueueFamilyIndices& indices);
+        void createDepthResources();
         void createCommandBuffer();
         void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
         void createSyncObjects();
@@ -177,7 +187,7 @@ namespace segfault::renderer {
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
         void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
         void createTextureImage();
-        VkImageView createImageView(VkImage image, VkFormat format);
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
         void createTextureImageView();
         void createTextureSampler();
         void createVertexBuffer();
@@ -535,7 +545,7 @@ namespace segfault::renderer {
     void RHIImpl::createImageViews() {
         swapChainImageViews.resize(swapChainImages.size());
         for (size_t i = 0; i < swapChainImages.size(); i++) {
-            swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat);
+            swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 
@@ -803,6 +813,40 @@ namespace segfault::renderer {
             core::logMessage(core::LogType::Error, "failed to create command pool mocule!");
             throw std::runtime_error("failed to create command pool!");
         }
+    }
+
+    VkFormat findSupportedFormat(RHIImpl *rhi, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+        for (VkFormat format : candidates) {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(rhi->physicalDevice, format, &props);
+            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+                return format;
+            } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+
+        throw std::runtime_error("failed to find supported format!");
+    }
+
+    VkFormat findDepthFormat(RHIImpl* rhi) {
+        return findSupportedFormat(
+			rhi,
+            { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+            VK_IMAGE_TILING_OPTIMAL,
+            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+        );
+    }
+
+    bool hasStencilComponent(VkFormat format) {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
+
+    void RHIImpl::createDepthResources() {
+        VkFormat depthFormat = findDepthFormat(this);
+        createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
+        depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+        transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     }
 
     void RHIImpl::createCommandBuffer() {
@@ -1083,13 +1127,13 @@ namespace segfault::renderer {
         vkFreeMemory(device, stagingBufferMemory, nullptr);
     }
 
-    VkImageView RHIImpl::createImageView(VkImage image, VkFormat format) {
+    VkImageView RHIImpl::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = image;
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewInfo.format = format;
-        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.aspectMask = aspectFlags;
         viewInfo.subresourceRange.baseMipLevel = 0;
         viewInfo.subresourceRange.levelCount = 1;
         viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -1104,7 +1148,7 @@ namespace segfault::renderer {
     }
     
     void RHIImpl::createTextureImageView() {
-        textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+        textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
     }
     
     void RHIImpl::createTextureSampler() {
@@ -1344,6 +1388,16 @@ namespace segfault::renderer {
         VkPipelineStageFlags sourceStage;
         VkPipelineStageFlags destinationStage;
 
+        if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+            if (hasStencilComponent(format)) {
+                barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+        } else {
+            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        }
+
         if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
             barrier.srcAccessMask = 0;
             barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -1356,6 +1410,12 @@ namespace segfault::renderer {
 
             sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
             destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        } else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+            barrier.srcAccessMask = 0;
+            barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         } else {
             throw std::invalid_argument("unsupported layout transition!");
         }
@@ -1511,6 +1571,7 @@ namespace segfault::renderer {
         mImpl->createUniformBuffers();
         mImpl->createDescriptorPool();
         mImpl->createDescriptorSets();
+        mImpl->createDepthResources();
         mImpl->createCommandBuffer();
         mImpl->createSyncObjects();
         return true;
