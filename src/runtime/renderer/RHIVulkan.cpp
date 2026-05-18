@@ -32,7 +32,7 @@ namespace segfault::renderer {
 
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
             attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
             attributeDescriptions[1].binding = 0;
@@ -1074,6 +1074,10 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::cleanupSwapChain() {
+        vkDestroyImageView(device, depthImageView, nullptr);
+        vkDestroyImage(device, depthImage, nullptr);
+        vkFreeMemory(device, depthImageMemory, nullptr);
+
         for (auto framebuffer : swapChainFramebuffers) {
             vkDestroyFramebuffer(device, framebuffer, nullptr);
         }
@@ -1090,6 +1094,7 @@ namespace segfault::renderer {
         cleanupSwapChain();
         createSwapChain();
         createImageViews();
+        createDepthResources();
         createFramebuffers();
     }
 
@@ -1594,9 +1599,9 @@ namespace segfault::renderer {
         mImpl->createRenderPass();
         mImpl->createDescriptorSetLayout();
         mImpl->createGraphicsPipeline();
+        mImpl->createCommandPool(mImpl->queueFamilyIndices);
         mImpl->createDepthResources();
         mImpl->createFramebuffers();
-        mImpl->createCommandPool(mImpl->queueFamilyIndices);
         mImpl->createTextureImage();
         mImpl->createTextureImageView();
         mImpl->createTextureSampler();
