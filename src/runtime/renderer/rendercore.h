@@ -21,27 +21,11 @@ namespace segfault::renderer {
         glm::mat4 proj;
     };
 
-    struct RenderPipelineState{
-    };
-    
-    struct DrawCommand {
-        //RenderPipelineState rpState;
-
-        uint32_t numVertices{0};
-        uint32_t numInstances{0};
-        uint32_t vertexOffset{0};  
-        uint32_t instanceOffset{0};
-        uint32_t indexCount{0};
-    };
-
     class RenderGraph {
     public:
         RenderGraph() = default;
-        ~RenderGraph() = default;
 
-        void addCommand(const DrawCommand& command) {
-            // Implementation for adding a draw command to the render graph
-        }
+        ~RenderGraph() = default;
 
         void execute(RHI &rhi) {
             // Implementation for executing the render graph
