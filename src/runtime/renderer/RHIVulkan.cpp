@@ -1,6 +1,6 @@
 #include "RHI.h"
 #include "rendercore.h"
-
+#include "core/segfaultexception.h"
 #include "volk.h"
 #include "SDL_vulkan.h"
 #define GLM_FORCE_RADIANS
@@ -21,6 +21,7 @@
 #include <chrono>
 
 namespace segfault::renderer {
+    using namespace segfault::core;
 
     struct Vertex {
         glm::vec3 pos{};
@@ -88,7 +89,7 @@ namespace segfault::renderer {
         std::optional<uint32_t> graphicsFamily{};
         std::optional<uint32_t> presentFamily{};
 
-        bool isComplete() {
+        bool isComplete() const {
             return graphicsFamily.has_value() && presentFamily.has_value();
         }
     };
@@ -214,7 +215,7 @@ namespace segfault::renderer {
             }
         }
 
-        throw std::runtime_error("failed to find supported format!");
+        throw SegfaultException("failed to find supported format!");
     }
 
     VkFormat findDepthFormat(RHIImpl* rhi) {
@@ -234,7 +235,7 @@ namespace segfault::renderer {
             errorMsg += filename;
             errorMsg += ".";
             core::logMessage(core::LogType::Error, errorMsg.c_str());
-            throw std::runtime_error("failed to open file!");
+            throw SegfaultException("failed to open file!");
         }
 
         size_t fileSize = (size_t)file.tellg();
@@ -671,7 +672,7 @@ namespace segfault::renderer {
         layoutInfo.pBindings = bindings.data();
 
         if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor set layout!");
+            throw SegfaultException("failed to create descriptor set layout!");
         }
     }
 
@@ -774,7 +775,7 @@ namespace segfault::renderer {
         pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
         if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create pipeline layout!");
+            throw SegfaultException("failed to create pipeline layout!");
         }
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -795,7 +796,7 @@ namespace segfault::renderer {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
         if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create graphics pipeline!");
+            throw SegfaultException("failed to create graphics pipeline!");
         }
 
         vkDestroyShaderModule(device, fragShaderModule, nullptr);
@@ -810,7 +811,7 @@ namespace segfault::renderer {
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create buffer!");
+            throw SegfaultException("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
@@ -822,7 +823,7 @@ namespace segfault::renderer {
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
         if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate buffer memory!");
+            throw SegfaultException("failed to allocate buffer memory!");
         }
 
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
@@ -858,7 +859,7 @@ namespace segfault::renderer {
 
             if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
                 core::logMessage(core::LogType::Error, "failed to create freamebuffer!");
-                throw std::runtime_error("failed to create framebuffer!");
+                throw SegfaultException("failed to create framebuffer!");
             }
         }
     }
@@ -873,7 +874,7 @@ namespace segfault::renderer {
 
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to create command pool mocule!");
-            throw std::runtime_error("failed to create command pool!");
+            throw SegfaultException("failed to create command pool!");
         }
     }
 
@@ -898,7 +899,7 @@ namespace segfault::renderer {
 
         if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to allocate command buffers!");
-            throw std::runtime_error("failed to allocate command buffers!");
+            throw SegfaultException("failed to allocate command buffers!");
         }
     }
 
@@ -910,7 +911,7 @@ namespace segfault::renderer {
 
         if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to begin recording command buffer!");
-            throw std::runtime_error("failed to begin recording command buffer!");
+            throw SegfaultException("failed to begin recording command buffer!");
         }
 
         VkRenderPassBeginInfo renderPassInfo{};
@@ -958,7 +959,7 @@ namespace segfault::renderer {
 
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to recording command buffer!");
-            throw std::runtime_error("failed to record command buffer!");
+            throw SegfaultException("failed to record command buffer!");
         }
     }
 
@@ -980,7 +981,7 @@ namespace segfault::renderer {
                     vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
                     vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
                 core::logMessage(core::LogType::Error, "failed to create synchronization objects for a frame!");
-                throw std::runtime_error("failed to create synchronization objects for a frame!");
+                throw SegfaultException("failed to create synchronization objects for a frame!");
             }
         }
     }
@@ -1009,7 +1010,7 @@ namespace segfault::renderer {
             return;
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             core::logMessage(core::LogType::Error, "failed to acquire swap chain image!");
-            throw std::runtime_error("failed to acquire swap chain image!");
+            throw SegfaultException("failed to acquire swap chain image!");
         }
         
         updateUniformBuffer(currentFrame);
@@ -1036,7 +1037,7 @@ namespace segfault::renderer {
 
         if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to submit draw command buffer!");
-            throw std::runtime_error("failed to submit draw command buffer!");
+            throw SegfaultException("failed to submit draw command buffer!");
         }
 
         VkPresentInfoKHR presentInfo{};
@@ -1058,7 +1059,7 @@ namespace segfault::renderer {
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to present swap chain image!");
-            throw std::runtime_error("failed to present swap chain image!");
+            throw SegfaultException("failed to present swap chain image!");
         }
         
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -1099,7 +1100,7 @@ namespace segfault::renderer {
             }
         }
 
-        throw std::runtime_error("failed to find suitable memory type!");
+        throw SegfaultException("failed to find suitable memory type!");
     }
 
     void RHIImpl::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, 
@@ -1121,7 +1122,7 @@ namespace segfault::renderer {
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image!");
+            throw SegfaultException("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
@@ -1133,7 +1134,7 @@ namespace segfault::renderer {
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
         if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate image memory!");
+            throw SegfaultException("failed to allocate image memory!");
         }
 
         vkBindImageMemory(device, image, imageMemory, 0);
@@ -1145,7 +1146,7 @@ namespace segfault::renderer {
         VkDeviceSize imageSize = texWidth * texHeight * 4;
 
         if (pixels == nullptr) {
-            throw std::runtime_error("failed to load texture image!");
+            throw SegfaultException("failed to load texture image!");
         }
 
         VkBuffer stagingBuffer;
@@ -1187,7 +1188,7 @@ namespace segfault::renderer {
 
         VkImageView imageView;
         if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image view!");
+            throw SegfaultException("failed to create image view!");
         }
 
         return imageView;
@@ -1224,7 +1225,7 @@ namespace segfault::renderer {
         samplerInfo.maxLod = 0.0f;
 
         if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create texture sampler!");
+            throw SegfaultException("failed to create texture sampler!");
         }
     }
 
@@ -1298,7 +1299,7 @@ namespace segfault::renderer {
         poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
         if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor pool!");
+            throw SegfaultException("failed to create descriptor pool!");
         }
     }
 
@@ -1312,7 +1313,7 @@ namespace segfault::renderer {
 
         descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
         if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate descriptor sets!");
+            throw SegfaultException("failed to allocate descriptor sets!");
         }
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1449,7 +1450,7 @@ namespace segfault::renderer {
             sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         } else {
-            throw std::invalid_argument("unsupported layout transition!");
+            throw SegfaultException("unsupported layout transition!");
         }
 
         vkCmdPipelineBarrier(

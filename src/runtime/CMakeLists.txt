@@ -2,6 +2,7 @@ SET(segfault_core_src
     core/argumentparser.h
     core/argumentparser.cpp
     core/segfault.h
+    core/segfaultexception.h
     core/filearchive.h
     core/ifilemanager.h
     core/genericfilemanager.h
