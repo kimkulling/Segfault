@@ -10,7 +10,7 @@
 ## Build instructions
 - **Prerequisites:**
   - Vulkan SDK
-  - Python 3.11
+  - Python 3.11 or higher 
   - Make sure that glslc from the SDK is in your PATH
 - **Clone the engine code with all submodules:**
 ```
