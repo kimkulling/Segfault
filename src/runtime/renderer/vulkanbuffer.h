@@ -2,7 +2,6 @@
 
 #include "volk.h"
 
-
 namespace segfault::renderer {
 
     enum class BufferUsage : uint32_t {
