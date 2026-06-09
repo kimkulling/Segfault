@@ -144,7 +144,7 @@ namespace segfault::renderer {
         VkDeviceMemory indexBufferMemory{};
         VkImage textureImage{};
         VkImageView textureImageView{};
-        VkSampler textureSampler;
+        VkSampler textureSampler{};
         VkDeviceMemory textureImageMemory{};
         VkImage depthImage{};
         VkDeviceMemory depthImageMemory{};
@@ -164,7 +164,7 @@ namespace segfault::renderer {
             const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
         QueueFamilyIndices findQueueFamilies(QueueFamilyIndices& indices);
         bool createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice& device, QueueFamilyIndices& indices);
-        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -315,8 +315,20 @@ namespace segfault::renderer {
             && supportedFeatures.samplerAnisotropy;
     }
 
-    bool RHIImpl::checkDeviceExtensionSupport(VkPhysicalDevice device) {
-        return true;
+    bool RHIImpl::checkDeviceExtensionSupport(VkPhysicalDevice device_) {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device_, nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device_, nullptr, &extensionCount, availableExtensions.data());
+
+        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+        for (const auto& extension : availableExtensions) {
+            requiredExtensions.erase(extension.extensionName);
+        }
+
+        return requiredExtensions.empty();
     }
 
     bool RHIImpl::checkValidationLayerSupport() {
@@ -470,7 +482,7 @@ namespace segfault::renderer {
         return true;
     }
 
-    VkSurfaceFormatKHR RHIImpl::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+    VkSurfaceFormatKHR RHIImpl::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const {
         for (const auto& availableFormat : availableFormats) {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
                 return availableFormat;
