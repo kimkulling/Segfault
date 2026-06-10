@@ -16,6 +16,8 @@ SET(segfault_renderer_src
     renderer/renderthread.h
     renderer/RHI.h
     renderer/RHIVulkan.cpp
+    renderer/vulkanbuffer.cpp
+    renderer/vulkanbuffer.h
 )
 
 SET(segfault_application_src

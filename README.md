@@ -18,8 +18,8 @@ git clone --recursive https://github.com/kimkulling/Segfault.git
 ```
 - Go to the directory and run cmake:
 ```
-cd SegFault
-cmake CMakeLists.txt --preset=default
+cd Segfault
+cmake --preset=default
 ```
 - Compile the shader 
 ```
@@ -34,7 +34,7 @@ cd bin\<config>
 - Run the first application on Linux:
 ```
 cd bin
-./hello_world.exe
+./hello_world
 ```
 
 ## Roadmap for Version 0.0.1

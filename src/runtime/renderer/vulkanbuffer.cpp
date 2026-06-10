@@ -1,6 +1,6 @@
 #include "vulkanbuffer.h"
 #include <memory>
-
+#include <cassert>
 namespace segfault::renderer {
 
     uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -22,10 +22,17 @@ namespace segfault::renderer {
     }
 
     VkBufferUsageFlags getUsageFlags(BufferUsage usageFlags) {
-        VkBufferUsageFlags flags = 0;
-        if (usageFlags == BufferUsage::VertexBuffer) flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        if (usageFlags == BufferUsage::IndexBuffer) flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        if (usageFlags == BufferUsage::UniformBuffer) flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        VkBufferUsageFlags flags{ 0 };
+        if (usageFlags == BufferUsage::VertexBuffer) {
+            flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        }
+        if (usageFlags == BufferUsage::IndexBuffer) {
+            flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        }
+        if (usageFlags == BufferUsage::UniformBuffer) {
+            flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        }
+
         return flags;
     }
 
@@ -85,6 +92,10 @@ namespace segfault::renderer {
     }
 
     void VulkanBuffer::copyTo(void *data, VkDeviceSize size) {
+        assert(mMapped != nullptr && "Buffer must be mapped before copying data to it.");
+        assert(size <= VK_WHOLE_SIZE && "Size must be less than or equal to VK_WHOLE_SIZE.");
+        assert(size <= 0 || data != nullptr && "Data pointer must not be null when size is greater than 0.");
+        
         if (mMapped != nullptr) {
             memcpy(mMapped, data, static_cast<size_t>(size));
         }
