@@ -61,7 +61,7 @@ namespace segfault::core {
     #ifdef _WIN32
         // Get the windows specific file-size
         struct __stat64 fileStat;
-        int err = _stat64(name, &fileStat);
+        const int err = _stat64(name, &fileStat);
         if (0 != err) {
             return false;
         }
@@ -69,7 +69,7 @@ namespace segfault::core {
     #else
         // For unix
         struct stat s{};
-        int err = ::stat(name, &s);
+        const int err = ::stat(name, &s);
         if (0 != err) {
             return false;
         }
