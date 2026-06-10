@@ -1,10 +1,11 @@
 #pragma once
 
 #include "volk.h"
-
+#include "core/segfault.h"
 #include <vector>
 #include <optional>
 #include <string>
+#include <cstdint>
 
 namespace segfault::renderer {
 
@@ -45,6 +46,10 @@ namespace segfault::renderer {
     //---------------------------------------------------------------------------------------------
     class SEGFAULT_EXPORT VulkanDevice final {
     public:
+        // Disallow copying
+        VulkanDevice(const VulkanDevice&) = delete;
+        VulkanDevice& operator=(const VulkanDevice&) = delete;
+
         /// @brief Constructs a VulkanDevice.
         /// @param instance The Vulkan instance.
         VulkanDevice(VkInstance instance);
@@ -68,8 +73,6 @@ namespace segfault::renderer {
         VkDevice getDevice() const { return mDevice; }
         VkQueue getGraphicsQueue() const { return mGraphicsQueue; }
         VkQueue getPresentQueue() const { return mPresentQueue; }
-        VkQueue getComputeQueue() const { return mComputeQueue; }
-        VkQueue getTransferQueue() const { return mTransferQueue; }
         const QueueFamilyIndices& getQueueFamilyIndices() const { return mQueueFamilyIndices; }
         uint32_t getGraphicsQueueFamilyIndex() const;
         uint32_t getPresentQueueFamilyIndex() const;
@@ -94,8 +97,6 @@ namespace segfault::renderer {
         VkDevice mDevice{};
         VkQueue mGraphicsQueue{};
         VkQueue mPresentQueue{};
-        VkQueue mComputeQueue{};
-        VkQueue mTransferQueue{};
         QueueFamilyIndices mQueueFamilyIndices{};
         DeviceProperties mProperties{};
         VkSurfaceKHR mSurface{};
@@ -106,10 +107,6 @@ namespace segfault::renderer {
         void loadDeviceProperties();
         void loadQueueFamilies();
         void loadAvailableExtensions();
-
-        // Disallow copying
-        VulkanDevice(const VulkanDevice&) = delete;
-        VulkanDevice& operator=(const VulkanDevice&) = delete;
     };
 
 } // namespace segfault::renderer
