@@ -52,7 +52,7 @@ namespace segfault::renderer {
 
         /// @brief Constructs a VulkanDevice.
         /// @param instance The Vulkan instance.
-        VulkanDevice(VkInstance instance);
+        VulkanDevice(VkPhysicalDevice physicalDevice);
         ~VulkanDevice();
 
         /// @brief Initializes the device with the given surface and requirements.
@@ -64,11 +64,7 @@ namespace segfault::renderer {
         /// @brief Shuts down the device and releases all resources.
         void shutdown();
 
-        /// @brief Waits for all device operations to complete.
-        void waitIdle() const;
-
         // Accessors
-        VkInstance getInstance() const { return mInstance; }
         VkPhysicalDevice getPhysicalDevice() const { return mPhysicalDevice; }
         VkDevice getDevice() const { return mDevice; }
         VkQueue getGraphicsQueue() const { return mGraphicsQueue; }
@@ -78,21 +74,7 @@ namespace segfault::renderer {
         uint32_t getPresentQueueFamilyIndex() const;
         const DeviceProperties& getProperties() const { return mProperties; }
 
-        // Queue submission helpers
-        bool submitGraphics(VkCommandBuffer cmdBuffer, VkFence fence = VK_NULL_HANDLE) const;
-        bool submitCompute(VkCommandBuffer cmdBuffer, VkFence fence = VK_NULL_HANDLE) const;
-        bool submitTransfer(VkCommandBuffer cmdBuffer, VkFence fence = VK_NULL_HANDLE) const;
-
-        // Memory helpers
-        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
-
-        // Device selection
-        static std::vector<VkPhysicalDevice> enumeratePhysicalDevices(VkInstance instance);
-        static bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface, const DeviceRequirements& requirements);
-        static int rateDevice(VkPhysicalDevice device, const DeviceRequirements& requirements);
-
     private:
-        VkInstance mInstance{};
         VkPhysicalDevice mPhysicalDevice{};
         VkDevice mDevice{};
         VkQueue mGraphicsQueue{};
@@ -100,13 +82,6 @@ namespace segfault::renderer {
         QueueFamilyIndices mQueueFamilyIndices{};
         DeviceProperties mProperties{};
         VkSurfaceKHR mSurface{};
-
-        // Initialization helpers
-        bool pickPhysicalDevice(VkSurfaceKHR surface, const DeviceRequirements& requirements);
-        bool createLogicalDevice(const DeviceRequirements& requirements);
-        void loadDeviceProperties();
-        void loadQueueFamilies();
-        void loadAvailableExtensions();
     };
 
 } // namespace segfault::renderer

@@ -2,16 +2,11 @@
 
 namespace segfault::renderer {
 
-    bool QueueFamilyIndices::isComplete() const {
-        return graphicsFamily.has_value() && presentFamily.has_value() &&
-               computeFamily.has_value() && transferFamily.has_value();
-    }
-
     bool QueueFamilyIndices::isGraphicsComplete() const {
         return graphicsFamily.has_value() && presentFamily.has_value();
     }
 
-    VulkanDevice::VulkanDevice(VkInstance instance) : mInstance(instance) {
+    VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice) : mPhysicalDevice(physicalDevice) {
         // empty
     }
 
@@ -21,13 +16,8 @@ namespace segfault::renderer {
 
     bool VulkanDevice::init(VkSurfaceKHR surface, const DeviceRequirements& requirements) {
         mSurface = surface;
-        if (!pickPhysicalDevice(surface, requirements)) {
-            return false;
-        }
 
-        loadDeviceProperties();
-        loadQueueFamilies();
-        loadAvailableExtensions();
+        return true;
     }
 
     void VulkanDevice::shutdown() {

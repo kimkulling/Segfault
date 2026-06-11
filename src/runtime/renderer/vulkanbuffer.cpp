@@ -1,6 +1,7 @@
 #include "vulkanbuffer.h"
 #include <memory>
 #include <cassert>
+
 namespace segfault::renderer {
 
     uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -58,7 +59,7 @@ namespace segfault::renderer {
         if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &mMemory) != VK_SUCCESS) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -95,7 +96,7 @@ namespace segfault::renderer {
         assert(mMapped != nullptr && "Buffer must be mapped before copying data to it.");
         assert(size <= VK_WHOLE_SIZE && "Size must be less than or equal to VK_WHOLE_SIZE.");
         assert(size <= 0 || data != nullptr && "Data pointer must not be null when size is greater than 0.");
-        
+
         if (mMapped != nullptr) {
             memcpy(mMapped, data, static_cast<size_t>(size));
         }
