@@ -128,7 +128,7 @@ namespace segfault::renderer {
         VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
             const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
         QueueFamilyIndices findQueueFamilies(QueueFamilyIndices& indices);
-        bool createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice& device, QueueFamilyIndices& indices);
+        bool createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, QueueFamilyIndices& indices);
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -365,7 +365,7 @@ namespace segfault::renderer {
         return qfIndices;
     }
 
-    bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& qfIndices) {
+    bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, QueueFamilyIndices& qfIndices) {
         qfIndices = findQueueFamilies(qfIndices);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
@@ -1524,7 +1524,7 @@ namespace segfault::renderer {
 
         SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
-        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->queueFamilyIndices);
+        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->queueFamilyIndices);
 
         mImpl->createSwapChain();
         mImpl->createImageViews();

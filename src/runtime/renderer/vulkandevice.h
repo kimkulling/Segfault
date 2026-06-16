@@ -6,9 +6,11 @@
 #include <optional>
 #include <string>
 #include <cstdint>
+#include "vulkantypes.h"
+#include "vulkanbuffer.h"
 
 namespace segfault::renderer {
-
+    
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
@@ -53,6 +55,8 @@ namespace segfault::renderer {
         /// @brief Constructs a VulkanDevice.
         /// @param instance The Vulkan instance.
         VulkanDevice(VkPhysicalDevice physicalDevice);
+
+		/// @brief The class destructor. Ensures that all Vulkan resources are properly released.
         ~VulkanDevice();
 
         /// @brief Initializes the device with the given surface and requirements.
@@ -73,6 +77,10 @@ namespace segfault::renderer {
         uint32_t getGraphicsQueueFamilyIndex() const;
         uint32_t getPresentQueueFamilyIndex() const;
         const DeviceProperties& getProperties() const { return mProperties; }
+		VulkanBuffer* createBuffer(size_t size, BufferUsage usageFlags, uint32_t memoryPropertyFlags);
+        bool copyBuffer(VulkanBuffer *source, VulkanBuffer *destination, VkDeviceSize size, VkQueue queue, VkCommandPool pool);
+        VkCommandBuffer createCommandBuffer(VkCommandPool commandPool, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+        void flushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, VkCommandPool pool, bool free);
 
     private:
         VkPhysicalDevice mPhysicalDevice{};

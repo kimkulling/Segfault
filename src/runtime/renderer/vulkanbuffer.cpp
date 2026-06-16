@@ -1,6 +1,7 @@
 #include "vulkanbuffer.h"
 #include <memory>
 #include <cassert>
+#include <string.h>
 
 namespace segfault::renderer {
 

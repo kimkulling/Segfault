@@ -23,6 +23,7 @@ SET(segfault_renderer_src
     renderer/vulkandevice.h
     renderer/vulkanutils.cpp
     renderer/vulkanutils.h
+    renderer/vulkantypes.h
 )
 
 SET(segfault_application_src
