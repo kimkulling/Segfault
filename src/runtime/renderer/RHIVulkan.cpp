@@ -1,5 +1,6 @@
 #include "RHI.h"
 #include "rendercore.h"
+#include "vulkanutils.h"
 #include "core/segfaultexception.h"
 #include "volk.h"
 #include "SDL_vulkan.h"
@@ -21,44 +22,8 @@
 #include <chrono>
 
 namespace segfault::renderer {
+
     using namespace segfault::core;
-
-    struct Vertex {
-        glm::vec3 pos{};
-        glm::vec3 color{};
-        glm::vec2 texCoord{};
-
-        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-            std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
-
-            attributeDescriptions[0].binding = 0;
-            attributeDescriptions[0].location = 0;
-            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-            attributeDescriptions[1].binding = 0;
-            attributeDescriptions[1].location = 1;
-            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-            attributeDescriptions[2].binding = 0;
-            attributeDescriptions[2].location = 2;
-            attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-            attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-            return attributeDescriptions;
-        }
-
-        static VkVertexInputBindingDescription getBindingDescription() {
-            VkVertexInputBindingDescription bindingDescription{};
-
-            bindingDescription.binding = 0;
-            bindingDescription.stride = sizeof(Vertex);
-            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-            return bindingDescription;
-        }
-    };
 
     const std::vector<Vertex> vertices = {
         {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
@@ -135,7 +100,7 @@ namespace segfault::renderer {
         VkPipeline graphicsPipeline{};
         bool framebufferResized{false};
         VkBuffer vertexBuffer{};
-        
+
         std::vector<VkBuffer> uniformBuffers{};
         std::vector<VkDeviceMemory> uniformBuffersMemory{};
         std::vector<void*> uniformBuffersMapped{};
@@ -163,7 +128,7 @@ namespace segfault::renderer {
         VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
             const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
         QueueFamilyIndices findQueueFamilies(QueueFamilyIndices& indices);
-        bool createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice& device, QueueFamilyIndices& indices);
+        bool createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, QueueFamilyIndices& indices);
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -203,29 +168,6 @@ namespace segfault::renderer {
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
     };
-    
-    VkFormat findSupportedFormat(RHIImpl *rhi, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
-        for (VkFormat format : candidates) {
-            VkFormatProperties props;
-            vkGetPhysicalDeviceFormatProperties(rhi->physicalDevice, format, &props);
-            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
-                return format;
-            } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
-                return format;
-            }
-        }
-
-        throw SegfaultException("failed to find supported format!");
-    }
-
-    VkFormat findDepthFormat(RHIImpl* rhi) {
-        return findSupportedFormat(
-			rhi,
-            { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-            VK_IMAGE_TILING_OPTIMAL,
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-        );
-    }
 
     static std::vector<char> readFile(const std::string& filename) {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -252,7 +194,7 @@ namespace segfault::renderer {
     SwapChainSupportDetails RHIImpl::querySwapChainSupport() {
         SwapChainSupportDetails details;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
-        
+
         uint32_t formatCount;
         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
 
@@ -271,7 +213,7 @@ namespace segfault::renderer {
 
         return details;
     }
-    
+
     bool RHIImpl::checkDeviceExtensionSupport() {
         uint32_t extensionCount{};
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
@@ -311,7 +253,7 @@ namespace segfault::renderer {
         VkPhysicalDeviceFeatures supportedFeatures;
         vkGetPhysicalDeviceFeatures(physicalDevice, &supportedFeatures);
 
-        return queueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate 
+        return queueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate
             && supportedFeatures.samplerAnisotropy;
     }
 
@@ -388,7 +330,7 @@ namespace segfault::renderer {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
         if (func != nullptr) {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-        } 
+        }
 
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
@@ -423,7 +365,7 @@ namespace segfault::renderer {
         return qfIndices;
     }
 
-    bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, VkDevice &device, QueueFamilyIndices& qfIndices) {
+    bool RHIImpl::createLogicalDevice(bool enableValidationLayers, VkPhysicalDevice physicalDevice, QueueFamilyIndices& qfIndices) {
         qfIndices = findQueueFamilies(qfIndices);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
@@ -446,15 +388,15 @@ namespace segfault::renderer {
 
         // priorities
         float queuePrioritys[2] = { 1.f, 1.f };
-        
-        queueCreateInfo.pNext = nullptr;        
+
+        queueCreateInfo.pNext = nullptr;
         queueCreateInfo.pQueuePriorities = &queuePrioritys[0];
 
         VkPhysicalDeviceFeatures deviceFeatures{};
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         deviceFeatures.samplerAnisotropy = VK_TRUE;
-        
+
         createInfo.pNext = nullptr;
         createInfo.pQueueCreateInfos = &queueCreateInfo;
 
@@ -475,7 +417,7 @@ namespace segfault::renderer {
         if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
             return false;
         }
-        
+
         vkGetDeviceQueue(device, qfIndices.presentFamily.value(), 0, &presentQueue);
         vkGetDeviceQueue(device, qfIndices.graphicsFamily.value(), 0, &graphicsQueue);
 
@@ -553,8 +495,8 @@ namespace segfault::renderer {
             createInfo.pQueueFamilyIndices = queueFamilyIndices;
         } else {
             createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            createInfo.queueFamilyIndexCount = 0; // Optional
-            createInfo.pQueueFamilyIndices = nullptr; // Optional
+            createInfo.queueFamilyIndexCount = 0;       // Optional
+            createInfo.pQueueFamilyIndices = nullptr;   // Optional
         }
 
         createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
@@ -604,7 +546,7 @@ namespace segfault::renderer {
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = swapChainImageFormat;
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    
+
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
@@ -615,7 +557,7 @@ namespace segfault::renderer {
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         VkAttachmentDescription depthAttachment{};
-        depthAttachment.format = findDepthFormat(this);
+        depthAttachment.format = VulkanUtils::findDepthFormat(this->physicalDevice);
         depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
         depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -895,7 +837,7 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createDepthResources() {
-        VkFormat depthFormat = findDepthFormat(this);
+        VkFormat depthFormat = VulkanUtils::findDepthFormat(this->physicalDevice);
         createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
         depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
         transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
@@ -964,7 +906,7 @@ namespace segfault::renderer {
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-        
+
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
@@ -980,7 +922,7 @@ namespace segfault::renderer {
         renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
-        
+
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -1014,7 +956,7 @@ namespace segfault::renderer {
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex{};
-        VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], 
+        VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
                 VK_NULL_HANDLE, &imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
@@ -1024,13 +966,13 @@ namespace segfault::renderer {
             core::logMessage(core::LogType::Error, "failed to acquire swap chain image!");
             throw SegfaultException("failed to acquire swap chain image!");
         }
-        
+
         updateUniformBuffer(currentFrame);
 
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
         vkResetCommandBuffer(commandBuffers[currentFrame], 0);
         recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
-        
+
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -1039,7 +981,7 @@ namespace segfault::renderer {
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
-        
+
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
@@ -1065,7 +1007,7 @@ namespace segfault::renderer {
 
         presentInfo.pResults = nullptr; // Optional
 
-        result = vkQueuePresentKHR(presentQueue, &presentInfo);   
+        result = vkQueuePresentKHR(presentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
             framebufferResized = false;
             recreateSwapChain();
@@ -1073,7 +1015,7 @@ namespace segfault::renderer {
             core::logMessage(core::LogType::Error, "failed to present swap chain image!");
             throw SegfaultException("failed to present swap chain image!");
         }
-        
+
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
@@ -1115,8 +1057,8 @@ namespace segfault::renderer {
         throw SegfaultException("failed to find suitable memory type!");
     }
 
-    void RHIImpl::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, 
-            VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, 
+    void RHIImpl::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+            VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
             VkDeviceMemory& imageMemory) {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -1173,9 +1115,9 @@ namespace segfault::renderer {
         stbi_image_free(pixels);
 
         createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-            textureImage, textureImageMemory);       
-            
+            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            textureImage, textureImageMemory);
+
         transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
         copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
         transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -1205,11 +1147,11 @@ namespace segfault::renderer {
 
         return imageView;
     }
-    
+
     void RHIImpl::createTextureImageView() {
         textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
     }
-    
+
     void RHIImpl::createTextureSampler() {
         VkSamplerCreateInfo samplerInfo{};
         samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1273,7 +1215,7 @@ namespace segfault::renderer {
         memcpy(data, indices.data(), (size_t)bufferSize);
         vkUnmapMemory(device, stagingBufferMemory);
 
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, 
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
         copyBuffer(stagingBuffer, indexBuffer, bufferSize);
@@ -1290,7 +1232,7 @@ namespace segfault::renderer {
         uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+            createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                 uniformBuffers[i], uniformBuffersMemory[i]);
             vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
@@ -1333,7 +1275,7 @@ namespace segfault::renderer {
             bufferInfo.buffer = uniformBuffers[i];
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
-        
+
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             imageInfo.imageView = textureImageView;
@@ -1579,10 +1521,10 @@ namespace segfault::renderer {
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
         vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, physicalDevices.data());
         mImpl->physicalDevice = physicalDevices[0];
-        
+
         SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
 
-        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->device, mImpl->queueFamilyIndices);
+        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->queueFamilyIndices);
 
         mImpl->createSwapChain();
         mImpl->createImageViews();
@@ -1604,13 +1546,13 @@ namespace segfault::renderer {
         mImpl->createSyncObjects();
         return true;
     }
-    
+
     bool RHI::shutdown() {
         mImpl->cleanupSwapChain();
         vkDestroyImage(mImpl->device, mImpl->textureImage, nullptr);
         vkDestroySampler(mImpl->device, mImpl->textureSampler, nullptr);
         vkDestroyImageView(mImpl->device, mImpl->textureImageView, nullptr);
-        
+
         vkFreeMemory(mImpl->device, mImpl->textureImageMemory, nullptr);
         for (size_t i = 0; i < RHIImpl::MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroyBuffer(mImpl->device, mImpl->uniformBuffers[i], nullptr);
@@ -1636,7 +1578,7 @@ namespace segfault::renderer {
         vkDestroyShaderModule(mImpl->device, mImpl->vertShaderModule, nullptr);
         vkDestroyPipelineLayout(mImpl->device, mImpl->pipelineLayout, nullptr);
         vkDestroyRenderPass(mImpl->device, mImpl->renderPass, nullptr);
-        
+
         vkDestroySwapchainKHR(mImpl->device, mImpl->swapChain, nullptr);
         vkDestroyDevice(mImpl->device, nullptr);
         delete mImpl;
@@ -1645,7 +1587,7 @@ namespace segfault::renderer {
 
         return true;
     }
-    
+
     void RHI::drawFrame() {
         mImpl->drawFrame();
     }

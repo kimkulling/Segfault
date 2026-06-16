@@ -2,14 +2,9 @@
 
 #include "volk.h"
 
+#include "vulkantypes.h"
 
 namespace segfault::renderer {
-
-    enum class BufferUsage : uint32_t {
-        VertexBuffer = 0x1,
-        IndexBuffer = 0x2,
-        UniformBuffer = 0x4
-    };
 
     class VulkanBuffer {
     public:
@@ -26,6 +21,7 @@ namespace segfault::renderer {
         void copyTo(void *data, VkDeviceSize size);
         VkBuffer getBuffer() const { return mBuffer; }
         VkDeviceMemory getMemory() const { return mMemory; }
+		size_t getSize() const { return mSize; }
 
     private:
         VkPhysicalDevice mPhysicalDevice{};
@@ -33,6 +29,7 @@ namespace segfault::renderer {
         VkBuffer mBuffer{};
         VkDeviceMemory mMemory{};
         void *mMapped{nullptr};
+        size_t mSize{0};
     };
 
 } // namespace segfault::renderer
