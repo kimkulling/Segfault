@@ -26,16 +26,23 @@ SET(segfault_renderer_src
     renderer/vulkantypes.h
 )
 
+SET(segfault_ai_src
+    ai/behavior_tree.h
+    ai/behavior_tree.cpp
+)
+
 SET(segfault_application_src
     application/app.h
     application/app.cpp
 )
 
-SOURCE_GROUP(core        FILES ${segfault_core_src} )
-SOURCE_GROUP(application FILES ${segfault_application_src} )
-SOURCE_GROUP(renderer    FILES ${segfault_renderer_src} )
+source_group(ai           FILES ${segfault_ai_src} )
+source_group(core         FILES ${segfault_core_src} )
+source_group(application  FILES ${segfault_application_src} )
+source_group(renderer     FILES ${segfault_renderer_src} )
 
 ADD_LIBRARY(segfault_runtime SHARED
+    ${segfault_ai_src}    
     ${segfault_core_src}
     ${segfault_renderer_src}
     ${segfault_application_src}
