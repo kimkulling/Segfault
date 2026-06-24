@@ -20,24 +20,50 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
-#include "core/segfault.h"
-#include "application/app.h"
+#include "behavior_tree.h"
+#include "core/filearchive.h"
 
-using namespace segfault::application;
-using namespace segfault::core;
+#include <nlohmann/json.hpp>
 
-int main(int argc, char* argv[]) {
-    App myApp;
-    uint32_t width = 800;
-    uint32_t height = 600;
-    if (!myApp.init("hello_world", Rect(50, 50, width, height), "hello, world!", false)) {
-        return -1;
-    }
-    
-    while (myApp.mainloop()) {
-        myApp.drawFrame();
-    }
-    myApp.shutdown();
+using json = ::nlohmann::json;
 
-    return 0;
-}
+namespace segfault::ai {
+
+	using namespace segfault::core;
+	
+	BehaviorTree::BehaviorTree() {
+		// Constructor implementation (if needed)
+	}
+
+	BehaviorTree::~BehaviorTree() {
+		// Destructor implementation (if needed)
+	}
+
+	bool BehaviorTree::init(const char* configFile) {
+		if (configFile == nullptr) {
+			return false;
+		}
+	
+		FileArchive archive(configFile, "r", true, false);
+		if (!archive.isValid()) {
+			return false;
+		}
+
+		// Read the entire file into a string
+		size_t size = archive.getSize();
+		std::string content(size, '\0');
+		archive.read(reinterpret_cast<uint8_t*>(&content[0]), size);
+		json Doc{ json::parse(content) };
+
+		return true;
+	}
+
+	void BehaviorTree::update() {
+		if (mRootNode == nullptr) {
+			return;
+		}
+		
+		mRootNode->tick();
+	}
+
+} // namespace segfault::ai
