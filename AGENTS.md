@@ -136,6 +136,15 @@ namespace segfault::renderer {
 namespace segfault::application {
     // application code
 }
+
+namespace segfault::ai {
+    // game ai code
+}
+
+namespace segfault::scene {
+    // scene code
+}
+
 ```
 
 ### Import Style
