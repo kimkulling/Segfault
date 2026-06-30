@@ -23,17 +23,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "behavior_tree.h"
 #include "core/filearchive.h"
 
-#include <nlohmann/json.hpp>
-
-using json = ::nlohmann::json;
-
 namespace segfault::ai {
+	using json = ::nlohmann::json;
 
 	using namespace segfault::core;
-
-	void BehaviorTreeNode::addChild(BehaviorTreeNode* node) {
-		// Implementation for adding a child node
-	}
 
 	class BehaviorTreeNodeFactory {
 	public:

@@ -25,8 +25,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "core/segfault.h"
 
 #include <functional>
+#include <nlohmann/json.hpp>
 
 namespace segfault::ai {
+
+	using json = ::nlohmann::json;
+
 	enum class NodeStatus {
 		INVALID = -1,
 		IDLE = 0,
@@ -77,6 +81,10 @@ namespace segfault::ai {
 
 	class SequenceNode : public BehaviorTreeNode {
 	public:
+		explicit SequenceNode(const json& nodeData) {
+			// empty
+		}
+
 		NodeStatus tick() override {
 			for (auto *child : mChildren) {
 				assert(child != nullptr);
@@ -105,7 +113,7 @@ namespace segfault::ai {
 
 	class ConditionNode : public SequenceNode {
 	public:
-		explicit ConditionNode(std::function<bool()> func) : mFunc(func) {
+		explicit ConditionNode(const json& nodeData) : SequenceNode(nodeData) {
 			// empty
 		}
 
@@ -123,6 +131,11 @@ namespace segfault::ai {
 
 	class ActionNode : public BehaviorTreeNode {
 	public:
+		explicit ActionNode(const json& nodeData) {
+			// empty
+		}
+
+
 		explicit ActionNode(std::function<NodeStatus()> func) : mFunc(func) {
 			// empty
 		}
@@ -137,6 +150,10 @@ namespace segfault::ai {
 
 	class SelectorNode : public BehaviorTreeNode {
 	public:
+		explicit SelectorNode(const json& nodeData) {
+			// empty
+		}
+
 		~SelectorNode() override {
 			for (auto* child : mChildren) {
 				delete child;
