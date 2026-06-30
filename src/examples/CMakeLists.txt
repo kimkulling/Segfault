@@ -1,2 +1,4 @@
+add_subdirectory(behaviortree_sample)
 add_subdirectory(common)
 add_subdirectory(hello_world)
+add_subdirectory(scene_sample)
