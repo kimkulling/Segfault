@@ -20,24 +20,28 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
-#include "core/segfault.h"
-#include "application/app.h"
+#include "common/examplebase.h"
 
-using namespace segfault::application;
-using namespace segfault::core;
+namespace {
 
-int main(int argc, char* argv[]) {
-    App myApp;
-    uint32_t width = 800;
-    uint32_t height = 600;
-    if (!myApp.init("hello_world", Rect(50, 50, width, height), "hello, world!", false)) {
-        return -1;
+using segfault::examples::ExampleBase;
+using segfault::examples::ExampleConfig;
+
+//-------------------------------------------------------------------------------------------------
+/// @class HelloWorld
+/// @brief The minimal Segfault example: open a window and clear the frame every loop.
+//-------------------------------------------------------------------------------------------------
+class HelloWorld final : public ExampleBase {
+public:
+    HelloWorld() :
+            ExampleBase(ExampleConfig{"hello_world", "hello, world!", 50, 50, 800, 600, false}) {
+        // empty
     }
-    
-    while (myApp.mainloop()) {
-        myApp.drawFrame();
-    }
-    myApp.shutdown();
+};
 
-    return 0;
+} // namespace
+
+int main(int argc, char *argv[]) {
+    HelloWorld example;
+    return example.run(argc, argv);
 }
