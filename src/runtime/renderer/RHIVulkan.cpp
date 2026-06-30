@@ -1477,7 +1477,7 @@ namespace segfault::renderer {
     }
 
     RHI::~RHI() {
-        assert(mImpl == nullptr);
+        assert(mImpl != nullptr);
         if (mImpl != nullptr) {
             delete mImpl;
         }

@@ -1,0 +1,4 @@
+add_executable(behaviortree_sample behaviortree_sample.cpp)
+target_link_libraries(behaviortree_sample example_common)
+
+set_target_properties(behaviortree_sample PROPERTIES FOLDER examples )

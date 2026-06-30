@@ -106,7 +106,7 @@ namespace segfault::application {
     App::~App() {
         if (mState != ModuleState::Shutdown) {
             logMessage(LogType::Error, "App not in state Shutdown.");
-            shutdown();
+            App::shutdown();
         }
     }
 
@@ -166,13 +166,16 @@ namespace segfault::application {
         if (mSdlWindow == nullptr || mState == ModuleState::Shutdown) {
             logMessage(LogType::Warn, "App already in state Shutdown.");
             return; 
-        }
+           }
 
         SDL_DestroyWindow(mSdlWindow);
         mSdlWindow = nullptr;
         mState = ModuleState::Shutdown;
         releaseSDL();
         logMessage(LogType::Print, getEndLog().c_str());
+        delete mRHI;
+        mRHI = nullptr;
     }
 
 } // namespace segfault::application
+  
