@@ -23,14 +23,39 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "behavior_tree.h"
 #include "core/filearchive.h"
 
-#include <nlohmann/json.hpp>
-
-using json = ::nlohmann::json;
-
 namespace segfault::ai {
+	using json = ::nlohmann::json;
 
 	using namespace segfault::core;
-	
+
+	class BehaviorTreeNodeFactory {
+	public:
+		BehaviorTreeNodeFactory() = default;
+		~BehaviorTreeNodeFactory() = default;
+
+		static BehaviorTreeNode* createNode(const json& nodeData) {
+			if (!nodeData.contains("type")) {
+				return nullptr;
+			}
+
+			std::string nodeType = nodeData["type"].get<std::string>();
+
+			// Create the appropriate node based on the type
+			if (nodeType == "Sequence") {
+				return new SequenceNode(nodeData);
+			} else if (nodeType == "Selector") {
+				return new SelectorNode(nodeData);
+			} else if (nodeType == "Action") {
+				return new ActionNode(nodeData);
+			} else if (nodeType == "Condition") {
+				return new ConditionNode(nodeData);
+			} else {
+				// Unknown node type
+				return nullptr;
+			}
+		}
+	};
+
 	BehaviorTree::BehaviorTree() {
 		// Constructor implementation (if needed)
 	}
@@ -54,6 +79,11 @@ namespace segfault::ai {
 		std::string content(size, '\0');
 		archive.read(reinterpret_cast<uint8_t*>(&content[0]), size);
 		json Doc{ json::parse(content) };
+
+		mRootNode = BehaviorTreeNodeFactory::createNode(Doc);
+		if (mRootNode == nullptr) {	
+			return false;
+		}
 
 		return true;
 	}

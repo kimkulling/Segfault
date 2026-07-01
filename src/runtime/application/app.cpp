@@ -87,7 +87,7 @@ namespace segfault::application {
         SDL_Window* initWindow(const char* title, const Rect &rect, bool fullscreen) {
             SDL_Window *sdlWindow = SDL_CreateWindow(title, rect.x, rect.y, rect.width, rect.height, SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
             if (sdlWindow == nullptr) {
-                std::string msg = std::string("Cannot init sdl-window: ");
+                auto msg = std::string("Cannot init sdl-window: ");
                 msg += SDL_GetError();
                 logMessage(LogType::Error, msg.c_str());
                 return nullptr;
@@ -178,3 +178,4 @@ namespace segfault::application {
     }
 
 } // namespace segfault::application
+  

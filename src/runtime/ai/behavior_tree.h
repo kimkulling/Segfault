@@ -24,13 +24,30 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "core/segfault.h"
 
+#include <functional>
+#include <nlohmann/json.hpp>
+
 namespace segfault::ai {
+
+	using json = ::nlohmann::json;
+
 	enum class NodeStatus {
+		INVALID = -1,
 		IDLE = 0,
 		RUNNING = 1,
 		SUCCESS = 2,
 		FAILURE = 3,
 		SKIPPED = 4,
+		COUNT
+	};
+
+	enum class NodeType {
+		INVALID = -1,
+		SEQUENCE,
+		SELECTOR,
+		CONDITION,
+		ACTION,
+		Count
 	};
 
 	//---------------------------------------------------------------------------------------------
@@ -51,38 +68,115 @@ namespace segfault::ai {
 		
 		/// @brief Pure virtual function to be implemented by derived classes
 		virtual NodeStatus tick() = 0;
-	};
 
-	class LeafNode : public BehaviorTreeNode {
-	public:
-		NodeStatus tick() override {
-			// Implementation of the leaf node's behavior
-			return NodeStatus::IDLE;
-		}
+		virtual void addChild(BehaviorTreeNode* node) {}
+
+		NodeType getNodeType() const { return mNodeType; }
+		NodeStatus getNodeStatus() const { return mNodeStatus; }
+
+	private:
+		NodeType mNodeType{ NodeType::INVALID };
+		NodeStatus mNodeStatus{ NodeStatus::INVALID };
 	};
 
 	class SequenceNode : public BehaviorTreeNode {
 	public:
-		NodeStatus tick() override {
-			// Implementation of the sequence node's behavior
-			return NodeStatus::IDLE;
+		explicit SequenceNode(const json& nodeData) {
+			// empty
 		}
+
+		NodeStatus tick() override {
+			for (auto *child : mChildren) {
+				assert(child != nullptr);
+				auto status = child->tick();
+				if (status != NodeStatus::SUCCESS) {
+					return status;
+				}
+			}
+			return NodeStatus::SUCCESS;
+		}
+
+		~SequenceNode() override {
+			for (auto child : mChildren) {
+				delete child;
+			}
+			mChildren.clear();
+		}
+
+		void addChild(BehaviorTreeNode* node) override {
+			mChildren.push_back(node);
+		}
+
+	private:
+		std::vector< BehaviorTreeNode*> mChildren;
 	};
 
-	class ConditionNode : public LeafNode {
+	class ConditionNode : public SequenceNode {
 	public:
-		NodeStatus tick() override {
-			// Implementation of the condition node's behavior
-			return NodeStatus::IDLE;
+		explicit ConditionNode(const json& nodeData) : SequenceNode(nodeData) {
+			// empty
 		}
+
+		NodeStatus tick() override {
+			if (mFunc()) {
+				return mFunc() ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+			}
+			
+			return NodeStatus::FAILURE;
+		}
+
+	private:
+		std::function<bool()> mFunc;
 	};
 
-	class ActionNode : public LeafNode {
+	class ActionNode : public BehaviorTreeNode {
 	public:
-		NodeStatus tick() override {
-			// Implementation of the action node's behavior
-			return NodeStatus::IDLE;
+		explicit ActionNode(const json& nodeData) {
+			// empty
 		}
+
+
+		explicit ActionNode(std::function<NodeStatus()> func) : mFunc(func) {
+			// empty
+		}
+
+		NodeStatus tick() override {
+			return mFunc();
+		}
+
+	private:
+		std::function<NodeStatus()> mFunc;
+	};
+
+	class SelectorNode : public BehaviorTreeNode {
+	public:
+		explicit SelectorNode(const json& nodeData) {
+			// empty
+		}
+
+		~SelectorNode() override {
+			for (auto* child : mChildren) {
+				delete child;
+			}
+			mChildren.clear();
+		}
+
+		void addChild(BehaviorTreeNode* node) override {
+			mChildren.push_back(node);
+		}
+
+		NodeStatus tick() override {
+			for (auto* child : mChildren) {
+				assert(child != nullptr);
+
+				auto status = child->tick();
+				if (status != NodeStatus::FAILURE) return status;
+			}
+			return NodeStatus::FAILURE;
+		}
+
+	private:
+		std::vector< BehaviorTreeNode*> mChildren;
 	};
 
 	//---------------------------------------------------------------------------------------------
