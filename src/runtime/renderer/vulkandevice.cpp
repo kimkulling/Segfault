@@ -21,12 +21,10 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
 #include "vulkandevice.h"
+#include "vulkanbuffer.h"
+#include "vulkantypes.h"
 
 namespace segfault::renderer {
-
-    bool QueueFamilyIndices::isGraphicsComplete() const {
-        return graphicsFamily.has_value() && presentFamily.has_value();
-    }
 
     VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice) : mPhysicalDevice(physicalDevice) {
         // empty
@@ -81,6 +79,8 @@ namespace segfault::renderer {
 		vkCmdCopyBuffer(copyCmd, source->getBuffer(), destination->getBuffer(), 1, &bufferCopy);
 
 		flushCommandBuffer(copyCmd, queue, pool, true);
+
+		return true;
 	}
 
 	VkCommandBuffer VulkanDevice::createCommandBuffer(VkCommandPool commandPool, VkCommandBufferLevel level) {

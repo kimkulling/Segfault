@@ -28,12 +28,18 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace segfault::renderer {
 
+	//---------------------------------------------------------------------------------------------
+	/// @class VulkanBuffer
+	/// @brief The VulkanBuffer class encapsulates a Vulkan buffer and its associated memory, providing
+	/// a convenient interface for buffer management in Vulkan applications. It allows for the creation,
+	/// mapping, binding, and copying of data to the buffer, as well as cleanup of
+	/// resources when they are no longer needed.
+	//---------------------------------------------------------------------------------------------
     class VulkanBuffer {
     public:
         VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device);
         ~VulkanBuffer() = default;
 
-        VkDevice device{};
         bool init(size_t size, BufferUsage usageFlags, uint32_t memoryPropertyFlags);
         void cleanup();
 

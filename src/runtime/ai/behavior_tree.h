@@ -69,9 +69,18 @@ namespace segfault::ai {
 		/// @brief Pure virtual function to be implemented by derived classes
 		virtual NodeStatus tick() = 0;
 
-		virtual void addChild(BehaviorTreeNode* node) {}
+		/// @brief Adds a child node to this node
+		/// @param node Pointer to the child node to be added
+		virtual void addChild(BehaviorTreeNode* node) {
+			// empty
+		}
 
+		/// @brief Gets the type of this node
+		/// @return The NodeType of this node
 		NodeType getNodeType() const { return mNodeType; }
+		
+		/// @brief Gets the status of this node
+		/// @return The NodeStatus of this node
 		NodeStatus getNodeStatus() const { return mNodeStatus; }
 
 	private:

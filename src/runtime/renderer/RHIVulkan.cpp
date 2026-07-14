@@ -23,6 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "RHI.h"
 #include "rendercore.h"
 #include "vulkanutils.h"
+#include "vulkantypes.h"
 #include "core/segfaultexception.h"
 #include "volk.h"
 #include "SDL_vulkan.h"
@@ -72,15 +73,6 @@ namespace segfault::renderer {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    struct QueueFamilyIndices {
-        std::optional<uint32_t> graphicsFamily{};
-        std::optional<uint32_t> presentFamily{};
-
-        bool isComplete() const {
-            return graphicsFamily.has_value() && presentFamily.has_value();
-        }
-    };
-
     struct SwapChainSupportDetails {
         VkSurfaceCapabilitiesKHR capabilities{};
         std::vector<VkSurfaceFormatKHR> formats{};
@@ -90,52 +82,52 @@ namespace segfault::renderer {
     struct RHIImpl final {
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-        SDL_Window *window{nullptr};
-        bool enableValidationLayers{false};
-        VkInstance instance{};
-        VkPhysicalDevice physicalDevice{};
-        VkDevice device{};
-        VkQueue graphicsQueue{};
-        VkQueue presentQueue{};
-        QueueFamilyIndices queueFamilyIndices{};
-        VkSurfaceKHR surface{};
-        VkSwapchainKHR swapChain{};
-        std::vector<VkImage> swapChainImages{};
-        VkFormat swapChainImageFormat{};
-        VkExtent2D swapChainExtent{};
-        std::vector<VkImageView> swapChainImageViews{};
-        VkShaderModule vertShaderModule{};
-        VkShaderModule fragShaderModule{};
-        VkRenderPass renderPass{};
-        VkDescriptorSetLayout descriptorSetLayout{};
-        VkDescriptorPool descriptorPool{};
-        std::vector<VkDescriptorSet> descriptorSets{};
+        SDL_Window *mWindow{nullptr};
+        bool mEnableValidationLayers{false};
+        VkInstance mInstance{};
+        VkPhysicalDevice mPhysicalDevice{};
+        VkDevice mDevice{};
+        VkQueue mGraphicsQueue{};
+        VkQueue mPresentQueue{};
+        QueueFamilyIndices mQueueFamilyIndices{};
+        VkSurfaceKHR mSurface{};
+        VkSwapchainKHR mSwapChain{};
+        std::vector<VkImage> mSwapChainImages{};
+        VkFormat mSwapChainImageFormat{};
+        VkExtent2D mSwapChainExtent{};
+        std::vector<VkImageView> mSwapChainImageViews{};
+        VkShaderModule mVertShaderModule{};
+        VkShaderModule mFragShaderModule{};
+        VkRenderPass mRenderPass{};
+        VkDescriptorSetLayout mDescriptorSetLayout{};
+        VkDescriptorPool mDescriptorPool{};
+        std::vector<VkDescriptorSet> mDescriptorSets{};
 
-        VkPipelineLayout pipelineLayout{};
-        std::vector<VkFramebuffer> swapChainFramebuffers{};
-        VkCommandPool commandPool{};
-        std::vector<VkCommandBuffer> commandBuffers{};
-        uint32_t currentFrame{0};
-        std::vector<VkSemaphore> imageAvailableSemaphores{};
-        std::vector<VkSemaphore> renderFinishedSemaphores{};
-        std::vector<VkFence> inFlightFences{};
-        VkPipeline graphicsPipeline{};
-        bool framebufferResized{false};
-        VkBuffer vertexBuffer{};
+        VkPipelineLayout mPipelineLayout{};
+        std::vector<VkFramebuffer> mSwapChainFramebuffers{};
+        VkCommandPool mCommandPool{};
+        std::vector<VkCommandBuffer> mCommandBuffers{};
+        uint32_t mCurrentFrame{0};
+        std::vector<VkSemaphore> mImageAvailableSemaphores{};
+        std::vector<VkSemaphore> mRenderFinishedSemaphores{};
+        std::vector<VkFence> mInFlightFences{};
+        VkPipeline mGraphicsPipeline{};
+        bool mFramebufferResized{false};
+        VkBuffer mVertexBuffer{};
 
-        std::vector<VkBuffer> uniformBuffers{};
-        std::vector<VkDeviceMemory> uniformBuffersMemory{};
-        std::vector<void*> uniformBuffersMapped{};
-        VkDeviceMemory vertexBufferMemory{};
-        VkBuffer indexBuffer{};
-        VkDeviceMemory indexBufferMemory{};
-        VkImage textureImage{};
-        VkImageView textureImageView{};
-        VkSampler textureSampler{};
-        VkDeviceMemory textureImageMemory{};
-        VkImage depthImage{};
-        VkDeviceMemory depthImageMemory{};
-        VkImageView depthImageView{};
+        std::vector<VkBuffer> mUniformBuffers{};
+        std::vector<VkDeviceMemory> mUniformBuffersMemory{};
+        std::vector<void*> mUniformBuffersMapped{};
+        VkDeviceMemory mVertexBufferMemory{};
+        VkBuffer mIndexBuffer{};
+        VkDeviceMemory mIndexBufferMemory{};
+        VkImage mTextureImage{};
+        VkImageView mTextureImageView{};
+        VkSampler mTextureSampler{};
+        VkDeviceMemory mTextureImageMemory{};
+        VkImage mDepthImage{};
+        VkDeviceMemory mDepthImageMemory{};
+        VkImageView mDepthImageView{};
 
         RHIImpl() = default;
         ~RHIImpl() = default;
@@ -215,22 +207,22 @@ namespace segfault::renderer {
 
     SwapChainSupportDetails RHIImpl::querySwapChainSupport() {
         SwapChainSupportDetails details;
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, mSurface, &details.capabilities);
 
         uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, mSurface, &formatCount, nullptr);
 
         if (formatCount != 0) {
             details.formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
+            vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, mSurface, &formatCount, details.formats.data());
         }
 
         uint32_t presentModeCount{};
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, mSurface, &presentModeCount, nullptr);
 
         if (presentModeCount != 0) {
             details.presentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, details.presentModes.data());
+            vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, mSurface, &presentModeCount, details.presentModes.data());
         }
 
         return details;
@@ -238,10 +230,10 @@ namespace segfault::renderer {
 
     bool RHIImpl::checkDeviceExtensionSupport() {
         uint32_t extensionCount{};
-        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+        vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &extensionCount, nullptr);
 
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
+        vkEnumerateDeviceExtensionProperties(mPhysicalDevice, nullptr, &extensionCount, availableExtensions.data());
 
         std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
@@ -262,7 +254,7 @@ namespace segfault::renderer {
     }
 
     bool RHIImpl::isDeviceSuitable() {
-        queueFamilyIndices = findQueueFamilies(queueFamilyIndices);
+        mQueueFamilyIndices = findQueueFamilies(mQueueFamilyIndices);
 
         bool extensionsSupported = checkDeviceExtensionSupport();
 
@@ -273,9 +265,9 @@ namespace segfault::renderer {
         }
 
         VkPhysicalDeviceFeatures supportedFeatures;
-        vkGetPhysicalDeviceFeatures(physicalDevice, &supportedFeatures);
+        vkGetPhysicalDeviceFeatures(mPhysicalDevice, &supportedFeatures);
 
-        return queueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate
+        return mQueueFamilyIndices.isComplete() && extensionsSupported && swapChainAdequate
             && supportedFeatures.samplerAnisotropy;
     }
 
@@ -359,10 +351,10 @@ namespace segfault::renderer {
 
     QueueFamilyIndices RHIImpl::findQueueFamilies(QueueFamilyIndices &qfIndices) {
         uint32_t queueFamilyCount{0};
-        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+        vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueFamilyCount, nullptr);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
+        vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueFamilyCount, queueFamilies.data());
 
         int i{ 0 };
         for (const auto& queueFamily : queueFamilies) {
@@ -371,7 +363,7 @@ namespace segfault::renderer {
             }
 
             VkBool32 presentSupport{false};
-            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(mPhysicalDevice, i, mSurface, &presentSupport);
 
             if (presentSupport) {
                 qfIndices.presentFamily = i;
@@ -391,7 +383,7 @@ namespace segfault::renderer {
         qfIndices = findQueueFamilies(qfIndices);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
-        std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value() };
+        std::set<uint32_t> uniqueQueueFamilies = { mQueueFamilyIndices.graphicsFamily.value(), mQueueFamilyIndices.presentFamily.value() };
 
         float queuePriority{ 1.0f };
         for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -405,7 +397,7 @@ namespace segfault::renderer {
 
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+        queueCreateInfo.queueFamilyIndex = mQueueFamilyIndices.graphicsFamily.value();
         queueCreateInfo.queueCount = 1;
 
         // priorities
@@ -436,12 +428,12 @@ namespace segfault::renderer {
             createInfo.enabledLayerCount = 0;
         }
 
-        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &mDevice) != VK_SUCCESS) {
             return false;
         }
 
-        vkGetDeviceQueue(device, qfIndices.presentFamily.value(), 0, &presentQueue);
-        vkGetDeviceQueue(device, qfIndices.graphicsFamily.value(), 0, &graphicsQueue);
+        vkGetDeviceQueue(mDevice, qfIndices.presentFamily.value(), 0, &mPresentQueue);
+        vkGetDeviceQueue(mDevice, qfIndices.graphicsFamily.value(), 0, &mGraphicsQueue);
 
         return true;
     }
@@ -467,12 +459,13 @@ namespace segfault::renderer {
     }
 
     VkExtent2D RHIImpl::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
-        int width, height;
+        int width{0};
+        int height{0};
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;
         }
 
-        SDL_GetWindowSize(window, &width, &height);
+        SDL_GetWindowSize(mWindow, &width, &height);
         VkExtent2D actualExtent = {
             static_cast<uint32_t>(width),
             static_cast<uint32_t>(height)
@@ -499,7 +492,7 @@ namespace segfault::renderer {
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = surface;
+        createInfo.surface = mSurface;
 
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
@@ -509,12 +502,12 @@ namespace segfault::renderer {
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         QueueFamilyIndices indices = findQueueFamilies(indices);
-        uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+        std::array<uint32_t, 2> queueFamilyIndices = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
         if (indices.graphicsFamily != indices.presentFamily) {
             createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
             createInfo.queueFamilyIndexCount = 2;
-            createInfo.pQueueFamilyIndices = queueFamilyIndices;
+            createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
         } else {
             createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
             createInfo.queueFamilyIndexCount = 0;       // Optional
@@ -530,22 +523,22 @@ namespace segfault::renderer {
 
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+        if (vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain) != VK_SUCCESS) {
             return;
         }
 
-        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
-        swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+        vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, nullptr);
+        mSwapChainImages.resize(imageCount);
+        vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCount, mSwapChainImages.data());
 
-        swapChainImageFormat = surfaceFormat.format;
-        swapChainExtent = extent;
+        mSwapChainImageFormat = surfaceFormat.format;
+        mSwapChainExtent = extent;
     }
 
     void RHIImpl::createImageViews() {
-        swapChainImageViews.resize(swapChainImages.size());
-        for (size_t i = 0; i < swapChainImages.size(); i++) {
-            swapChainImageViews[i] = createImageView(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+        mSwapChainImageViews.resize(mSwapChainImages.size());
+        for (size_t i = 0; i < mSwapChainImages.size(); i++) {
+            mSwapChainImageViews[i] = createImageView(mSwapChainImages[i], mSwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 
@@ -556,7 +549,7 @@ namespace segfault::renderer {
         createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
         VkShaderModule shaderModule;
-        if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(mDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to create shader mocule!");
             return VK_NULL_HANDLE;
         }
@@ -566,7 +559,7 @@ namespace segfault::renderer {
 
     void RHIImpl::createRenderPass() {
         VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = swapChainImageFormat;
+        colorAttachment.format = mSwapChainImageFormat;
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 
         colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -579,7 +572,7 @@ namespace segfault::renderer {
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
         VkAttachmentDescription depthAttachment{};
-        depthAttachment.format = VulkanUtils::findDepthFormat(this->physicalDevice);
+        depthAttachment.format = VulkanUtils::findDepthFormat(mPhysicalDevice);
         depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
         depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -620,7 +613,7 @@ namespace segfault::renderer {
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &mRenderPass) != VK_SUCCESS) {
             return;
         }
     }
@@ -647,7 +640,7 @@ namespace segfault::renderer {
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+        if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout) != VK_SUCCESS) {
             throw SegfaultException("failed to create descriptor set layout!");
         }
     }
@@ -748,9 +741,9 @@ namespace segfault::renderer {
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+        pipelineLayoutInfo.pSetLayouts = &mDescriptorSetLayout;
 
-        if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+        if (vkCreatePipelineLayout(mDevice, &pipelineLayoutInfo, nullptr, &mPipelineLayout) != VK_SUCCESS) {
             throw SegfaultException("failed to create pipeline layout!");
         }
 
@@ -765,18 +758,18 @@ namespace segfault::renderer {
         pipelineInfo.pMultisampleState = &multisampling;
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
-        pipelineInfo.layout = pipelineLayout;
+        pipelineInfo.layout = mPipelineLayout;
         pipelineInfo.pDepthStencilState = &depthStencil;
-        pipelineInfo.renderPass = renderPass;
+        pipelineInfo.renderPass = mRenderPass;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(mDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &mGraphicsPipeline) != VK_SUCCESS) {
             throw SegfaultException("failed to create graphics pipeline!");
         }
 
-        vkDestroyShaderModule(device, fragShaderModule, nullptr);
-        vkDestroyShaderModule(device, vertShaderModule, nullptr);
+        vkDestroyShaderModule(mDevice, fragShaderModule, nullptr);
+        vkDestroyShaderModule(mDevice, vertShaderModule, nullptr);
     }
 
     void RHIImpl::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
@@ -786,23 +779,23 @@ namespace segfault::renderer {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        if (vkCreateBuffer(mDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
             throw SegfaultException("failed to create buffer!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(mDevice, buffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
             throw SegfaultException("failed to allocate buffer memory!");
         }
 
-        vkBindBufferMemory(device, buffer, bufferMemory, 0);
+        vkBindBufferMemory(mDevice, buffer, bufferMemory, 0);
     }
 
     void RHIImpl::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -816,24 +809,24 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createFramebuffers() {
-        swapChainFramebuffers.resize(swapChainImageViews.size());
+        mSwapChainFramebuffers.resize(mSwapChainImageViews.size());
 
-        for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+        for (size_t i = 0; i < mSwapChainImageViews.size(); i++) {
             std::array<VkImageView, 2> attachments = {
-                swapChainImageViews[i],
-                depthImageView
+                mSwapChainImageViews[i],
+                mDepthImageView
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = renderPass;
+            framebufferInfo.renderPass = mRenderPass;
             framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferInfo.pAttachments = attachments.data();
-            framebufferInfo.width = swapChainExtent.width;
-            framebufferInfo.height = swapChainExtent.height;
+            framebufferInfo.width = mSwapChainExtent.width;
+            framebufferInfo.height = mSwapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+            if (vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr, &mSwapChainFramebuffers[i]) != VK_SUCCESS) {
                 core::logMessage(core::LogType::Error, "failed to create freamebuffer!");
                 throw SegfaultException("failed to create framebuffer!");
             }
@@ -848,7 +841,7 @@ namespace segfault::renderer {
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mCommandPool) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to create command pool mocule!");
             throw SegfaultException("failed to create command pool!");
         }
@@ -859,21 +852,25 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createDepthResources() {
-        VkFormat depthFormat = VulkanUtils::findDepthFormat(this->physicalDevice);
-        createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
-        depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-        transitionImageLayout(depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+        VkFormat depthFormat = VulkanUtils::findDepthFormat(mPhysicalDevice);
+        createImage(mSwapChainExtent.width, mSwapChainExtent.height, depthFormat, 
+            VK_IMAGE_TILING_OPTIMAL, 
+            VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+            mDepthImage, mDepthImageMemory);
+        mDepthImageView = createImageView(mDepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+        transitionImageLayout(mDepthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     }
 
     void RHIImpl::createCommandBuffers() {
-        commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        mCommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPool;
+        allocInfo.commandPool = mCommandPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+        allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffers.size());
 
-        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers.data()) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to allocate command buffers!");
             throw SegfaultException("failed to allocate command buffers!");
         }
@@ -892,10 +889,10 @@ namespace segfault::renderer {
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderPass;
-        renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+        renderPassInfo.renderPass = mRenderPass;
+        renderPassInfo.framebuffer = mSwapChainFramebuffers[imageIndex];
         renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = swapChainExtent;
+        renderPassInfo.renderArea.extent = mSwapChainExtent;
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = {{0.8f, 0.8f, 0.8f, 1.0f}};
@@ -906,28 +903,28 @@ namespace segfault::renderer {
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mGraphicsPipeline);
 
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = static_cast<float>(swapChainExtent.width);
-        viewport.height = static_cast<float>(swapChainExtent.height);
+        viewport.width = static_cast<float>(mSwapChainExtent.width);
+        viewport.height = static_cast<float>(mSwapChainExtent.height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = swapChainExtent;
+        scissor.extent = mSwapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        VkBuffer vertexBuffers[] = { vertexBuffer };
+        VkBuffer vertexBuffers[] = { mVertexBuffer };
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(commandBuffer, mIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSets[mCurrentFrame], 0, nullptr);
 
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
@@ -940,9 +937,9 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createSyncObjects() {
-        imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+        mImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        mRenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        mInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
 
         VkSemaphoreCreateInfo semaphoreInfo{};
@@ -953,9 +950,9 @@ namespace segfault::renderer {
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                    vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-                    vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+            if (vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr, &mImageAvailableSemaphores[i]) != VK_SUCCESS ||
+                    vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr, &mRenderFinishedSemaphores[i]) != VK_SUCCESS ||
+                    vkCreateFence(mDevice, &fenceInfo, nullptr, &mInFlightFences[i]) != VK_SUCCESS) {
                 core::logMessage(core::LogType::Error, "failed to create synchronization objects for a frame!");
                 throw SegfaultException("failed to create synchronization objects for a frame!");
             }
@@ -969,49 +966,49 @@ namespace segfault::renderer {
         UniformBufferObject ubo{};
         ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+        ubo.proj = glm::perspective(glm::radians(45.0f), mSwapChainExtent.width / (float)mSwapChainExtent.height, 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
-        memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+        memcpy(mUniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     }
 
     void RHIImpl::drawFrame() {
-        vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+        vkWaitForFences(mDevice, 1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex{};
-        VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
+        VkResult result = vkAcquireNextImageKHR(mDevice, mSwapChain, UINT64_MAX, mImageAvailableSemaphores[mCurrentFrame],
                 VK_NULL_HANDLE, &imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
-            framebufferResized = false;
+            mFramebufferResized = false;
             return;
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             core::logMessage(core::LogType::Error, "failed to acquire swap chain image!");
             throw SegfaultException("failed to acquire swap chain image!");
         }
 
-        updateUniformBuffer(currentFrame);
+        updateUniformBuffer(mCurrentFrame);
 
-        vkResetFences(device, 1, &inFlightFences[currentFrame]);
-        vkResetCommandBuffer(commandBuffers[currentFrame], 0);
-        recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+        vkResetFences(mDevice, 1, &mInFlightFences[mCurrentFrame]);
+        vkResetCommandBuffer(mCommandBuffers[mCurrentFrame], 0);
+        recordCommandBuffer(mCommandBuffers[mCurrentFrame], imageIndex);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame] };
+        VkSemaphore waitSemaphores[] = {mImageAvailableSemaphores[mCurrentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+        submitInfo.pCommandBuffers = &mCommandBuffers[mCurrentFrame];
 
-        VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+        VkSemaphore signalSemaphores[] = { mRenderFinishedSemaphores[mCurrentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+        if (vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, mInFlightFences[mCurrentFrame]) != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to submit draw command buffer!");
             throw SegfaultException("failed to submit draw command buffer!");
         }
@@ -1022,43 +1019,43 @@ namespace segfault::renderer {
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = signalSemaphores;
 
-        VkSwapchainKHR swapChains[] = { swapChain };
+        VkSwapchainKHR swapChains[] = { mSwapChain };
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
         presentInfo.pImageIndices = &imageIndex;
 
         presentInfo.pResults = nullptr; // Optional
 
-        result = vkQueuePresentKHR(presentQueue, &presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-            framebufferResized = false;
+        result = vkQueuePresentKHR(mPresentQueue, &presentInfo);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || mFramebufferResized) {
+            mFramebufferResized = false;
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
             core::logMessage(core::LogType::Error, "failed to present swap chain image!");
             throw SegfaultException("failed to present swap chain image!");
         }
 
-        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
     void RHIImpl::cleanupSwapChain() {
-        vkDestroyImageView(device, depthImageView, nullptr);
-        vkDestroyImage(device, depthImage, nullptr);
-        vkFreeMemory(device, depthImageMemory, nullptr);
+        vkDestroyImageView(mDevice, mDepthImageView, nullptr);
+        vkDestroyImage(mDevice, mDepthImage, nullptr);
+        vkFreeMemory(mDevice, mDepthImageMemory, nullptr);
 
-        for (auto framebuffer : swapChainFramebuffers) {
-            vkDestroyFramebuffer(device, framebuffer, nullptr);
+        for (auto framebuffer : mSwapChainFramebuffers) {
+            vkDestroyFramebuffer(mDevice, framebuffer, nullptr);
         }
 
-        for (auto imageView : swapChainImageViews) {
-            vkDestroyImageView(device, imageView, nullptr);
+        for (auto imageView : mSwapChainImageViews) {
+            vkDestroyImageView(mDevice, imageView, nullptr);
         }
 
-        vkDestroySwapchainKHR(device, swapChain, nullptr);
+        vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
     }
 
     void RHIImpl::recreateSwapChain() {
-        vkDeviceWaitIdle(device);
+        vkDeviceWaitIdle(mDevice);
         cleanupSwapChain();
         createSwapChain();
         createImageViews();
@@ -1068,7 +1065,7 @@ namespace segfault::renderer {
 
     uint32_t RHIImpl::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
         VkPhysicalDeviceMemoryProperties memProperties{};
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+        vkGetPhysicalDeviceMemoryProperties(mPhysicalDevice, &memProperties);
 
         for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
             if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -1097,23 +1094,23 @@ namespace segfault::renderer {
         imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+        if (vkCreateImage(mDevice, &imageInfo, nullptr, &image) != VK_SUCCESS) {
             throw SegfaultException("failed to create image!");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(device, image, &memRequirements);
+        vkGetImageMemoryRequirements(mDevice, image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
             throw SegfaultException("failed to allocate image memory!");
         }
 
-        vkBindImageMemory(device, image, imageMemory, 0);
+        vkBindImageMemory(mDevice, image, imageMemory, 0);
     }
 
     void RHIImpl::createTextureImage() {
@@ -1130,24 +1127,24 @@ namespace segfault::renderer {
         createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
         void* data{nullptr};
-        vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
+        vkMapMemory(mDevice, stagingBufferMemory, 0, imageSize, 0, &data);
         memcpy(data, pixels, static_cast<size_t>(imageSize));
-        vkUnmapMemory(device, stagingBufferMemory);
+        vkUnmapMemory(mDevice, stagingBufferMemory);
 
         stbi_image_free(pixels);
 
         createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
             VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            textureImage, textureImageMemory);
+            mTextureImage, mTextureImageMemory);
 
-        transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-        transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        transitionImageLayout(mTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        copyBufferToImage(stagingBuffer, mTextureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+        transitionImageLayout(mTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        transitionImageLayout(mTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
+        vkDestroyBuffer(mDevice, stagingBuffer, nullptr);
+        vkFreeMemory(mDevice, stagingBufferMemory, nullptr);
     }
 
     VkImageView RHIImpl::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
@@ -1163,7 +1160,7 @@ namespace segfault::renderer {
         viewInfo.subresourceRange.layerCount = 1;
 
         VkImageView imageView;
-        if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+        if (vkCreateImageView(mDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
             throw SegfaultException("failed to create image view!");
         }
 
@@ -1171,7 +1168,7 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createTextureImageView() {
-        textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+        mTextureImageView = createImageView(mTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
     void RHIImpl::createTextureSampler() {
@@ -1185,7 +1182,7 @@ namespace segfault::renderer {
         samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 
         VkPhysicalDeviceProperties properties{};
-        vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+        vkGetPhysicalDeviceProperties(mPhysicalDevice, &properties);
         samplerInfo.anisotropyEnable = VK_TRUE;
         samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 
@@ -1200,7 +1197,7 @@ namespace segfault::renderer {
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = 0.0f;
 
-        if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+        if (vkCreateSampler(mDevice, &samplerInfo, nullptr, &mTextureSampler) != VK_SUCCESS) {
             throw SegfaultException("failed to create texture sampler!");
         }
     }
@@ -1213,16 +1210,16 @@ namespace segfault::renderer {
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
         void *data{nullptr};
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, vertices.data(), (size_t)bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
+        vkUnmapMemory(mDevice, stagingBufferMemory);
 
-        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+        createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVertexBuffer, mVertexBufferMemory);
 
-        copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+        copyBuffer(stagingBuffer, mVertexBuffer, bufferSize);
 
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
+        vkDestroyBuffer(mDevice, stagingBuffer, nullptr);
+        vkFreeMemory(mDevice, stagingBufferMemory, nullptr);
     }
 
     void RHIImpl::createIndexBuffer() {
@@ -1233,31 +1230,31 @@ namespace segfault::renderer {
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
         void *data{nullptr};
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, indices.data(), (size_t)bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
+        vkUnmapMemory(mDevice, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mIndexBuffer, mIndexBufferMemory);
 
-        copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+        copyBuffer(stagingBuffer, mIndexBuffer, bufferSize);
 
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
+        vkDestroyBuffer(mDevice, stagingBuffer, nullptr);
+        vkFreeMemory(mDevice, stagingBufferMemory, nullptr);
     }
 
     void RHIImpl::createUniformBuffers() {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-        uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-        uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-        uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+        mUniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        mUniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+        mUniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                uniformBuffers[i], uniformBuffersMemory[i]);
-            vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+                mUniformBuffers[i], mUniformBuffersMemory[i]);
+            vkMapMemory(mDevice, mUniformBuffersMemory[i], 0, bufferSize, 0, &mUniformBuffersMapped[i]);
         }
     }
 
@@ -1274,39 +1271,39 @@ namespace segfault::renderer {
         poolInfo.pPoolSizes = poolSizes.data();
         poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-        if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+        if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mDescriptorPool) != VK_SUCCESS) {
             throw SegfaultException("failed to create descriptor pool!");
         }
     }
 
     void RHIImpl::createDescriptorSets() {
-        std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, mDescriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = descriptorPool;
+        allocInfo.descriptorPool = mDescriptorPool;
         allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
         allocInfo.pSetLayouts = layouts.data();
 
-        descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-        if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+        mDescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+        if (vkAllocateDescriptorSets(mDevice, &allocInfo, mDescriptorSets.data()) != VK_SUCCESS) {
             throw SegfaultException("failed to allocate descriptor sets!");
         }
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = uniformBuffers[i];
+            bufferInfo.buffer = mUniformBuffers[i];
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
 
             VkDescriptorImageInfo imageInfo{};
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = textureImageView;
-            imageInfo.sampler = textureSampler;
+            imageInfo.imageView = mTextureImageView;
+            imageInfo.sampler = mTextureSampler;
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
             descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[0].dstSet = descriptorSets[i];
+            descriptorWrites[0].dstSet = mDescriptorSets[i];
             descriptorWrites[0].dstBinding = 0;
             descriptorWrites[0].dstArrayElement = 0;
             descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1314,14 +1311,14 @@ namespace segfault::renderer {
             descriptorWrites[0].pBufferInfo = &bufferInfo;
 
             descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrites[1].dstSet = descriptorSets[i];
+            descriptorWrites[1].dstSet = mDescriptorSets[i];
             descriptorWrites[1].dstBinding = 1;
             descriptorWrites[1].dstArrayElement = 0;
             descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             descriptorWrites[1].descriptorCount = 1;
             descriptorWrites[1].pImageInfo = &imageInfo;
 
-            vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+            vkUpdateDescriptorSets(mDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
     }
 
@@ -1329,11 +1326,11 @@ namespace segfault::renderer {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = commandPool;
+        allocInfo.commandPool = mCommandPool;
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+        vkAllocateCommandBuffers(mDevice, &allocInfo, &commandBuffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1352,10 +1349,10 @@ namespace segfault::renderer {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
 
-        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(graphicsQueue);
+        vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(mGraphicsQueue);
 
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(mDevice, mCommandPool, 1, &commandBuffer);
     }
 
     void RHIImpl::transitionImageLayout(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -1491,7 +1488,7 @@ namespace segfault::renderer {
         }
 
         mImpl = new RHIImpl;
-        mImpl->window = window;
+        mImpl->mWindow = window;
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         mImpl->setupDebugMessenger(debugCreateInfo);
@@ -1506,7 +1503,7 @@ namespace segfault::renderer {
         extensionNames.resize(extensionCount);
         SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, &extensionNames[0]);
 
-        if (mImpl->enableValidationLayers) {
+        if (mImpl->mEnableValidationLayers) {
             extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
 
@@ -1521,7 +1518,7 @@ namespace segfault::renderer {
                 extensionNames.data()                           // ppEnabledExtensionNames
         };
 
-        if (mImpl->enableValidationLayers && !mImpl->checkValidationLayerSupport()) {
+        if (mImpl->mEnableValidationLayers && !mImpl->checkValidationLayerSupport()) {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
 
@@ -1532,28 +1529,28 @@ namespace segfault::renderer {
             createInfo.pNext = nullptr;
         }
 
-        result = vkCreateInstance(&createInfo, nullptr, &mImpl->instance);
+        result = vkCreateInstance(&createInfo, nullptr, &mImpl->mInstance);
         if (result != VK_SUCCESS) {
             return false;
         }
-        volkLoadInstance(mImpl->instance);
+        volkLoadInstance(mImpl->mInstance);
 
-        uint32_t physicalDeviceCount = 0;
-        vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, nullptr);
+        uint32_t physicalDeviceCount{ 0 };
+        vkEnumeratePhysicalDevices(mImpl->mInstance, &physicalDeviceCount, nullptr);
         std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
-        vkEnumeratePhysicalDevices(mImpl->instance, &physicalDeviceCount, physicalDevices.data());
-        mImpl->physicalDevice = physicalDevices[0];
+        vkEnumeratePhysicalDevices(mImpl->mInstance, &physicalDeviceCount, physicalDevices.data());
+        mImpl->mPhysicalDevice = physicalDevices[0];
 
-        SDL_Vulkan_CreateSurface(mImpl->window, mImpl->instance, &mImpl->surface);
+        SDL_Vulkan_CreateSurface(mImpl->mWindow, mImpl->mInstance, &mImpl->mSurface);
 
-        mImpl->createLogicalDevice(mImpl->enableValidationLayers, mImpl->physicalDevice, mImpl->queueFamilyIndices);
+        mImpl->createLogicalDevice(mImpl->mEnableValidationLayers, mImpl->mPhysicalDevice, mImpl->mQueueFamilyIndices);
 
         mImpl->createSwapChain();
         mImpl->createImageViews();
         mImpl->createRenderPass();
         mImpl->createDescriptorSetLayout();
         mImpl->createGraphicsPipeline();
-        mImpl->createCommandPool(mImpl->queueFamilyIndices);
+        mImpl->createCommandPool(mImpl->mQueueFamilyIndices);
         mImpl->createDepthResources();
         mImpl->createFramebuffers();
         mImpl->createTextureImage();
@@ -1571,38 +1568,38 @@ namespace segfault::renderer {
 
     bool RHI::shutdown() {
         mImpl->cleanupSwapChain();
-        vkDestroyImage(mImpl->device, mImpl->textureImage, nullptr);
-        vkDestroySampler(mImpl->device, mImpl->textureSampler, nullptr);
-        vkDestroyImageView(mImpl->device, mImpl->textureImageView, nullptr);
+        vkDestroyImage(mImpl->mDevice, mImpl->mTextureImage, nullptr);
+        vkDestroySampler(mImpl->mDevice, mImpl->mTextureSampler, nullptr);
+        vkDestroyImageView(mImpl->mDevice, mImpl->mTextureImageView, nullptr);
 
-        vkFreeMemory(mImpl->device, mImpl->textureImageMemory, nullptr);
+        vkFreeMemory(mImpl->mDevice, mImpl->mTextureImageMemory, nullptr);
         for (size_t i = 0; i < RHIImpl::MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroyBuffer(mImpl->device, mImpl->uniformBuffers[i], nullptr);
-            vkFreeMemory(mImpl->device, mImpl->uniformBuffersMemory[i], nullptr);
+            vkDestroyBuffer(mImpl->mDevice, mImpl->mUniformBuffers[i], nullptr);
+            vkFreeMemory(mImpl->mDevice, mImpl->mUniformBuffersMemory[i], nullptr);
         }
-        vkDestroyDescriptorPool(mImpl->device, mImpl->descriptorPool, nullptr);
-        vkDestroyDescriptorSetLayout(mImpl->device, mImpl->descriptorSetLayout, nullptr);
-        vkDestroyBuffer(mImpl->device, mImpl->vertexBuffer, nullptr);
-        vkFreeMemory(mImpl->device, mImpl->vertexBufferMemory, nullptr);
+        vkDestroyDescriptorPool(mImpl->mDevice, mImpl->mDescriptorPool, nullptr);
+        vkDestroyDescriptorSetLayout(mImpl->mDevice, mImpl->mDescriptorSetLayout, nullptr);
+        vkDestroyBuffer(mImpl->mDevice, mImpl->mVertexBuffer, nullptr);
+        vkFreeMemory(mImpl->mDevice, mImpl->mVertexBufferMemory, nullptr);
 
-        vkDestroyBuffer(mImpl->device, mImpl->indexBuffer, nullptr);
-        vkFreeMemory(mImpl->device, mImpl->indexBufferMemory, nullptr);
+        vkDestroyBuffer(mImpl->mDevice, mImpl->mIndexBuffer, nullptr);
+        vkFreeMemory(mImpl->mDevice, mImpl->mIndexBufferMemory, nullptr);
 
         for (size_t i = 0; i < RHIImpl::MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(mImpl->device, mImpl->renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(mImpl->device, mImpl->imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(mImpl->device, mImpl->inFlightFences[i], nullptr);
+            vkDestroySemaphore(mImpl->mDevice, mImpl->mRenderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(mImpl->mDevice, mImpl->mImageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(mImpl->mDevice, mImpl->mInFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(mImpl->device, mImpl->commandPool, nullptr);
+        vkDestroyCommandPool(mImpl->mDevice, mImpl->mCommandPool, nullptr);
 
-        vkDestroyShaderModule(mImpl->device, mImpl->fragShaderModule, nullptr);
-        vkDestroyShaderModule(mImpl->device, mImpl->vertShaderModule, nullptr);
-        vkDestroyPipelineLayout(mImpl->device, mImpl->pipelineLayout, nullptr);
-        vkDestroyRenderPass(mImpl->device, mImpl->renderPass, nullptr);
+        vkDestroyShaderModule(mImpl->mDevice, mImpl->mFragShaderModule, nullptr);
+        vkDestroyShaderModule(mImpl->mDevice, mImpl->mVertShaderModule, nullptr);
+        vkDestroyPipelineLayout(mImpl->mDevice, mImpl->mPipelineLayout, nullptr);
+        vkDestroyRenderPass(mImpl->mDevice, mImpl->mRenderPass, nullptr);
 
-        vkDestroySwapchainKHR(mImpl->device, mImpl->swapChain, nullptr);
-        vkDestroyDevice(mImpl->device, nullptr);
+        vkDestroySwapchainKHR(mImpl->mDevice, mImpl->mSwapChain, nullptr);
+        vkDestroyDevice(mImpl->mDevice, nullptr);
         delete mImpl;
         mImpl = nullptr;
         volkFinalize();
@@ -1615,7 +1612,7 @@ namespace segfault::renderer {
     }
 
     void RHI::resize() {
-        mImpl->framebufferResized = true;
+        mImpl->mFramebufferResized = true;
     }
 
 } // namespace segfault::renderer

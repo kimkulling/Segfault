@@ -21,43 +21,45 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
 #include "vulkanbuffer.h"
+
 #include <memory>
 #include <cassert>
 #include <string.h>
 
 namespace segfault::renderer {
+    namespace {
+        uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+            VkPhysicalDeviceMemoryProperties memProperties{};
+            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
-    uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-        VkPhysicalDeviceMemoryProperties memProperties{};
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
-        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-            if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-                return i;
+            for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+                if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                    return i;
+                }
             }
+
+            return 0;
         }
 
-        return 0;
+        VkBufferUsageFlags getUsageFlags(BufferUsage usageFlags) {
+            VkBufferUsageFlags flags{ 0 };
+            if (usageFlags == BufferUsage::VertexBuffer) {
+                flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            }
+            if (usageFlags == BufferUsage::IndexBuffer) {
+                flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+            }
+            if (usageFlags == BufferUsage::UniformBuffer) {
+                flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+            }
+
+            return flags;
+        }
     }
 
     VulkanBuffer::VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device) :
             mPhysicalDevice(physicalDevice), mDevice(device) {
         // empty
-    }
-
-    VkBufferUsageFlags getUsageFlags(BufferUsage usageFlags) {
-        VkBufferUsageFlags flags{ 0 };
-        if (usageFlags == BufferUsage::VertexBuffer) {
-            flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-        }
-        if (usageFlags == BufferUsage::IndexBuffer) {
-            flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-        }
-        if (usageFlags == BufferUsage::UniformBuffer) {
-            flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        }
-
-        return flags;
     }
 
     bool VulkanBuffer::init(size_t size, BufferUsage usageFlags, uint32_t memoryPropertyFlags) {
