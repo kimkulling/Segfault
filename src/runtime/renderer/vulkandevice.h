@@ -33,16 +33,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace segfault::renderer {
     
-    struct QueueFamilyIndices {
-        std::optional<uint32_t> graphicsFamily;
-        std::optional<uint32_t> presentFamily;
-        std::optional<uint32_t> computeFamily;
-        std::optional<uint32_t> transferFamily;
-
-        bool isComplete() const;
-        bool isGraphicsComplete() const;
-    };
-
     struct DeviceRequirements {
         std::vector<const char*> requiredExtensions;
         std::vector<const char*> optionalExtensions;
@@ -76,7 +66,7 @@ namespace segfault::renderer {
 
         /// @brief Constructs a VulkanDevice.
         /// @param instance The Vulkan instance.
-        VulkanDevice(VkPhysicalDevice physicalDevice);
+        explicit VulkanDevice(VkPhysicalDevice physicalDevice);
 
 		/// @brief The class destructor. Ensures that all Vulkan resources are properly released.
         ~VulkanDevice();
