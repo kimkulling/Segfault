@@ -550,7 +550,7 @@ namespace segfault::renderer {
 
         VkShaderModule shaderModule;
         if (vkCreateShaderModule(mDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-            core::logMessage(core::LogType::Error, "failed to create shader mocule!");
+            core::logMessage(core::LogType::Error, "failed to create shader module!");
             return VK_NULL_HANDLE;
         }
 
@@ -614,6 +614,7 @@ namespace segfault::renderer {
         renderPassInfo.pDependencies = &dependency;
 
         if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &mRenderPass) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create render pass!");      
             return;
         }
     }
@@ -641,6 +642,7 @@ namespace segfault::renderer {
         layoutInfo.pBindings = bindings.data();
 
         if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr, &mDescriptorSetLayout) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create descriptor set layout!");
             throw SegfaultException("failed to create descriptor set layout!");
         }
     }
@@ -765,6 +767,7 @@ namespace segfault::renderer {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
         if (vkCreateGraphicsPipelines(mDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &mGraphicsPipeline) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create graphics pipeline!");
             throw SegfaultException("failed to create graphics pipeline!");
         }
 
@@ -780,6 +783,7 @@ namespace segfault::renderer {
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (vkCreateBuffer(mDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create buffer!");
             throw SegfaultException("failed to create buffer!");
         }
 
@@ -792,6 +796,7 @@ namespace segfault::renderer {
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
         if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to allocate buffer memory!");
             throw SegfaultException("failed to allocate buffer memory!");
         }
 
@@ -958,6 +963,7 @@ namespace segfault::renderer {
             }
         }
     }
+    
     void RHIImpl::updateUniformBuffer(uint32_t currentImage) {
         static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -1119,6 +1125,7 @@ namespace segfault::renderer {
         VkDeviceSize imageSize = texWidth * texHeight * 4;
 
         if (pixels == nullptr) {
+            core::logMessage(core::LogType::Error, "failed to load texture image!");
             throw SegfaultException("failed to load texture image!");
         }
 
@@ -1161,6 +1168,7 @@ namespace segfault::renderer {
 
         VkImageView imageView;
         if (vkCreateImageView(mDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create image view!");
             throw SegfaultException("failed to create image view!");
         }
 
@@ -1272,6 +1280,7 @@ namespace segfault::renderer {
         poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
         if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mDescriptorPool) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create descriptor pool!");
             throw SegfaultException("failed to create descriptor pool!");
         }
     }
@@ -1286,6 +1295,7 @@ namespace segfault::renderer {
 
         mDescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
         if (vkAllocateDescriptorSets(mDevice, &allocInfo, mDescriptorSets.data()) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to allocate descriptor sets!");
             throw SegfaultException("failed to allocate descriptor sets!");
         }
 
