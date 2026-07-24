@@ -11,6 +11,10 @@ SET(segfault_core_src
     core/tokenizer.h
 )
 
+set (segfault_scene_src
+    scene/camera.h
+)
+
 SET(segfault_renderer_src
     renderer/rendercore.h
     renderer/renderthread.cpp
@@ -45,6 +49,7 @@ ADD_LIBRARY(segfault_runtime SHARED
     ${segfault_ai_src}    
     ${segfault_core_src}
     ${segfault_renderer_src}
+    ${segfault_scene_src}
     ${segfault_application_src}
 )
 
