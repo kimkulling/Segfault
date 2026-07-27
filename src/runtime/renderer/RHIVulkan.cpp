@@ -23,6 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "RHI.h"
 #include "rendercore.h"
 #include "vulkanutils.h"
+#include "vulkanbuffer.h"
 #include "vulkantypes.h"
 #include "core/segfaultexception.h"
 #include "volk.h"
@@ -149,6 +150,7 @@ namespace segfault::renderer {
         VkShaderModule createShaderModule(const std::vector<char>& code);
         void createSwapChain();
         void createImageViews();
+
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
         void createRenderPass();
@@ -341,8 +343,7 @@ namespace segfault::renderer {
 
     VkResult RHIImpl::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
             const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-        if (func != nullptr) {
+        if (auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"); func != nullptr) {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
         }
 
@@ -776,31 +777,15 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
-        VkBufferCreateInfo bufferInfo{};
-        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = size;
-        bufferInfo.usage = usage;
-        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VulkanBuffer bufferInst(mPhysicalDevice, mDevice);
+		if (!bufferInst.init(size, usage, properties)) {
+			throw SegfaultException("failed to init vulkan buffer!");
+		}
 
-        if (vkCreateBuffer(mDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-            core::logMessage(core::LogType::Error, "failed to create buffer!");
-            throw SegfaultException("failed to create buffer!");
-        }
 
-        VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(mDevice, buffer, &memRequirements);
-
-        VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-        if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-            core::logMessage(core::LogType::Error, "failed to allocate buffer memory!");
-            throw SegfaultException("failed to allocate buffer memory!");
-        }
-
-        vkBindBufferMemory(mDevice, buffer, bufferMemory, 0);
+        buffer = bufferInst.getBuffer();
+        bufferMemory = bufferInst.getMemory();
+        vkBindBufferMemory(mDevice, bufferInst.getBuffer(), bufferMemory, 0);
     }
 
     void RHIImpl::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {

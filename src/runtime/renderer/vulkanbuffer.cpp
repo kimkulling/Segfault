@@ -21,6 +21,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
 #include "vulkanbuffer.h"
+#include "core/segfault.h"
 
 #include <memory>
 #include <cassert>
@@ -28,6 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace segfault::renderer {
     namespace {
+
         uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
             VkPhysicalDeviceMemoryProperties memProperties{};
             vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
@@ -43,13 +45,32 @@ namespace segfault::renderer {
 
         VkBufferUsageFlags getUsageFlags(BufferUsage usageFlags) {
             VkBufferUsageFlags flags{ 0 };
-            if (usageFlags == BufferUsage::VertexBuffer) {
+
+			if ((uint32_t) usageFlags & (uint32_t) BufferUsage::TransferSourceBit) {
+				flags |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+			}
+			if ((uint32_t)usageFlags & (uint32_t)BufferUsage::TransferDestinationBit) {
+				flags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			}
+			if ((uint32_t)usageFlags & (uint32_t)BufferUsage::UniformTexelBufferBit) {
+				flags |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+			}
+			if ((uint32_t)usageFlags & (uint32_t)BufferUsage::StorageTexelBufferBit) {
+				flags |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+			}
+			if ((uint32_t)usageFlags & (uint32_t)BufferUsage::UniformBuffer) {
+				flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			}
+			if ((uint32_t)usageFlags & (uint32_t)BufferUsage::IndexBuffer) {
+				flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			}
+            if ((uint32_t)usageFlags & (uint32_t)BufferUsage::VertexBuffer) {
                 flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
             }
-            if (usageFlags == BufferUsage::IndexBuffer) {
+            if ((uint32_t)usageFlags & (uint32_t)   BufferUsage::IndexBuffer) {
                 flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
             }
-            if (usageFlags == BufferUsage::UniformBuffer) {
+            if ((uint32_t)usageFlags & (uint32_t)BufferUsage::UniformBuffer) {
                 flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
             }
 
@@ -62,7 +83,7 @@ namespace segfault::renderer {
         // empty
     }
 
-    bool VulkanBuffer::init(size_t size, BufferUsage usageFlags, uint32_t memoryPropertyFlags) {
+    bool VulkanBuffer::init(VkDeviceSize size, BufferUsage usageFlags, uint32_t memoryPropertyFlags) {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = size;
@@ -70,6 +91,7 @@ namespace segfault::renderer {
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         if (vkCreateBuffer(mDevice, &bufferInfo, nullptr, &mBuffer) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create buffer!");
             return false;
         }
 
@@ -82,11 +104,37 @@ namespace segfault::renderer {
         allocInfo.memoryTypeIndex = findMemoryType(mPhysicalDevice, memRequirements.memoryTypeBits, memoryPropertyFlags);
 
         if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &mMemory) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to allocate buffer memory!");
             return false;
         }
 
         return true;
     }
+
+	bool VulkanBuffer::init(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags properties) {
+		VkBufferCreateInfo bufferInfo{};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = size;
+		bufferInfo.usage = usageFlags;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		if (vkCreateBuffer(mDevice, &bufferInfo, nullptr, &mBuffer) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create buffer!");
+			return false;
+		}
+		
+        VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(mDevice, mBuffer, &memRequirements);
+		VkMemoryAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex = findMemoryType(mPhysicalDevice, memRequirements.memoryTypeBits, properties);
+		if (vkAllocateMemory(mDevice, &allocInfo, nullptr, &mMemory) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to allocate buffer memory!");
+			return false;
+		}
+		
+        return true;
+	}
 
     void VulkanBuffer::cleanup() {
         unmap();

@@ -60,6 +60,7 @@ namespace segfault::renderer {
 			delete buffer;
 			return nullptr;
 		}
+
 		return buffer;
     }
 

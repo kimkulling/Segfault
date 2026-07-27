@@ -40,15 +40,16 @@ namespace segfault::renderer {
         VulkanBuffer(VkPhysicalDevice physicalDevice, VkDevice device);
         ~VulkanBuffer() = default;
 
-        bool init(size_t size, BufferUsage usageFlags, uint32_t memoryPropertyFlags);
+        bool init(VkDeviceSize size, BufferUsage usageFlags, uint32_t memoryPropertyFlags);
+        bool init(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags properties);
         void cleanup();
 
         void map();
         void unmap();
         void bind(VkDeviceSize offset = 0);
         void copyTo(void *data, VkDeviceSize size);
-        VkBuffer getBuffer() const { return mBuffer; }
-        VkDeviceMemory getMemory() const { return mMemory; }
+        const VkBuffer &getBuffer() const { return mBuffer; }
+        const VkDeviceMemory &getMemory() const { return mMemory; }
 		size_t getSize() const { return mSize; }
 
     private:
