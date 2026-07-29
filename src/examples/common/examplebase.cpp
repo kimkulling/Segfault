@@ -31,7 +31,7 @@ using core::ModuleState;
 using core::Rect;
 
 ExampleBase::ExampleBase(const ExampleConfig &config) :
-        mConfig(config), mApp(), mState(ModuleState::Invalid) {
+        mConfig(config), mState(ModuleState::Invalid) {
     // empty
 }
 

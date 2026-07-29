@@ -75,6 +75,6 @@ namespace segfault::scene {
         mViewMatrix = glm::rotate(mViewMatrix, glm::radians(angle), mUp);
     }
 
-}
+} // namespace segfault::scene
 
 #endif //SEGFAULT_CAMERA_H
