@@ -56,7 +56,8 @@ namespace segfault::renderer {
         /// @param tiling The desired image tiling.
         /// @param features The required format features.
         /// @return The first supported format from the candidates.
-        static VkFormat findSupportedFormat(VkPhysicalDevice &physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        static VkFormat findSupportedFormat(VkPhysicalDevice &physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, 
+                VkFormatFeatureFlags features);
 
         /// @brief Finds a supported depth format.
         /// @param physicalDevice The physical device to query.

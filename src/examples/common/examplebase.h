@@ -108,7 +108,7 @@ namespace segfault::examples {
 
     private:
         ExampleConfig mConfig;
-        application::App mApp;
+        application::App mApp{};
         core::ModuleState mState;
     };
 
