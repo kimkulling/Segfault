@@ -47,6 +47,10 @@ namespace segfault::renderer {
         static VkVertexInputBindingDescription getBindingDescription();
     };
 
+    using VertexArray = std::vector<Vertex>;    ///< Type alias for a vector of Vertex objects.
+    using IndexArray  = std::vector<uint16_t>;  ///< Type alias for a vector of index values.
+
+    
     /// @brief Utility functions for Vulkan operations.
     class VulkanUtils {
     public:

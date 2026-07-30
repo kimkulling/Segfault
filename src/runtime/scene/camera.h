@@ -66,6 +66,7 @@ namespace segfault::scene {
         mViewMatrix = glm::rotate(mViewMatrix, glm::radians(angle), targetPos);
 
     }
+    
     inline void Camera::pitch(float angle) {
         glm::vec3 right = glm::normalize(glm::cross(mUp, mLookAt - mPosition));
         mViewMatrix = glm::rotate(mViewMatrix, glm::radians(angle), right);
