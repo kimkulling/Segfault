@@ -48,9 +48,9 @@ namespace segfault::renderer {
         void unmap();
         void bind(VkDeviceSize offset = 0);
         void copyTo(void *data, VkDeviceSize size);
-        const VkBuffer &getBuffer() const { return mBuffer; }
-        const VkDeviceMemory &getMemory() const { return mMemory; }
-		size_t getSize() const { return mSize; }
+        const VkBuffer& getBuffer() const;
+        const VkDeviceMemory& getMemory() const;
+        size_t getSize() const;
 
     private:
         VkPhysicalDevice mPhysicalDevice{};
@@ -60,5 +60,17 @@ namespace segfault::renderer {
         void *mMapped{nullptr};
         size_t mSize{0};
     };
+
+    inline const VkBuffer &VulkanBuffer::getBuffer() const { 
+        return mBuffer; 
+    }
+
+    inline const VkDeviceMemory &VulkanBuffer::getMemory() const {
+         return mMemory; 
+    }
+
+    inline size_t VulkanBuffer::getSize() const { 
+        return mSize; 
+    }
 
 } // namespace segfault::renderer
