@@ -72,9 +72,32 @@ namespace segfault::renderer {
     using VertexArray = std::vector<Vertex>;    ///< Type alias for a vector of Vertex objects.
     using IndexArray = std::vector<uint16_t>;  ///< Type alias for a vector of index values.
 
-	struct Mesh {
+	/// @brief Represents a mesh with vertices and indices.
+    struct Mesh {
 		VertexArray vertices;  ///< Array of vertices in the mesh.
 		IndexArray indices;    ///< Array of indices for indexed drawing.
+
+		void setVertices(const VertexArray& verts) {
+			vertices = verts;
+		}
+
+		void setIndices(const IndexArray& inds) {
+			indices = inds;
+		}
+	};
+
+	/// @brief Represents a Vulkan command buffer and its associated command pool.
+	struct CommandBuffer {
+		VkCommandBuffer commandBuffer{};  ///< Vulkan command buffer handle.
+		VkCommandPool commandPool{};      ///< Vulkan command pool handle.
+	
+		void setCommandBuffer(VkCommandBuffer cmdBuffer) {
+			commandBuffer = cmdBuffer;
+		}
+
+		void setCommandPool(VkCommandPool cmdPool) {
+			commandPool = cmdPool;
+		}
 	};
 
 } // namespace segfault::renderer

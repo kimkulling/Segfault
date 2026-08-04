@@ -49,22 +49,39 @@ namespace segfault::renderer {
 
     using namespace segfault::core;
 
-    const std::vector<Vertex> vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+    std::string getVulkanVersionString(uint32_t packedVersion) {
+        // Extract version components using Khronos standard macros
+        uint32_t variant = VK_API_VERSION_VARIANT(packedVersion);
+        uint32_t major = VK_API_VERSION_MAJOR(packedVersion);
+        uint32_t minor = VK_API_VERSION_MINOR(packedVersion);
+        uint32_t patch = VK_API_VERSION_PATCH(packedVersion);
 
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-    };
+        // Standard Vulkan API uses variant 0. Non-zero variants are custom forks.
+        if (variant == 0) {
+            return "Vulkan " + std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+        } else {
+            return "Vulkan Variant " + std::to_string(variant) + " " + std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+        }
+    }
 
-    const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4
-    };
+	
+	struct Model {
+		const std::vector<Vertex> vertices = {
+            {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+            {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+
+            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+            {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+            {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
+        };
+		const std::vector<uint16_t> indices = {
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4
+        };
+	} gModel;
 
     const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
@@ -79,6 +96,10 @@ namespace segfault::renderer {
         std::vector<VkSurfaceFormatKHR> formats{};
         std::vector<VkPresentModeKHR> presentModes{};
     };
+
+    bool hasStencilComponent(VkFormat format) {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
 
     struct RHIImpl final {
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
@@ -253,6 +274,10 @@ namespace segfault::renderer {
         appInfo.pEngineName = "SegFault";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_0;
+
+        const auto vulkanVersion = getVulkanVersionString(appInfo.apiVersion);
+        core::logMessage(core::LogType::Info, std::string( "Vulkan Version: " + vulkanVersion).c_str());
+
     }
 
     bool RHIImpl::isDeviceSuitable() {
@@ -525,6 +550,7 @@ namespace segfault::renderer {
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
         if (vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain) != VK_SUCCESS) {
+            core::logMessage(core::LogType::Error, "failed to create swap chain!");
             return;
         }
 
@@ -837,10 +863,6 @@ namespace segfault::renderer {
         }
     }
 
-    bool hasStencilComponent(VkFormat format) {
-        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
-    }
-
     void RHIImpl::createDepthResources() {
         VkFormat depthFormat = VulkanUtils::findDepthFormat(mPhysicalDevice);
         createImage(mSwapChainExtent.width, mSwapChainExtent.height, depthFormat, 
@@ -916,7 +938,7 @@ namespace segfault::renderer {
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSets[mCurrentFrame], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(gModel.indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -1196,7 +1218,7 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createVertexBuffer() {
-        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+        VkDeviceSize bufferSize = sizeof(gModel.vertices[0]) * gModel.vertices.size();
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
@@ -1204,7 +1226,7 @@ namespace segfault::renderer {
 
         void *data{nullptr};
         vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), (size_t)bufferSize);
+        memcpy(data, gModel.vertices.data(), (size_t)bufferSize);
         vkUnmapMemory(mDevice, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVertexBuffer, mVertexBufferMemory);
@@ -1216,7 +1238,7 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createIndexBuffer() {
-        VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+        VkDeviceSize bufferSize = sizeof(gModel.indices[0]) * gModel.indices.size();
 
         VkBuffer stagingBuffer{};
         VkDeviceMemory stagingBufferMemory{};
@@ -1224,7 +1246,7 @@ namespace segfault::renderer {
 
         void *data{nullptr};
         vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, indices.data(), (size_t)bufferSize);
+        memcpy(data, gModel.indices.data(), (size_t)bufferSize);
         vkUnmapMemory(mDevice, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
@@ -1317,7 +1339,7 @@ namespace segfault::renderer {
         }
     }
 
-    VkCommandBuffer  RHIImpl::beginSingleTimeCommands() {
+    VkCommandBuffer RHIImpl::beginSingleTimeCommands() {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;

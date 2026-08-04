@@ -150,8 +150,9 @@ namespace segfault::renderer {
         }
     }
 
-    void VulkanBuffer::map() {
+    void *VulkanBuffer::map() {
         vkMapMemory(mDevice, mMemory, 0, VK_WHOLE_SIZE, 0, &mMapped);
+		return mMapped;
     }
 
     void VulkanBuffer::unmap() {

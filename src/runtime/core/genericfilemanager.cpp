@@ -38,7 +38,7 @@ namespace segfault::core {
             return nullptr;
         }
 
-        FileArchive *archive = new FileArchive(stream, true, false);
+        auto *archive = new FileArchive(stream, true, false);
 
         return archive;
     }
@@ -53,7 +53,7 @@ namespace segfault::core {
             return nullptr;
         }
 
-        FileArchive *archive = new FileArchive(stream, false, true);
+        auto *archive = new FileArchive(stream, false, true);
 
         return archive;
     }
