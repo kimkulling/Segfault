@@ -1,0 +1,4 @@
+add_executable(scene_sample_2d scene_sample_2d.cpp)
+target_link_libraries(scene_sample_2d example_common)
+
+set_target_properties(scene_sample_2d PROPERTIES FOLDER examples )
