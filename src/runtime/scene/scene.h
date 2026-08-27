@@ -14,6 +14,7 @@ namespace segfault::scene {
 
     struct Entity {
         core::guid id{0};
+
         bool isValid() const {
             return id != 0;
         }
@@ -79,4 +80,4 @@ namespace segfault::scene {
         ComponentPool<MeshRendererComponent> mMeshRendererPool;
     };
 
-} // namespace segfault::scene  
+} // namespace segfault::scene
