@@ -36,4 +36,10 @@ namespace segfault::renderer {
         glm::mat4 proj;
     };
 
+    struct Frame {
+        void begin();
+        void submit();
+        void end();
+    };
+
 } // namespace segfault::renderer

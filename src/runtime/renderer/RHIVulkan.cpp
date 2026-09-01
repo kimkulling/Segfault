@@ -124,7 +124,6 @@ namespace segfault::renderer {
         VkDescriptorSetLayout mDescriptorSetLayout{};
         VkDescriptorPool mDescriptorPool{};
         std::vector<VkDescriptorSet> mDescriptorSets{};
-
         VkPipelineLayout mPipelineLayout{};
         std::vector<VkFramebuffer> mSwapChainFramebuffers{};
         VkCommandPool mCommandPool{};
@@ -136,7 +135,6 @@ namespace segfault::renderer {
         VkPipeline mGraphicsPipeline{};
         bool mFramebufferResized{false};
         VkBuffer mVertexBuffer{};
-
         std::vector<VkBuffer> mUniformBuffers{};
         std::vector<VkDeviceMemory> mUniformBuffersMemory{};
         std::vector<void*> mUniformBuffersMapped{};
