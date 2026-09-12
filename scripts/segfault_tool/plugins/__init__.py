@@ -1,0 +1,3 @@
+"""
+Segfault tool plugins package.
+"""

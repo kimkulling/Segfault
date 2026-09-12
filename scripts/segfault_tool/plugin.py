@@ -119,7 +119,7 @@ class PluginManager:
         plugin_name = plugin_class.get_name()
         self._plugins[plugin_name] = plugin_class
     
-    def discover_plugins(self, module_name: str = "build_tool.plugins") -> None:
+    def discover_plugins(self, module_name: str = "segfault_tool.plugins") -> None:
         """Discover and register all plugins in a module."""
         try:
             module = importlib.import_module(module_name)

@@ -72,7 +72,7 @@ python scripts/build.py --config-file build_config.json
 ```
 scripts/
 ├── build.py                 # Main entry point (wrapper)
-└── build_tool/
+└── segfault_tool/
     ├── __init__.py
     ├── main.py              # Main execution logic
     ├── config.py            # Configuration management
@@ -176,7 +176,7 @@ To create a new plugin, follow these steps:
 ### Plugin Template
 
 ```python
-from build_tool.plugin import BuildPlugin, PluginContext, PluginResult
+from segfault_tool.plugin import BuildPlugin, PluginContext, PluginResult
 from typing import Any, Dict, List
 
 

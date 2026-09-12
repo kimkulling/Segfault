@@ -1,3 +1,0 @@
-"""
-Build tool plugins package.
-"""

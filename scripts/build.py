@@ -36,10 +36,10 @@ Examples:
 import os
 import sys
 
-# Add the build_tool directory to the path
+# Add the segfault_tool directory to the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from build_tool.main import main
+from segfault_tool.main import main
 
 if __name__ == "__main__":
     sys.exit(main())
