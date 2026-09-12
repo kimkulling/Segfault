@@ -189,12 +189,7 @@ class PluginManager:
             plugin_class = self._plugins[name]
             deps = plugin_class.get_dependencies()
             graph[name] = [d for d in deps if d in plugin_names]
-            in_degree[name] = 0
-        
-        # Calculate in-degrees
-        for name in plugin_names:
-            for dep in graph[name]:
-                in_degree[dep] += 1
+            in_degree[name] = len(graph[name])
         
         # Topological sort using Kahn's algorithm
         queue = [name for name in plugin_names if in_degree[name] == 0]
