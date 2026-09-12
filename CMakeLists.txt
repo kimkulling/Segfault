@@ -41,3 +41,40 @@ add_subdirectory(src/editor)
 add_subdirectory(src/runtime)
 add_subdirectory(src/tools)
 add_subdirectory(src/examples)
+
+# Add custom target to copy assets to the build output directory
+# For multi-config generators (VS, Xcode), CMAKE_RUNTIME_OUTPUT_DIRECTORY is the base
+# and executables go to subdirectories (Debug, Release, etc.)
+# For single-config generators, CMAKE_RUNTIME_OUTPUT_DIRECTORY already includes the config path
+
+if(CMAKE_CONFIGURATION_TYPES)
+    # Multi-config generator (Visual Studio, Xcode)
+    # Create a target for each configuration
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        add_custom_target(copy_assets_${CONFIG}
+            COMMAND ${CMAKE_COMMAND} -E echo "Copying assets for ${CONFIG} configuration..."
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}/assets"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/shaders" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}/assets/shaders"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/textures" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}/assets/textures"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/manifests" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIG}/assets/manifests"
+            COMMENT "Copying asset files for ${CONFIG} configuration"
+        )
+    endforeach()
+    
+    # Also create a copy_assets target that depends on all config-specific targets
+    # This is for backward compatibility with examples/CMakeLists.txt
+    add_custom_target(copy_assets ALL)
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        add_dependencies(copy_assets copy_assets_${CONFIG})
+    endforeach()
+else()
+    # Single-config generator (Make, Ninja)
+    add_custom_target(copy_assets ALL
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying assets to build directory..."
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/shaders" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/shaders"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/textures" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/textures"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/manifests" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/manifests"
+        COMMENT "Copying asset files to build directory"
+    )
+endif()
