@@ -1,0 +1,36 @@
+{
+    "build_type": "Release",
+    "build_dir": ".",
+    "clean_first": false,
+    "verbose": false,
+    "parallel": true,
+    "jobs": null,
+    
+    "cmake_preset": "default",
+    "cmake_generator": null,
+    "cmake_args": [],
+    
+    "plugins": ["cmake", "shader", "asset"],
+    "plugin_configs": {
+        "cmake": {
+            "preset": "default",
+            "configure_only": false,
+            "build_only": false
+        },
+        "shader": {
+            "shader_dir": "assets/shaders",
+            "output_dir": null,
+            "shader_extensions": [".vert", ".frag", ".comp", ".geom"],
+            "include_dirs": [],
+            "definitions": [],
+            "optimization_level": "O",
+            "generate_debug_info": false
+        },
+        "asset": {
+            "asset_dirs": ["assets/textures", "assets/manifests"],
+            "output_dir": null,
+            "file_extensions": null,
+            "preserve_structure": true
+        }
+    }
+}
