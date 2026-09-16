@@ -23,8 +23,11 @@ cmake --preset=default
 ```
 - Compile the shader 
 ```
-cd scripts
-python compile_shader.py --shader ../assets/shader 
+cmake --build . --config Release --target compile_shaders
+```
+- Compile the assets
+``` 
+cmake --build . --config Release --target compile_assets
 ```
 - Run the first application on Windows:
 ```

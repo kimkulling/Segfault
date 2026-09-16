@@ -26,7 +26,7 @@ def compile_shader(shadername, shader_out, verbose):
 
     if result.returncode == 0:
         print("Shader " + shadername + " compiled.")
-        if verbose and output is not None:
+        if verbose and shader_out is not None:
             if result.stdout:
                 print(result.stdout)
     else:
@@ -49,6 +49,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', action='store_true', default=False, help='The full output will be shown')
     parser.add_argument('--shader', type=str, required=True, help='The folder containing the shaders')
+    parser.add_argument('--config', type=str, default='Release', help='Build configuration (Debug or Release)')
     
     args = parser.parse_args()
     print("shader folder: " + str(args.shader))
@@ -62,11 +63,7 @@ def main():
             if sys.platform == "linux":
                 copy_shader(shader_out, "../bin/shaders")
             elif sys.platform == "win32":
-                out = Path("../bin/")
-                if os.path.exists("../bin/Debug"):
-                    copy_shader(shader_out, "../bin/Debug/shaders")
-                else:
-                    copy_shader(shader_out, "../bin/Release/shaders")
+                copy_shader(shader_out, "../bin/{}/shaders".format(args.config))
 
 if __name__=="__main__":
     main()

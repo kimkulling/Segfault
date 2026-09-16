@@ -42,4 +42,16 @@ namespace segfault::renderer {
         void end();
     };
 
+	inline void Frame::begin() {
+		// Implementation for beginning a frame
+	}
+
+	inline void Frame::submit() {
+		// Implementation for submitting a frame
+	}
+
+	inline void Frame::end() {
+		// Implementation for ending a frame
+	}
+
 } // namespace segfault::renderer

@@ -18,7 +18,8 @@ def copy_asset(source, dest):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', action='store_true', default=False, help='The full output will be shown')
-    parser.add_argument('--textures', type=str, required=True, help='The folder containing the shaders')
+    parser.add_argument('--textures', type=str, required=True, help='The folder containing the textures')
+    parser.add_argument('--config', type=str, default='Release', help='Build configuration (Debug or Release)')
     
     args = parser.parse_args()
     print("texture folder: " + str(args.textures))
@@ -29,11 +30,7 @@ def main():
         if sys.platform == "linux":
             copy_asset(texture_out, "../bin/textures")
         elif sys.platform == "win32":
-            out = Path("../bin/")
-            if os.path.exists("../bin/Debug"):
-                copy_asset(texture_out, "../bin/Debug/textures")
-            else:
-                copy_asset(texture_out, "../bin/Release/textures")
+            copy_asset(texture_out, "../bin/{}/textures".format(args.config))
 
 
 if __name__=="__main__":
