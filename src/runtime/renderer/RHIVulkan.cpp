@@ -148,6 +148,7 @@ namespace segfault::renderer {
         VkImage mDepthImage{};
         VkDeviceMemory mDepthImageMemory{};
         VkImageView mDepthImageView{};
+        std::vector<Mesh> mMeshes{};
 
         RHIImpl() = default;
         ~RHIImpl() = default;
@@ -196,6 +197,7 @@ namespace segfault::renderer {
         void createUniformBuffers();
         void createDescriptorPool();
         void createDescriptorSets();
+        void addPrimitive(const Mesh& mesh);
 
         VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
@@ -936,7 +938,12 @@ namespace segfault::renderer {
 
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &mDescriptorSets[mCurrentFrame], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(gModel.indices.size()), 1, 0, 0, 0);
+        // Calculate total index count from all meshes
+        uint32_t totalIndexCount = 0;
+        for (const auto& mesh : mMeshes) {
+            totalIndexCount += static_cast<uint32_t>(mesh.indices.size());
+        }
+        vkCmdDrawIndexed(commandBuffer, totalIndexCount, 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -944,6 +951,10 @@ namespace segfault::renderer {
             core::logMessage(core::LogType::Error, "failed to recording command buffer!");
             throw SegfaultException("failed to record command buffer!");
         }
+    }
+
+    void RHIImpl::addPrimitive(const Mesh& mesh) {
+        mMeshes.push_back(mesh);
     }
 
     void RHIImpl::createSyncObjects() {
@@ -1216,7 +1227,12 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createVertexBuffer() {
-        VkDeviceSize bufferSize = sizeof(gModel.vertices[0]) * gModel.vertices.size();
+        // Calculate total size and collect all vertices
+        size_t totalVertexCount = 0;
+        for (const auto& mesh : mMeshes) {
+            totalVertexCount += mesh.vertices.size();
+        }
+        VkDeviceSize bufferSize = sizeof(Vertex) * totalVertexCount;
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
@@ -1224,7 +1240,14 @@ namespace segfault::renderer {
 
         void *data{nullptr};
         vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, gModel.vertices.data(), (size_t)bufferSize);
+        
+        // Copy all mesh vertices into the staging buffer
+        Vertex* vertexPtr = static_cast<Vertex*>(data);
+        for (const auto& mesh : mMeshes) {
+            memcpy(vertexPtr, mesh.vertices.data(), sizeof(Vertex) * mesh.vertices.size());
+            vertexPtr += mesh.vertices.size();
+        }
+        
         vkUnmapMemory(mDevice, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVertexBuffer, mVertexBufferMemory);
@@ -1236,7 +1259,12 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createIndexBuffer() {
-        VkDeviceSize bufferSize = sizeof(gModel.indices[0]) * gModel.indices.size();
+        // Calculate total size and collect all indices with proper vertex offsets
+        size_t totalIndexCount = 0;
+        for (const auto& mesh : mMeshes) {
+            totalIndexCount += mesh.indices.size();
+        }
+        VkDeviceSize bufferSize = sizeof(uint16_t) * totalIndexCount;
 
         VkBuffer stagingBuffer{};
         VkDeviceMemory stagingBufferMemory{};
@@ -1244,7 +1272,19 @@ namespace segfault::renderer {
 
         void *data{nullptr};
         vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, gModel.indices.data(), (size_t)bufferSize);
+        
+        // Copy all mesh indices into the staging buffer with vertex offset adjustment
+        uint16_t* indexPtr = static_cast<uint16_t*>(data);
+        size_t vertexOffset = 0;
+        for (const auto& mesh : mMeshes) {
+            // Copy indices and apply vertex offset
+            for (size_t i = 0; i < mesh.indices.size(); i++) {
+                indexPtr[i] = mesh.indices[i] + static_cast<uint16_t>(vertexOffset);
+            }
+            indexPtr += mesh.indices.size();
+            vertexOffset += mesh.vertices.size();
+        }
+        
         vkUnmapMemory(mDevice, stagingBufferMemory);
 
         createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
@@ -1504,6 +1544,12 @@ namespace segfault::renderer {
 
         mImpl = new RHIImpl;
         mImpl->mWindow = window;
+        
+        // Initialize with the default model (convert from Model to Mesh)
+        Mesh defaultMesh;
+        defaultMesh.vertices = gModel.vertices;
+        defaultMesh.indices = gModel.indices;
+        mImpl->mMeshes.push_back(defaultMesh);
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         mImpl->setupDebugMessenger(debugCreateInfo);
@@ -1628,6 +1674,10 @@ namespace segfault::renderer {
 
     void RHI::resize() {
         mImpl->mFramebufferResized = true;
+    }
+
+    void RHI::addPrimitive(const Mesh& mesh) {
+        mImpl->addPrimitive(mesh);
     }
 
 } // namespace segfault::renderer

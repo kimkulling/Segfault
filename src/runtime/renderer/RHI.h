@@ -28,6 +28,7 @@ struct SDL_Window;
 
 namespace segfault::renderer {
 
+    struct Mesh;
     struct RHIImpl;
 
     //---------------------------------------------------------------------------------------------
@@ -61,6 +62,10 @@ namespace segfault::renderer {
 		
         /// @brief Resizes the rendering surface.
         void resize();
+
+        /// @brief Adds a mesh primitive for rendering.
+        /// @param[ in ] mesh The mesh to add for rendering.
+        void addPrimitive(const Mesh& mesh);
 
     private:
         RHIImpl* mImpl{ nullptr };
