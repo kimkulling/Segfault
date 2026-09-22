@@ -21,10 +21,14 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
 #include "common/examplebase.h"
+#include "renderer/rendercore.h"
+#include <vector>
+
 namespace {
 
 using segfault::examples::ExampleBase;
 using segfault::examples::ExampleConfig;
+using namespace segfault::renderer;
 
 //-------------------------------------------------------------------------------------------------
 /// @class HelloWorld
@@ -36,6 +40,35 @@ public:
             ExampleBase(ExampleConfig{"hello_world", "hello, world!", 50, 50, 800, 600, false}) {
         // empty
     }
+
+protected:
+	bool onSetup() override {
+        Mesh mesh;
+
+        const std::vector<Vertex> vertices = {
+            {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+            {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+            {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+
+            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+            {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+            {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+            {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
+        };
+        const std::vector<uint16_t> indices = {
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4
+        };
+
+		mesh.setVertices(vertices);
+		mesh.setIndices(indices);
+        
+		ExampleBase::getApp().getRHI()->addPrimitive(mesh);
+
+		return true;
+	}
+
 };
 
 } // namespace

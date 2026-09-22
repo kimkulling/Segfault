@@ -23,7 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "volk.h"
-
+#include "rendercore.h"
 #include "vulkantypes.h"
 
 namespace segfault::renderer {

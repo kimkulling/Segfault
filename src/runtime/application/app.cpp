@@ -155,6 +155,9 @@ namespace segfault::application {
                 case SDL_WINDOWEVENT_RESIZED:
                     onResize();
                     break;
+                
+                default:
+					break;
             }
         }
             

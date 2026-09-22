@@ -3,7 +3,7 @@ add_library(example_common STATIC
     examplebase.cpp
 )
 
-target_link_libraries(example_common PUBLIC segfault_runtime)
+target_link_libraries(example_common PUBLIC segfault_runtime  volk::volk volk::volk_headers)
 
 # Allow examples to include the base via "common/examplebase.h".
 target_include_directories(example_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..)

@@ -23,6 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "core/segfault.h"
+#include "volk.h"
 
 #include <glm/glm.hpp>
 
@@ -30,11 +31,64 @@ namespace segfault::renderer {
 
     class RHI;
 
+    enum class BufferUsage : uint32_t {
+        TransferSourceBit = 0x00000001,
+        TransferDestinationBit = 0x00000002,
+        UniformTexelBufferBit = 0x00000004,
+        StorageTexelBufferBit = 0x00000008,
+        UniformBuffer = 0x00000010,
+        IndexBuffer = 0x00000040,
+        VertexBuffer = 0x00000080,
+    };
+
+    /// @brief Represents a vertex with position, color, and texture coordinates.
+    struct Vertex {
+        glm::vec3 pos{};        ///< Position of the vertex in 3D space.
+        glm::vec3 color{};      ///< Color of the vertex (RGB).
+        glm::vec2 texCoord{};   ///< Texture coordinates for the vertex.
+
+        /// @brief Returns the attribute descriptions for the vertex.
+        /// @return An array of VkVertexInputAttributeDescription for the vertex attributes.
+        static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions();
+
+        /// @brief Returns the binding description for the vertex.
+        /// @return A VkVertexInputBindingDescription for the vertex binding.
+        static VkVertexInputBindingDescription getBindingDescription();
+    };
+
+    using VertexArray = std::vector<Vertex>;    ///< Type alias for a vector of Vertex objects.
+    using IndexArray = std::vector<uint16_t>;  ///< Type alias for a vector of index values.
+
     struct UniformBufferObject {
         glm::mat4 model;
         glm::mat4 view;
         glm::mat4 proj;
     };
+
+    /// @brief Represents a mesh with vertices and indices.
+    struct Mesh {
+        VertexArray vertices;  ///< Array of vertices in the mesh.
+        IndexArray indices;    ///< Array of indices for indexed drawing.
+
+        /// @brief Constructs a new mesh.
+        Mesh() = default;
+
+        /// @brief Destroys the mesh.
+        ~Mesh() = default;
+
+        /// @brief Sets the vertices for the mesh.
+        /// @param verts The array of vertices to set.
+        void setVertices(const VertexArray& verts) {
+            vertices = verts;
+        }
+
+        /// @brief Sets the indices for the mesh.
+        /// @param inds The array of indices to set.
+        void setIndices(const IndexArray& inds) {
+            indices = inds;
+        }
+    };
+
 
     struct Frame {
         void begin();

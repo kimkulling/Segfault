@@ -70,6 +70,10 @@ namespace segfault::application {
 		/// @brief Draws a single frame of the application.
         void drawFrame();
 
+		/// @brief Returns a pointer to the RHI (Rendering Hardware Interface) instance.
+		/// @return A pointer to the RHI instance.
+        renderer::RHI* getRHI() const;
+
     private:
         void onResize();
 
@@ -80,4 +84,7 @@ namespace segfault::application {
         renderer::RHI *mRHI = nullptr;
     };
 
+    inline renderer::RHI* App::getRHI() const { 
+        return mRHI; 
+    }
 } // namespace segfault::application

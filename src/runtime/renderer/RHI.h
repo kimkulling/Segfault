@@ -39,7 +39,7 @@ namespace segfault::renderer {
     /// without changing the higher-level rendering code. It manages the initialization, rendering, 
     /// and cleanup of graphics resources.
     //---------------------------------------------------------------------------------------------
-    class RHI {
+    class SEGFAULT_EXPORT RHI {
     public:
         /// @brief Constructs a new RHI instance.
         RHI();
