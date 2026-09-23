@@ -1,4 +1,4 @@
-# ADR1: Use vlukan as the render API
+# ADR-1: Use vlukan as the render API
 
 ## Status: Decided
 
