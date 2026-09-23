@@ -1,4 +1,5 @@
 # Architecture 
 
 ## ADRS
-See (Architecture decision records)[ards]
+
+See [Architecture decision records](ards)
