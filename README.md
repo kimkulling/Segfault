@@ -58,5 +58,7 @@ cd bin
     - [ ] Define asset structure
   - [ ] Editor
     - [ ] Simple UI
-- [ ] Game
-  - [ ] Start with Legends of War -> June 2026
+- [ ] Small games
+  - [ ] Start with small PoCs
+- [ ] My Games
+  - [ ] Integrate Segfault into Legends of War
