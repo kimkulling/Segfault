@@ -60,6 +60,8 @@ namespace segfault::application {
 		/// @return True if initialization was successful, false otherwise.
         bool init(const char* appName, const Rect &rect, const char* title,bool fullscreen);
 
+		bool initRenderer();
+
 		/// @brief The main loop of the application, which processes events and renders frames.
 		/// @return True if the main loop should continue running, false if it should exit.
         bool mainloop();
@@ -82,6 +84,7 @@ namespace segfault::application {
         renderer::RenderThread mRenderThread;
         SDL_Window *mSdlWindow = nullptr;
         renderer::RHI *mRHI = nullptr;
+		const char* mAppName = nullptr;
     };
 
     inline renderer::RHI* App::getRHI() const { 

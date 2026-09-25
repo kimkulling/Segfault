@@ -135,12 +135,22 @@ namespace segfault::application {
         }
 
         mRHI = new RHI;
-        const bool ret = mRHI->init(appName, mSdlWindow);
-		if (!ret) {
-            logMessage(LogType::Error, "Failed to init RHI.");
+		mAppName = appName;
+
+        return true;
+    }
+
+    bool App::initRenderer() {
+        if (mRHI == nullptr) {
+            return false;
         }
 
-        return ret;
+        if (!mRHI->init(mAppName, mSdlWindow)) {
+            logMessage(LogType::Error, "Failed to init RHI.");
+			return false;
+        }
+
+        return true;
     }
 
     bool App::mainloop() {

@@ -23,6 +23,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "core/ifilemanager.h"
+#include "core/segfaultexception.h"
+#include <vector>
+#include <fstream>
 
 namespace segfault::core {
 
@@ -60,6 +63,29 @@ namespace segfault::core {
         /// @param stat The structure to store the statistics in.
         /// @return True if statistics were successfully retrieved, false otherwise.
         bool getArchiveStat(const char *name, FileStat &stat) final;
+
+        static std::vector<char> readFile(const std::string& filename) {
+            std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+            if (!file.is_open()) {
+                std::string errorMsg = "Failed to open file ";
+                errorMsg += filename;
+                errorMsg += ".";
+                core::logMessage(core::LogType::Error, errorMsg.c_str());
+                throw SegfaultException("failed to open file!");
+            }
+
+            size_t fileSize = (size_t)file.tellg();
+            std::vector<char> buffer(fileSize);
+
+            file.seekg(0);
+            file.read(buffer.data(), fileSize);
+
+            file.close();
+
+            return buffer;
+        }
+
     };
 
 } // namespace segfault::core

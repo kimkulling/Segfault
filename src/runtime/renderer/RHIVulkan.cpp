@@ -26,6 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "vulkanbuffer.h"
 #include "vulkantypes.h"
 #include "core/segfaultexception.h"
+#include "core/genericfilemanager.h"
 #include "volk.h"
 #include "SDL_vulkan.h"
 #define GLM_FORCE_RADIANS
@@ -41,7 +42,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <optional>
 #include <set>
 #include <algorithm>
-#include <fstream>
 #include <array>
 #include <chrono>
 
@@ -89,12 +89,6 @@ namespace segfault::renderer {
 
     const std::vector<const char*> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
-
-    struct SwapChainSupportDetails {
-        VkSurfaceCapabilitiesKHR capabilities{};
-        std::vector<VkSurfaceFormatKHR> formats{};
-        std::vector<VkPresentModeKHR> presentModes{};
     };
 
     bool hasStencilComponent(VkFormat format) {
@@ -149,6 +143,7 @@ namespace segfault::renderer {
         VkDeviceMemory mDepthImageMemory{};
         VkImageView mDepthImageView{};
         std::vector<Mesh> mMeshes{};
+		bool mMeshesDirty{ false };
 
         RHIImpl() = default;
         ~RHIImpl() = default;
@@ -205,28 +200,6 @@ namespace segfault::renderer {
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
     };
-
-    static std::vector<char> readFile(const std::string& filename) {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-        if (!file.is_open()) {
-            std::string errorMsg = "Failed to open file ";
-            errorMsg += filename;
-            errorMsg += ".";
-            core::logMessage(core::LogType::Error, errorMsg.c_str());
-            throw SegfaultException("failed to open file!");
-        }
-
-        size_t fileSize = (size_t)file.tellg();
-        std::vector<char> buffer(fileSize);
-
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-
-        file.close();
-
-        return buffer;
-    }
 
     SwapChainSupportDetails RHIImpl::querySwapChainSupport() {
         SwapChainSupportDetails details;
@@ -675,8 +648,8 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::createGraphicsPipeline() {
-        auto vertShaderCode = readFile("shaders/vert.spv");
-        auto fragShaderCode = readFile("shaders/frag.spv");
+        auto vertShaderCode = GenericFileManager::readFile("shaders/vert.spv");
+        auto fragShaderCode = GenericFileManager::readFile("shaders/frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -955,6 +928,7 @@ namespace segfault::renderer {
 
     void RHIImpl::addPrimitive(const Mesh& mesh) {
         mMeshes.push_back(mesh);
+        mMeshesDirty = true;
     }
 
     void RHIImpl::createSyncObjects() {
@@ -1524,7 +1498,7 @@ namespace segfault::renderer {
         endSingleTimeCommands(commandBuffer);
     }
 
-    RHI::RHI() : mImpl(nullptr) {
+    RHI::RHI() : mImpl(mImpl = new RHIImpl) {
         // empty
     }
 
@@ -1542,7 +1516,6 @@ namespace segfault::renderer {
             return false;
         }
 
-        mImpl = new RHIImpl;
         mImpl->mWindow = window;
         
         // Initialize with the default model (convert from Model to Mesh)

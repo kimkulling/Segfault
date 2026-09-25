@@ -60,4 +60,10 @@ namespace segfault::renderer {
 		}
 	};
 
+	struct SwapChainSupportDetails {
+		VkSurfaceCapabilitiesKHR capabilities{};
+		std::vector<VkSurfaceFormatKHR> formats{};
+		std::vector<VkPresentModeKHR> presentModes{};
+	};
+
 } // namespace segfault::renderer

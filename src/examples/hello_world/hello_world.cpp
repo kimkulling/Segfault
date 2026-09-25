@@ -65,8 +65,8 @@ protected:
 		mesh.setIndices(indices);
         
 		ExampleBase::getApp().getRHI()->addPrimitive(mesh);
-
-		return true;
+		
+        return ExampleBase::getApp().initRenderer();
 	}
 
 };
