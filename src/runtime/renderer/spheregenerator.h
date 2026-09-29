@@ -22,13 +22,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
 #pragma once
 
-#include "rendercore.h"
+#include "renderer/rendercore.h"
 
 #include <glm/glm.hpp>
 
 namespace segfault::renderer {
 
+	//---------------------------------------------------------------------------------------------
     /// @brief Generates vertices for a sphere with texture coordinates and positions.
+	//---------------------------------------------------------------------------------------------
     class SEGFAULT_EXPORT SphereGenerator final {
     public:
         /// @brief Constructs a new SphereGenerator.
