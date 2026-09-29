@@ -22,6 +22,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
 #include "common/examplebase.h"
 #include "renderer/rendercore.h"
+//#include "renderer/spheregenerator.h"
+#include "renderer/cubegenerator.h"
+
 #include <vector>
 
 namespace {
@@ -43,27 +46,10 @@ public:
 
 protected:
 	bool onSetup() override {
-        Mesh mesh;
-
-        const std::vector<Vertex> vertices = {
-            {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-            {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-            {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-            {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-
-            {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-            {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-            {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-            {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-        };
-        const std::vector<uint16_t> indices = {
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4
-        };
-
-		mesh.setVertices(vertices);
-		mesh.setIndices(indices);
-        
+	//	SphereGenerator sphereGenerator;
+		CubeGenerator cubeGenerator;
+        Mesh mesh = cubeGenerator.generate(1.0f, { 0.0f, 1.0f, 0.0f });
+        //Mesh mesh = sphereGenerator.generate(1.0f, 16, 16, { 1.0f, 0.0f, 0.0f });        
 		ExampleBase::getApp().getRHI()->addPrimitive(mesh);
 		
         return ExampleBase::getApp().initRenderer();
