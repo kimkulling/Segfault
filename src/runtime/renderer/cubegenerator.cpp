@@ -110,7 +110,7 @@ namespace segfault::renderer {
             glm::vec3(0.0f, 1.0f, 0.0f) * halfSize,  // up
             color,
             4,
-            true); // index offset, reverseWinding=true
+            false); // index offset: right vector is already mirrored, so no winding reversal needed
 
         // Right face (positive X)
         generateFace(
@@ -132,7 +132,7 @@ namespace segfault::renderer {
             glm::vec3(0.0f, 1.0f, 0.0f) * halfSize,  // up
             color,
             12,
-            true); // index offset, reverseWinding=true
+            false); // index offset: right vector is already mirrored, so no winding reversal needed
 
         // Top face (positive Y)
         generateFace(
@@ -154,7 +154,7 @@ namespace segfault::renderer {
             glm::vec3(0.0f, 0.0f, 1.0f) * halfSize,  // up (positive Z for bottom face)
             color,
             20,
-            true); // index offset, reverseWinding=true
+            false); // index offset: right vector is already mirrored, so no winding reversal needed
 
         return mesh;
     }
