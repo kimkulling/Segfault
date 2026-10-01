@@ -26,14 +26,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace segfault::renderer {
 
     void CubeGenerator::generateFace(
-        VertexArray& vertices,
-        IndexArray& indices,
-        const glm::vec3& position,
-        const glm::vec3& right,
-        const glm::vec3& up,
-        const glm::vec3& color,
-        uint16_t indexOffset,
-        bool reverseWinding) const {
+            VertexArray& vertices,
+            IndexArray& indices,
+            const glm::vec3& position,
+            const glm::vec3& right,
+            const glm::vec3& up,
+            const glm::vec3& color,
+            uint16_t indexOffset,
+            bool reverseWinding) const {
         // Calculate the four corners of the face
         const glm::vec3 corner0 = position - right - up;
         const glm::vec3 corner1 = position + right - up;
@@ -43,10 +43,10 @@ namespace segfault::renderer {
         // Texture coordinates for the face (standard mapping)
         // Note: V coordinate is flipped to match Vulkan's texture coordinate system
         // where (0,0) is at the top-left
-        const glm::vec2 texCoord0 = glm::vec2(0.0f, 1.0f); // Top-left
-        const glm::vec2 texCoord1 = glm::vec2(1.0f, 1.0f); // Top-right
-        const glm::vec2 texCoord2 = glm::vec2(1.0f, 0.0f); // Bottom-right
-        const glm::vec2 texCoord3 = glm::vec2(0.0f, 0.0f); // Bottom-left
+        const auto texCoord0 = glm::vec2(0.0f, 1.0f); // Top-left
+        const auto texCoord1 = glm::vec2(1.0f, 1.0f); // Top-right
+        const auto texCoord2 = glm::vec2(1.0f, 0.0f); // Bottom-right
+        const auto texCoord3 = glm::vec2(0.0f, 0.0f); // Bottom-left
 
         // Add vertices for this face
         vertices.push_back({corner0, color, texCoord0}); // 0
