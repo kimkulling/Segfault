@@ -49,34 +49,34 @@ namespace segfault::renderer {
         const auto texCoord3 = glm::vec2(0.0f, 0.0f); // Bottom-left
 
         // Add vertices for this face
-        vertices.emplace_back({corner0, color, texCoord0}); // 0
-        vertices.emplace_back({corner1, color, texCoord1}); // 1
-        vertices.emplace_back({corner2, color, texCoord2}); // 2
-        vertices.emplace_back({corner3, color, texCoord3}); // 3
+        vertices.push_back({corner0, color, texCoord0}); // 0
+        vertices.push_back({corner1, color, texCoord1}); // 1
+        vertices.push_back({corner2, color, texCoord2}); // 2
+        vertices.push_back({corner3, color, texCoord3}); // 3
 
         // Add indices for two triangles
         if (reverseWinding) {
             // Reversed winding (clockwise) for back, left, bottom faces
             // Triangle 1: 0, 2, 1
             // Triangle 2: 0, 3, 2
-            indices.emplace_back(indexOffset + 0);
-            indices.emplace_back(indexOffset + 2);
-            indices.emplace_back(indexOffset + 1);
+            indices.push_back(indexOffset + 0);
+            indices.push_back(indexOffset + 2);
+            indices.push_back(indexOffset + 1);
 
-            indices.emplace_back(indexOffset + 0);
-            indices.emplace_back(indexOffset + 3);
-            indices.emplace_back(indexOffset + 2);
+            indices.push_back(indexOffset + 0);
+            indices.push_back(indexOffset + 3);
+            indices.push_back(indexOffset + 2);
         } else {
             // Counter-clockwise winding (default) for front, right, top faces
             // Triangle 1: 0, 1, 2
             // Triangle 2: 0, 2, 3
-            indices.emplace_back(indexOffset + 0);
-            indices.emplace_back(indexOffset + 1);
-            indices.emplace_back(indexOffset + 2);
+            indices.push_back(indexOffset + 0);
+            indices.push_back(indexOffset + 1);
+            indices.push_back(indexOffset + 2);
 
-            indices.emplace_back(indexOffset + 0);
-            indices.emplace_back(indexOffset + 2);
-            indices.emplace_back(indexOffset + 3);
+            indices.push_back(indexOffset + 0);
+            indices.push_back(indexOffset + 2);
+            indices.push_back(indexOffset + 3);
         }
     }
 
