@@ -40,16 +40,16 @@ namespace segfault::renderer {
 
         return glm::vec3(
             radius * cosTheta * sinPhi,   // x
-            radius * cosPhi,               // y
+            radius * cosPhi,              // y
             radius * sinTheta * sinPhi    // z
         );
     }
 
     Mesh SphereGenerator::generate(
-        float radius,
-        uint32_t sectors,
-        uint32_t stacks,
-        const glm::vec3& color) const {
+        	float radius,
+        	uint32_t sectors,
+        	uint32_t stacks,
+        	const glm::vec3& color) const {
         Mesh mesh;
 
         // Ensure at least 2 sectors and 2 stacks
@@ -76,8 +76,8 @@ namespace segfault::renderer {
                 // Calculate texture coordinates
                 // s = sector / sectors (normalized longitude)
                 // t = stack / stacks (normalized latitude, flipped for Vulkan)
-                const float s = static_cast<float>(sector) / static_cast<float>(sectors);
-                const float t = static_cast<float>(stack) / static_cast<float>(stacks);
+                const auto s = static_cast<float>(sector) / static_cast<float>(sectors);
+                const auto t = static_cast<float>(stack) / static_cast<float>(stacks);
 
                 mesh.vertices.push_back({position, color, glm::vec2(s, 1.0f - t)});
             }
