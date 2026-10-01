@@ -29,7 +29,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace segfault::renderer {
 
 	//---------------------------------------------------------------------------------------------
-    /// @class CubeGenerator
+    ///	@ingroup    Runtime
+    ///
     /// @brief Generates vertices for a cube with texture coordinates and positions.
 	//---------------------------------------------------------------------------------------------
     class SEGFAULT_EXPORT CubeGenerator final {
