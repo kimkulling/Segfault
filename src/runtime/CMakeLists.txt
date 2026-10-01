@@ -17,6 +17,10 @@ set (segfault_scene_src
 
 SET(segfault_renderer_src
     renderer/rendercore.h
+    renderer/cubegenerator.h
+    renderer/cubegenerator.cpp
+    renderer/spheregenerator.h
+    renderer/spheregenerator.cpp
     renderer/renderthread.cpp
     renderer/renderthread.h
     renderer/RHI.h

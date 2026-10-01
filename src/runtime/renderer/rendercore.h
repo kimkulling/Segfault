@@ -26,6 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "volk.h"
 
 #include <glm/glm.hpp>
+#include <vector>
 
 namespace segfault::renderer {
 
