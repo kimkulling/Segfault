@@ -22,7 +22,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -----------------------------------------------------------------------------------------------*/
 #include "common/examplebase.h"
 #include "renderer/rendercore.h"
-//#include "renderer/spheregenerator.h"
 #include "renderer/cubegenerator.h"
 
 #include <vector>
@@ -46,10 +45,8 @@ public:
 
 protected:
 	bool onSetup() override {
-	//	SphereGenerator sphereGenerator;
 		CubeGenerator cubeGenerator;
         Mesh mesh = cubeGenerator.generate(1.0f, { 0.0f, 1.0f, 0.0f });
-        //Mesh mesh = sphereGenerator.generate(1.0f, 16, 16, { 1.0f, 0.0f, 0.0f });        
 		ExampleBase::getApp().getRHI()->addPrimitive(mesh);
 		
         return ExampleBase::getApp().initRenderer();
