@@ -93,14 +93,14 @@ namespace segfault::renderer {
                 const uint32_t nextStackNextSector = (stack + 1) * (sectors + 1) + (sector + 1);
 
                 // First triangle (counter-clockwise)
-                mesh.indices.push_back(static_cast<uint16_t>(current));
-                mesh.indices.push_back(static_cast<uint16_t>(nextSector));
-                mesh.indices.push_back(static_cast<uint16_t>(nextStackNextSector));
+                mesh.indices.emplace_back(static_cast<uint16_t>(current));
+                mesh.indices.emplace_back(static_cast<uint16_t>(nextSector));
+                mesh.indices.emplace_back(static_cast<uint16_t>(nextStackNextSector));
 
                 // Second triangle (counter-clockwise)
-                mesh.indices.push_back(static_cast<uint16_t>(current));
-                mesh.indices.push_back(static_cast<uint16_t>(nextStackNextSector));
-                mesh.indices.push_back(static_cast<uint16_t>(nextStack));
+                mesh.indices.emplace_back(static_cast<uint16_t>(current));
+                mesh.indices.emplace_back(static_cast<uint16_t>(nextStackNextSector));
+                mesh.indices.emplace_back(static_cast<uint16_t>(nextStack));
             }
         }
 
