@@ -19,6 +19,8 @@ SET(segfault_renderer_src
     renderer/rendercore.h
     renderer/cubegenerator.h
     renderer/cubegenerator.cpp
+    renderer/quadgenerator.h
+    renderer/quadgenerator.cpp
     renderer/spheregenerator.h
     renderer/spheregenerator.cpp
     renderer/renderthread.cpp

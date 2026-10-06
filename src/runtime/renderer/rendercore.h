@@ -32,6 +32,12 @@ namespace segfault::renderer {
 
     class RHI;
 
+    /// @brief Selects how the renderer builds its projection matrix.
+    enum class ProjectionMode {
+        Perspective,    ///< 3D perspective projection (default).
+        Orthographic,   ///< 2D orthographic projection, aspect-corrected and depth-flat.
+    };
+
     enum class BufferUsage : uint32_t {
         TransferSourceBit = 0x00000001,
         TransferDestinationBit = 0x00000002,
