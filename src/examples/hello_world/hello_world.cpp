@@ -30,16 +30,21 @@ namespace {
 
 using segfault::examples::ExampleBase;
 using segfault::examples::ExampleConfig;
+
 using namespace segfault::renderer;
 
 //-------------------------------------------------------------------------------------------------
 /// @class HelloWorld
-/// @brief The minimal Segfault example: open a window and clear the frame every loop.
+/// @brief The minimal Segfault example: Will open a window and clear the frame every loop.
 //-------------------------------------------------------------------------------------------------
 class HelloWorld final : public ExampleBase {
 public:
     HelloWorld() :
-            ExampleBase(ExampleConfig{"hello_world", "hello, world!", 50, 50, 800, 600, false}) {
+            ExampleBase(ExampleConfig{
+				"hello_world", 			// Application name
+				"hello, world!", 		// Windows title
+				50, 50, 800, 600, 		// Windows resolution
+				false}) {				// No fullscreen
         // empty
     }
 
