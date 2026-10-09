@@ -40,6 +40,9 @@ cd bin
 ./hello_world
 ```
 
+## Examples
+You can find our examples here: [Examples](https://github.com/kimkulling/Segfault/tree/main/src/examples)
+
 ## Roadmap for Version 0.0.1
 - [ ] Core Concepts 
   - [ ] Define base architecture
@@ -52,6 +55,12 @@ cd bin
       - [x] Base concept
       - [x] Textures
       - [ ] Model loading
+    - [ ] Define 2D render concept
+      - [ ] Scene Management concept
+      - [ ] Simple example 
+    - [ ] Define 3D render concept
+      - [ ] Scene Management concept
+      - [ ] Simple example 
     - [ ] Define render thread
       - [ ] Define render graph concept
   - [ ] Assets
