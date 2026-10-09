@@ -56,7 +56,6 @@ protected:
 		
         return ExampleBase::getApp().initRenderer();
 	}
-
 };
 
 } // namespace
