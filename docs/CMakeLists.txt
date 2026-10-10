@@ -15,17 +15,30 @@ if(DOXYGEN_FOUND)
     # Set output directory
     set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/html)
     
+    # Create output directory before running Doxygen
+    file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR})
+    
+    # Configure Doxyfile path with absolute paths
+    set(DOXYGEN_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.configured)
+    
+    # Create a configured Doxyfile with absolute paths
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+        ${DOXYGEN_CONFIG_FILE}
+        @ONLY
+    )
+    
     # Add custom target for documentation
     add_custom_target(doc
-        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_FILE}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM
     )
     
     # Add a clean target for documentation
     add_custom_target(doc-clean
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${DOXYGEN_OUTPUT_DIR}
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/html
         COMMENT "Cleaning Doxygen documentation"
         VERBATIM
     )
