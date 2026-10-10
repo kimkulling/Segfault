@@ -34,6 +34,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace segfault::renderer {
 
+	/// @brief Represents the indices of queue families for a Vulkan physical device.
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily{};
         std::optional<uint32_t> presentFamily{};
@@ -60,6 +61,7 @@ namespace segfault::renderer {
 		}
 	};
 
+	/// @brief Represents the details of swap chain support for a Vulkan physical device.
 	struct SwapChainSupportDetails {
 		VkSurfaceCapabilitiesKHR capabilities{};
 		std::vector<VkSurfaceFormatKHR> formats{};
