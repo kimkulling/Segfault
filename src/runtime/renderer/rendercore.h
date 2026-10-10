@@ -32,15 +32,20 @@ namespace segfault::renderer {
 
     class RHI;
 
-	/// @brief Enum class representing buffer usage flags for Vulkan buffers.
+    /// @brief Selects how the renderer builds its projection matrix.
+    enum class ProjectionMode {
+        Perspective,    ///< 3D perspective projection (default).
+        Orthographic,   ///< 2D orthographic projection, aspect-corrected and depth-flat.
+    };
+
     enum class BufferUsage : uint32_t {
-		TransferSourceBit = 0x00000001,         ///< Buffer can be used as a source for transfer operations.
-		TransferDestinationBit = 0x00000002,    ///< Buffer can be used as a destination for transfer operations.
-		UniformTexelBufferBit = 0x00000004,     ///< Buffer can be used as a uniform texel buffer.
-		StorageTexelBufferBit = 0x00000008,     ///< Buffer can be used as a storage texel buffer.
-		UniformBuffer = 0x00000010,             ///< Buffer can be used as a uniform buffer.
-		IndexBuffer = 0x00000040,               ///< Buffer can be used as an index buffer.
-		VertexBuffer = 0x00000080,              ///< Buffer can be used as a vertex buffer.  
+		    TransferSourceBit = 0x00000001,         ///< Buffer can be used as a source for transfer operations.
+		    TransferDestinationBit = 0x00000002,    ///< Buffer can be used as a destination for transfer operations.
+		    UniformTexelBufferBit = 0x00000004,     ///< Buffer can be used as a uniform texel buffer.
+		    StorageTexelBufferBit = 0x00000008,     ///< Buffer can be used as a storage texel buffer.
+		    UniformBuffer = 0x00000010,             ///< Buffer can be used as a uniform buffer.
+		    IndexBuffer = 0x00000040,               ///< Buffer can be used as an index buffer.
+		    VertexBuffer = 0x00000080,              ///< Buffer can be used as a vertex buffer.  
     };
 
     /// @brief Represents a vertex with position, color, and texture coordinates.

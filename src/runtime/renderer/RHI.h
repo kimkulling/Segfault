@@ -30,6 +30,7 @@ namespace segfault::renderer {
 
     struct Mesh;
     struct RHIImpl;
+    enum class ProjectionMode;
 
     //---------------------------------------------------------------------------------------------
     /// @class RHI
@@ -66,6 +67,10 @@ namespace segfault::renderer {
         /// @brief Adds a mesh primitive for rendering.
         /// @param[ in ] mesh The mesh to add for rendering.
         void addPrimitive(const Mesh& mesh);
+
+        /// @brief Selects the projection used when building the per-frame uniforms.
+        /// @param[ in ] mode Perspective for 3D scenes, Orthographic for 2D scenes.
+        void setProjectionMode(ProjectionMode mode);
 
     private:
         RHIImpl* mImpl{ nullptr };

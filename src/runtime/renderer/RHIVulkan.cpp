@@ -128,6 +128,7 @@ namespace segfault::renderer {
         std::vector<VkFence> mInFlightFences{};
         VkPipeline mGraphicsPipeline{};
         bool mFramebufferResized{false};
+        ProjectionMode mProjectionMode{ProjectionMode::Perspective};
         VkBuffer mVertexBuffer{};
         std::vector<VkBuffer> mUniformBuffers{};
         std::vector<VkDeviceMemory> mUniformBuffersMemory{};
@@ -959,10 +960,22 @@ namespace segfault::renderer {
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+        const float aspect = mSwapChainExtent.width / (float)mSwapChainExtent.height;
+
         UniformBufferObject ubo{};
-        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), mSwapChainExtent.width / (float)mSwapChainExtent.height, 0.1f, 10.0f);
+        if (mProjectionMode == ProjectionMode::Orthographic) {
+            // 2D rendering: a static, flat view with an aspect-corrected
+            // orthographic projection so quads keep their proportions.
+            ubo.model = glm::mat4(1.0f);
+            ubo.view = glm::mat4(1.0f);
+            ubo.proj = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+        } else {
+            // 3D rendering: spin the primitive in front of a perspective camera.
+            ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            ubo.proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10.0f);
+        }
+        // Flip Y to account for Vulkan's clip-space orientation (GLM targets OpenGL).
         ubo.proj[1][1] *= -1;
         memcpy(mUniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     }
@@ -1651,6 +1664,10 @@ namespace segfault::renderer {
 
     void RHI::addPrimitive(const Mesh& mesh) {
         mImpl->addPrimitive(mesh);
+    }
+
+    void RHI::setProjectionMode(ProjectionMode mode) {
+        mImpl->mProjectionMode = mode;
     }
 
 } // namespace segfault::renderer
