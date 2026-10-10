@@ -2,6 +2,7 @@
 bin/
 lib/
 build/
+x64/
 
 # CMake generated files
 CMakeCache.txt
@@ -9,9 +10,11 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 install_manifest.txt
+*.dir/
 
 # vcpkg
 vcpkg/
+vcpkg_installed/
 vcpkg-installed/
 
 # Compiler and linker output
@@ -31,11 +34,13 @@ vcpkg-installed/
 
 # IDE files
 # Visual Studio
+.vs/
 *.sln
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
 *.userosscache
+*.slnx
 *.suo
 
 # VS Code

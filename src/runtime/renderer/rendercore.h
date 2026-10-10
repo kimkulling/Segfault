@@ -39,13 +39,13 @@ namespace segfault::renderer {
     };
 
     enum class BufferUsage : uint32_t {
-        TransferSourceBit = 0x00000001,
-        TransferDestinationBit = 0x00000002,
-        UniformTexelBufferBit = 0x00000004,
-        StorageTexelBufferBit = 0x00000008,
-        UniformBuffer = 0x00000010,
-        IndexBuffer = 0x00000040,
-        VertexBuffer = 0x00000080,
+		    TransferSourceBit = 0x00000001,         ///< Buffer can be used as a source for transfer operations.
+		    TransferDestinationBit = 0x00000002,    ///< Buffer can be used as a destination for transfer operations.
+		    UniformTexelBufferBit = 0x00000004,     ///< Buffer can be used as a uniform texel buffer.
+		    StorageTexelBufferBit = 0x00000008,     ///< Buffer can be used as a storage texel buffer.
+		    UniformBuffer = 0x00000010,             ///< Buffer can be used as a uniform buffer.
+		    IndexBuffer = 0x00000040,               ///< Buffer can be used as an index buffer.
+		    VertexBuffer = 0x00000080,              ///< Buffer can be used as a vertex buffer.  
     };
 
     /// @brief Represents a vertex with position, color, and texture coordinates.
@@ -66,6 +66,7 @@ namespace segfault::renderer {
     using VertexArray = std::vector<Vertex>;    ///< Type alias for a vector of Vertex objects.
     using IndexArray = std::vector<uint16_t>;  ///< Type alias for a vector of index values.
 
+	/// @brief Represents a uniform buffer object containing transformation matrices.
     struct UniformBufferObject {
         glm::mat4 model;
         glm::mat4 view;
@@ -96,7 +97,7 @@ namespace segfault::renderer {
         }
     };
 
-
+	/// @brief Represents a rendering frame with methods to begin, submit, and end the frame.
     struct Frame {
         void begin();
         void submit();
