@@ -785,7 +785,11 @@ namespace segfault::scene {
         class ComponentPool2D {
         public:
             T& add(Entity2D entity) {
-                const uint32_t idx = mDense.size();
+                auto it = mEntityToIndex.find(entity.id);
+                if (it != mEntityToIndex.end()) {
+                    return mDense[it->second];
+                }
+                const uint32_t idx = static_cast<uint32_t>(mDense.size());
                 mEntityToIndex[entity.id] = idx;
                 mIndexToEntity.push_back(entity);
                 mDense.push_back(T{});

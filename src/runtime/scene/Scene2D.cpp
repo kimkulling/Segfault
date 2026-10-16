@@ -455,8 +455,13 @@ namespace segfault::scene {
         mFrameTimer += deltaTime * mAnimationSpeed;
         
         const Frame& currentFrame = mFrames[mCurrentFrame];
-        while (mFrameTimer >= currentFrame.mDuration) {
-            mFrameTimer -= currentFrame.mDuration;
+
+        if (mCurrentFrame >= mFrames.size()) {
+            mCurrentFrame = 0;
+        }
+
+        while (mFrames[mCurrentFrame].mDuration > 0.0f && mFrameTimer >= mFrames[mCurrentFrame].mDuration) {
+            mFrameTimer -= mFrames[mCurrentFrame].mDuration;
             mCurrentFrame++;
             
             if (mCurrentFrame >= mFrames.size()) {
