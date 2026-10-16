@@ -63,7 +63,7 @@ namespace segfault::scene {
         /// @param[ in ] near The near clipping plane.
         /// @param[ in ] far The far clipping plane.
         //-----------------------------------------------------------------------------------------
-        void setOrthographic(float left, float right, float bottom, float top, float near = -1.0f, float far = 1.0f);
+        void setOrthographic( float left, float right, float bottom, float top, float near = -1.0f, float far = 1.0f);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Sets up an orthographic projection based on viewport size.
@@ -72,7 +72,7 @@ namespace segfault::scene {
         /// @param[ in ] near The near clipping plane.
         /// @param[ in ] far The far clipping plane.
         //-----------------------------------------------------------------------------------------
-        void setOrthographicFromViewport(uint32_t width, uint32_t height, float near = -1.0f, float far = 1.0f);
+        void setOrthographicFromViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height, float near = -1.0f, float far = 1.0f);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Sets the position of the camera.
@@ -161,10 +161,12 @@ namespace segfault::scene {
 
         //-----------------------------------------------------------------------------------------
         /// @brief Resizes the camera viewport.
+		/// @param[ in ] x     The x-coordinate of the viewport.
+        /// @param[ in ] y     The y-coordinate of the viewport.
         /// @param[ in ] width The new width of the viewport.
         /// @param[ in ] height The new height of the viewport.
         //-----------------------------------------------------------------------------------------
-        void resize(uint32_t width, uint32_t height);
+        void resize(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Sets the viewport boundaries.

@@ -41,12 +41,12 @@ namespace segfault::scene {
         mDirty = true;
     }
 
-    void Camera2D::setOrthographicFromViewport(uint32_t width, uint32_t height, float near, float far) {
+    void Camera2D::setOrthographicFromViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height, float near, float far) {
         float halfWidth = static_cast<float>(width) * 0.5f;
         float halfHeight = static_cast<float>(height) * 0.5f;
         setOrthographic(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
-        mViewport.x = 0;
-        mViewport.y = 0;
+        mViewport.x = x;
+        mViewport.y = y;
         mViewport.width = width;
         mViewport.height = height;
         mDirty = true;
@@ -138,8 +138,8 @@ namespace segfault::scene {
         mDirty = true;
     }
 
-    void Camera2D::resize(uint32_t width, uint32_t height) {
-        setOrthographicFromViewport(width, height);
+    void Camera2D::resize(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
+        setOrthographicFromViewport(x, y, width, height);
     }
 
     void Camera2D::setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
@@ -147,7 +147,7 @@ namespace segfault::scene {
         mViewport.y = y;
         mViewport.width = width;
         mViewport.height = height;
-        resize(width, height);
+        resize(x, y, width, height);
     }
 
     const core::Rect& Camera2D::getViewport() const {
@@ -523,7 +523,7 @@ namespace segfault::scene {
 
     bool Scene2D::init(renderer::RHI& rhi) {
         // Initialize main camera
-        mMainCamera.resize(mViewportWidth, mViewportHeight);
+        mMainCamera.resize(0, 0, mViewportWidth, mViewportHeight);
         
         // Initialize default layer
         if (mDefaultLayer) {
@@ -722,7 +722,7 @@ namespace segfault::scene {
     void Scene2D::setViewportSize(uint32_t width, uint32_t height) {
         mViewportWidth = width;
         mViewportHeight = height;
-        mMainCamera.resize(width, height);
+        mMainCamera.resize(0, 0, width, height);
     }
 
     uint32_t Scene2D::getViewportWidth() const {
