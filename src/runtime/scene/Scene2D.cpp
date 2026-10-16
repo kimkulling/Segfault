@@ -261,9 +261,11 @@ namespace segfault::scene {
     //---------------------------------------------------------------------------------------------
 
     void Transform2DComponent::updateWorldMatrix() {
-        if (!mDirty) return;
+        if (!mDirty) {
+            return;
+        }
 
-        glm::mat4 transform = glm::mat4(1.0f);
+        auto transform = glm::mat4(1.0f);
         
         // Translate to position
         transform = glm::translate(transform, glm::vec3(mPosition.x, mPosition.y, 0.0f));
@@ -396,67 +398,6 @@ namespace segfault::scene {
 
     void TextComponent::setVisible(bool visible) {
         mVisible = visible;
-    }
-
-    //---------------------------------------------------------------------------------------------
-    // UISpriteComponent implementation
-    //---------------------------------------------------------------------------------------------
-
-    void UISpriteComponent::setTexture(core::guid textureHandle) {
-        mTextureHandle = textureHandle;
-    }
-
-    void UISpriteComponent::setNineSliceBorders(uint32_t left, uint32_t right, uint32_t top, uint32_t bottom) {
-        mBorderLeft = left;
-        mBorderRight = right;
-        mBorderTop = top;
-        mBorderBottom = bottom;
-    }
-
-    void UISpriteComponent::setVisible(bool visible) {
-        mVisible = visible;
-    }
-
-    void UISpriteComponent::setInteractive(bool interactive) {
-        mInteractive = interactive;
-    }
-
-    void UISpriteComponent::setEnabled(bool enabled) {
-        mEnabled = enabled;
-    }
-
-    void UISpriteComponent::setOnClick(std::function<void()> callback) {
-        mOnClick = callback;
-    }
-
-    void UISpriteComponent::setOnHoverEnter(std::function<void()> callback) {
-        mOnHoverEnter = callback;
-    }
-
-    void UISpriteComponent::setOnHoverExit(std::function<void()> callback) {
-        mOnHoverExit = callback;
-    }
-
-    void UISpriteComponent::onClick() {
-        if (mEnabled && mInteractive && mOnClick) {
-            mPressed = true;
-            mOnClick();
-            mPressed = false;
-        }
-    }
-
-    void UISpriteComponent::onHoverEnter() {
-        if (mEnabled && mInteractive && mOnHoverEnter) {
-            mHovered = true;
-            mOnHoverEnter();
-        }
-    }
-
-    void UISpriteComponent::onHoverExit() {
-        if (mEnabled && mInteractive && mOnHoverExit) {
-            mHovered = false;
-            mOnHoverExit();
-        }
     }
 
     //---------------------------------------------------------------------------------------------
@@ -690,7 +631,6 @@ namespace segfault::scene {
         mTransformPool.remove(entity);
         mSpritePool.remove(entity);
         mTextPool.remove(entity);
-        mUISpritePool.remove(entity);
         mRenderPool.remove(entity);
         mAnimationPool.remove(entity);
     }
@@ -705,10 +645,6 @@ namespace segfault::scene {
 
     TextComponent& Scene2D::addTextComponent(Entity2D entity) {
         return mTextPool.add(entity);
-    }
-
-    UISpriteComponent& Scene2D::addUISpriteComponent(Entity2D entity) {
-        return mUISpritePool.add(entity);
     }
 
     Render2DComponent& Scene2D::addRenderComponent(Entity2D entity) {
@@ -731,10 +667,6 @@ namespace segfault::scene {
 
     TextComponent* Scene2D::getTextComponent(Entity2D entity) {
         return mTextPool.get(entity);
-    }
-
-    UISpriteComponent* Scene2D::getUISpriteComponent(Entity2D entity) {
-        return mUISpritePool.get(entity);
     }
 
     Render2DComponent* Scene2D::getRenderComponent(Entity2D entity) {
@@ -865,24 +797,6 @@ namespace segfault::scene {
         return entity;
     }
 
-    Entity2D SimpleScene2D::createButton(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size, std::function<void()> onClick) {
-        Entity2D entity = createEntity();
-        
-        Transform2DComponent& transform = addTransformComponent(entity);
-        transform.setPosition(position);
-        transform.setSize(size);
-        
-        UISpriteComponent& uiSprite = addUISpriteComponent(entity);
-        uiSprite.setTexture(textureHandle);
-        uiSprite.setInteractive(true);
-        uiSprite.setOnClick(onClick);
-        
-        Render2DComponent& render = addRenderComponent(entity);
-        render.setVisible(true);
-        
-        return entity;
-    }
-
     //---------------------------------------------------------------------------------------------
     // UIScene2D implementation
     //---------------------------------------------------------------------------------------------
@@ -916,41 +830,6 @@ namespace segfault::scene {
         // Handle mouse up for UI elements
     }
 
-    Entity2D UIScene2D::createPanel(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size) {
-        Entity2D entity = createEntity();
-        
-        Transform2DComponent& transform = addTransformComponent(entity);
-        transform.setPosition(position);
-        transform.setSize(size);
-        
-        SpriteComponent& sprite = addSpriteComponent(entity);
-        sprite.setTexture(textureHandle);
-        
-        Render2DComponent& render = addRenderComponent(entity);
-        render.setVisible(true);
-        
-        return entity;
-    }
-
-    Entity2D UIScene2D::createButton(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size, std::function<void()> onClick) {
-        Entity2D entity = createEntity();
-        
-        Transform2DComponent& transform = addTransformComponent(entity);
-        transform.setPosition(position);
-        transform.setSize(size);
-        
-        UISpriteComponent& uiSprite = addUISpriteComponent(entity);
-        uiSprite.setTexture(textureHandle);
-        uiSprite.setInteractive(true);
-        uiSprite.setEnabled(true);
-        uiSprite.setOnClick(onClick);
-        
-        Render2DComponent& render = addRenderComponent(entity);
-        render.setVisible(true);
-        
-        return entity;
-    }
-
     Entity2D UIScene2D::createText(const std::string& text, core::guid fontHandle, const glm::vec2& position, float fontSize, const glm::vec4& color) {
         Entity2D entity = createEntity();
         
@@ -962,41 +841,6 @@ namespace segfault::scene {
         textComponent.setFont(fontHandle);
         textComponent.setFontSize(fontSize);
         textComponent.setColor(color);
-        
-        Render2DComponent& render = addRenderComponent(entity);
-        render.setVisible(true);
-        
-        return entity;
-    }
-
-    Entity2D UIScene2D::createCheckbox(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size, std::function<void(bool)> onChanged) {
-        Entity2D entity = createEntity();
-        
-        Transform2DComponent& transform = addTransformComponent(entity);
-        transform.setPosition(position);
-        transform.setSize(size);
-        
-        UISpriteComponent& uiSprite = addUISpriteComponent(entity);
-        uiSprite.setTexture(textureHandle);
-        uiSprite.setInteractive(true);
-        uiSprite.setEnabled(true);
-        // For checkbox, we'll use the selected state to represent checked/unchecked
-        
-        Render2DComponent& render = addRenderComponent(entity);
-        render.setVisible(true);
-        
-        return entity;
-    }
-
-    Entity2D UIScene2D::createSlider(core::guid backgroundTexture, core::guid handleTexture, const glm::vec2& position, const glm::vec2& size, float minValue, float maxValue, std::function<void(float)> onChanged) {
-        Entity2D entity = createEntity();
-        
-        Transform2DComponent& transform = addTransformComponent(entity);
-        transform.setPosition(position);
-        transform.setSize(size);
-        
-        SpriteComponent& background = addSpriteComponent(entity);
-        background.setTexture(backgroundTexture);
         
         Render2DComponent& render = addRenderComponent(entity);
         render.setVisible(true);

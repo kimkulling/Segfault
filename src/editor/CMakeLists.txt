@@ -8,3 +8,5 @@ target_link_libraries(segfault_editor
         SDL2::SDL2
         glm::glm
 )
+
+add_dependencies(segfault_editor compile_all_assets)

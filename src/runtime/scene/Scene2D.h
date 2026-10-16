@@ -467,84 +467,6 @@ namespace segfault::scene {
     };
 
     //---------------------------------------------------------------------------------------------
-    /// @brief UI Sprite component for 2D user interface elements.
-    ///
-    /// Extended sprite component with UI-specific features like nine-slice scaling.
-    //---------------------------------------------------------------------------------------------
-    struct SEGFAULT_EXPORT UISpriteComponent final {
-        core::guid mTextureHandle{ 0 };
-        core::Rect mTextureRect{ 0, 0, 0, 0 };
-        glm::vec4 mColor{ 1.0f, 1.0f, 1.0f, 1.0f };
-        float mAlpha{ 1.0f };
-        bool mVisible{ true };
-
-        // Nine-slice border settings
-        uint32_t mBorderLeft{ 0 };
-        uint32_t mBorderRight{ 0 };
-        uint32_t mBorderTop{ 0 };
-        uint32_t mBorderBottom{ 0 };
-
-        // UI-specific settings
-        bool mInteractive{ false };
-        bool mEnabled{ true };
-        bool mSelected{ false };
-        bool mPressed{ false };
-        bool mHovered{ false };
-
-        // Callback functions for UI events
-        std::function<void()> mOnClick;
-        std::function<void()> mOnHoverEnter;
-        std::function<void()> mOnHoverExit;
-
-        /// @brief Default constructor.
-        UISpriteComponent() = default;
-
-        /// @brief Sets the texture handle.
-        /// @param[ in ] textureHandle The handle to the texture.
-        void setTexture(core::guid textureHandle);
-
-        /// @brief Sets the nine-slice borders.
-        /// @param[ in ] left The left border width.
-        /// @param[ in ] right The right border width.
-        /// @param[ in ] top The top border height.
-        /// @param[ in ] bottom The bottom border height.
-        void setNineSliceBorders(uint32_t left, uint32_t right, uint32_t top, uint32_t bottom);
-
-        /// @brief Sets visibility.
-        /// @param[ in ] visible True to make visible, false to hide.
-        void setVisible(bool visible);
-
-        /// @brief Sets interactiveness.
-        /// @param[ in ] interactive True to enable interaction, false to disable.
-        void setInteractive(bool interactive);
-
-        /// @brief Sets enabled state.
-        /// @param[ in ] enabled True to enable, false to disable.
-        void setEnabled(bool enabled);
-
-        /// @brief Sets the click callback.
-        /// @param[ in ] callback The function to call when clicked.
-        void setOnClick(std::function<void()> callback);
-
-        /// @brief Sets the hover enter callback.
-        /// @param[ in ] callback The function to call when hovered over.
-        void setOnHoverEnter(std::function<void()> callback);
-
-        /// @brief Sets the hover exit callback.
-        /// @param[ in ] callback The function to call when hover exits.
-        void setOnHoverExit(std::function<void()> callback);
-
-        /// @brief Simulates a click event.
-        void onClick();
-
-        /// @brief Simulates a hover enter event.
-        void onHoverEnter();
-
-        /// @brief Simulates a hover exit event.
-        void onHoverExit();
-    };
-
-    //---------------------------------------------------------------------------------------------
     /// @brief Render component for 2D entities.
     ///
     /// Contains render-specific data like layer assignment and render order.
@@ -724,13 +646,6 @@ namespace segfault::scene {
         TextComponent& addTextComponent(Entity2D entity);
 
         //-----------------------------------------------------------------------------------------
-        /// @brief Adds a UI sprite component to an entity.
-        /// @param[ in ] entity The entity to add the component to.
-        /// @return Reference to the added component.
-        //-----------------------------------------------------------------------------------------
-        UISpriteComponent& addUISpriteComponent(Entity2D entity);
-
-        //-----------------------------------------------------------------------------------------
         /// @brief Adds a render component to an entity.
         /// @param[ in ] entity The entity to add the component to.
         /// @return Reference to the added component.
@@ -764,13 +679,6 @@ namespace segfault::scene {
         /// @return Pointer to the component, or nullptr if not found.
         //-----------------------------------------------------------------------------------------
         TextComponent* getTextComponent(Entity2D entity);
-
-        //-----------------------------------------------------------------------------------------
-        /// @brief Gets a UI sprite component from an entity.
-        /// @param[ in ] entity The entity to get the component from.
-        /// @return Pointer to the component, or nullptr if not found.
-        //-----------------------------------------------------------------------------------------
-        UISpriteComponent* getUISpriteComponent(Entity2D entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Gets a render component from an entity.
@@ -919,7 +827,6 @@ namespace segfault::scene {
         ComponentPool2D<Transform2DComponent> mTransformPool;
         ComponentPool2D<SpriteComponent> mSpritePool;
         ComponentPool2D<TextComponent> mTextPool;
-        ComponentPool2D<UISpriteComponent> mUISpritePool;
         ComponentPool2D<Render2DComponent> mRenderPool;
         ComponentPool2D<Animation2DComponent> mAnimationPool;
 
