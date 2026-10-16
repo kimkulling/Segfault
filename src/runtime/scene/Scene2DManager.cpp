@@ -99,6 +99,7 @@ namespace segfault::scene {
         // If this is the first scene, activate it
         if (mActiveScene == nullptr) {
             mActiveScene = newScene;
+            mActiveScene->onActivate();
         }
 
         // Add to render order if not already present
@@ -147,6 +148,7 @@ namespace segfault::scene {
         // If this is the first scene, activate it
         if (mActiveScene == nullptr) {
             mActiveScene = newScene;
+			mActiveScene->onActivate();
         }
 
         // Add to render order if not already present
