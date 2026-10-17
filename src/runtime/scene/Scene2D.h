@@ -307,12 +307,12 @@ namespace segfault::scene {
         /// @brief Comparison operator.
         /// @param[ in ] other The other entity to compare with.
         /// @return True if the entities are equal, false otherwise.
-        bool operator==(const Entity2D& other) const;
+        bool operator == (const Entity2D& other) const;
 
         /// @brief Comparison operator.
         /// @param[ in ] other The other entity to compare with.
         /// @return True if the entities are not equal, false otherwise.
-        bool operator!=(const Entity2D& other) const;
+        bool operator != (const Entity2D& other) const;
     };
 
     //---------------------------------------------------------------------------------------------
