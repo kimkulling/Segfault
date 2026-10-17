@@ -28,6 +28,16 @@
 # Find Python interpreter
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
+if(CMAKE_BUILD_TYPE)
+    set(BUILD_CONFIG "${CMAKE_BUILD_TYPE}")
+elseif(CMAKE_CONFIGURATION_TYPES)
+    # For multi-config generators, use the current config from the --config flag
+    # This requires CMake 3.15+ for proper generator expressions
+    set(BUILD_CONFIG "$<CONFIG>")
+else()
+    set(BUILD_CONFIG "Release")
+endif()
+
 # Get the build configuration (Debug/Release)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(BUILD_CONFIG "Debug")

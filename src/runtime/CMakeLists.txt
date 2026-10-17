@@ -13,6 +13,11 @@ SET(segfault_core_src
 
 set (segfault_scene_src
     scene/camera.h
+    scene/scene.h
+    scene/scene2d.h
+    scene/scene2d.cpp
+    scene/scene2dmanager.h
+    scene/scene2dmanager.cpp
 )
 
 SET(segfault_renderer_src
@@ -50,6 +55,7 @@ source_group(ai           FILES ${segfault_ai_src} )
 source_group(core         FILES ${segfault_core_src} )
 source_group(application  FILES ${segfault_application_src} )
 source_group(renderer     FILES ${segfault_renderer_src} )
+source_group(scene        FILES ${segfault_scene_src} )
 
 ADD_LIBRARY(segfault_runtime SHARED
     ${segfault_ai_src}    

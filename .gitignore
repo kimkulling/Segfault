@@ -10,7 +10,6 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 install_manifest.txt
-*.dir/
 
 # vcpkg
 vcpkg/
@@ -50,7 +49,6 @@ vcpkg-installed/
 *.log
 *.swp
 *.swo
-*~
 
 # OS-specific files
 .DS_Store
