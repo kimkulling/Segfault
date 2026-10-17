@@ -372,7 +372,7 @@ namespace segfault::scene {
 
         /// @brief Constructs a sprite component with a texture.
         /// @param[ in ] textureHandle The handle to the texture.
-        SpriteComponent(core::guid textureHandle);
+        explicit SpriteComponent(core::guid textureHandle);
 
         /// @brief Sets the texture handle.
         /// @param[ in ] textureHandle The handle to the texture.
@@ -873,22 +873,6 @@ namespace segfault::scene {
         /// @param[ in ] size The size of the sprite.
         /// @return The created entity.
         Entity2D createSprite(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size);
-
-        /// @brief Creates a simple text entity.
-        /// @param[ in ] text The text to display.
-        /// @param[ in ] fontHandle The handle to the font.
-        /// @param[ in ] position The position of the text.
-        /// @param[ in ] fontSize The font size.
-        /// @return The created entity.
-        Entity2D createText(const std::string& text, core::guid fontHandle, const glm::vec2& position, float fontSize = 16.0f);
-
-        /// @brief Creates a simple UI button entity.
-        /// @param[ in ] textureHandle The handle to the button texture.
-        /// @param[ in ] position The position of the button.
-        /// @param[ in ] size The size of the button.
-        /// @param[ in ] onClick The callback function when the button is clicked.
-        /// @return The created entity.
-        Entity2D createButton(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size, std::function<void()> onClick);
     };
 
 } // namespace segfault::scene

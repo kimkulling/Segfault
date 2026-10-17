@@ -785,21 +785,4 @@ namespace segfault::scene {
         return entity;
     }
 
-    Entity2D SimpleScene2D::createText(const std::string& text, core::guid fontHandle, const glm::vec2& position, float fontSize) {
-        Entity2D entity = createEntity();
-        
-        Transform2DComponent& transform = addTransformComponent(entity);
-        transform.setPosition(position);
-        
-        TextComponent& textComponent = addTextComponent(entity);
-        textComponent.setText(text);
-        textComponent.setFont(fontHandle);
-        textComponent.setFontSize(fontSize);
-        
-        Render2DComponent& render = addRenderComponent(entity);
-        render.setVisible(true);
-        
-        return entity;
-    }
-
 } // namespace segfault::scene
