@@ -170,6 +170,7 @@ namespace segfault::scene {
 
         // Check if this scene is active
         if (mActiveScene == it->second.get()) {
+            mActiveScene->onDeactivate();
             mActiveScene = nullptr;
         }
 
