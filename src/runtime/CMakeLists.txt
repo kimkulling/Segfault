@@ -14,10 +14,10 @@ SET(segfault_core_src
 set (segfault_scene_src
     scene/camera.h
     scene/scene.h
-    scene/Scene2D.h
-    scene/Scene2D.cpp
-    scene/Scene2DManager.h
-    scene/Scene2DManager.cpp
+    scene/scene2d.h
+    scene/scene2d.cpp
+    scene/scene2dmanager.h
+    scene/scene2dmanager.cpp
 )
 
 SET(segfault_renderer_src
