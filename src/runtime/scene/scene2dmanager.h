@@ -23,7 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include "core/segfault.h"
-#include "scene/Scene2D.h"
+#include "scene/scene2d.h"
 
 #include <unordered_map>
 #include <vector>
