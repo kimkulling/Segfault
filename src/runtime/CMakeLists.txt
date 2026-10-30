@@ -12,7 +12,6 @@ SET(segfault_core_src
 )
 
 set (segfault_scene_src
-    scene/camera.h
     scene/scene.h
     scene/scene2d.h
     scene/scene2d.cpp
