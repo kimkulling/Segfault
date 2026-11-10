@@ -52,9 +52,10 @@ protected:
 	bool onSetup() override {
 		CubeGenerator cubeGenerator;
         Mesh mesh = cubeGenerator.generate(1.0f, { 0.0f, 1.0f, 0.0f });
+		bool retValue = ExampleBase::getApp().initRenderer();
 		ExampleBase::getApp().getRHI()->addPrimitive(mesh);
 		
-        return ExampleBase::getApp().initRenderer();
+        return retValue;
 	}
 };
 
