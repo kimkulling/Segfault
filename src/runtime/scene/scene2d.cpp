@@ -241,22 +241,6 @@ namespace segfault::scene {
     }
 
     //---------------------------------------------------------------------------------------------
-    // Entity2D implementation
-    //---------------------------------------------------------------------------------------------
-
-    bool Entity2D::isValid() const {
-        return id != 0;
-    }
-
-    bool Entity2D::operator==(const Entity2D& other) const {
-        return id == other.id;
-    }
-
-    bool Entity2D::operator!=(const Entity2D& other) const {
-        return id != other.id;
-    }
-
-    //---------------------------------------------------------------------------------------------
     // Transform2DComponent implementation
     //---------------------------------------------------------------------------------------------
 
@@ -624,13 +608,13 @@ namespace segfault::scene {
         // Override in derived classes
     }
 
-    Entity2D Scene2D::createEntity() {
-        Entity2D entity;
+    Entity Scene2D::createEntity() {
+        Entity entity;
         entity.id = mNextEntityId++;
         return entity;
     }
 
-    void Scene2D::destroyEntity(Entity2D entity) {
+    void Scene2D::destroyEntity(Entity entity) {
         if (!isValid(entity)) return;
         
         mTransformPool.remove(entity);
@@ -640,45 +624,45 @@ namespace segfault::scene {
         mAnimationPool.remove(entity);
     }
 
-    Transform2DComponent& Scene2D::addTransformComponent(Entity2D entity) {
+    Transform2DComponent& Scene2D::addTransformComponent(Entity entity) {
         return mTransformPool.add(entity);
     }
 
-    SpriteComponent& Scene2D::addSpriteComponent(Entity2D entity) {
+    SpriteComponent& Scene2D::addSpriteComponent(Entity entity) {
         return mSpritePool.add(entity);
     }
 
-    TextComponent& Scene2D::addTextComponent(Entity2D entity) {
+    TextComponent& Scene2D::addTextComponent(Entity entity) {
         return mTextPool.add(entity);
     }
 
-    Render2DComponent& Scene2D::addRenderComponent(Entity2D entity) {
+    Render2DComponent& Scene2D::addRenderComponent(Entity entity) {
         Render2DComponent& component = mRenderPool.add(entity);
         component.setLayer(mDefaultLayer.get());
         return component;
     }
 
-    Animation2DComponent& Scene2D::addAnimationComponent(Entity2D entity) {
+    Animation2DComponent& Scene2D::addAnimationComponent(Entity entity) {
         return mAnimationPool.add(entity);
     }
 
-    Transform2DComponent* Scene2D::getTransformComponent(Entity2D entity) {
+    Transform2DComponent* Scene2D::getTransformComponent(Entity entity) {
         return mTransformPool.get(entity);
     }
 
-    SpriteComponent* Scene2D::getSpriteComponent(Entity2D entity) {
+    SpriteComponent* Scene2D::getSpriteComponent(Entity entity) {
         return mSpritePool.get(entity);
     }
 
-    TextComponent* Scene2D::getTextComponent(Entity2D entity) {
+    TextComponent* Scene2D::getTextComponent(Entity entity) {
         return mTextPool.get(entity);
     }
 
-    Render2DComponent* Scene2D::getRenderComponent(Entity2D entity) {
+    Render2DComponent* Scene2D::getRenderComponent(Entity entity) {
         return mRenderPool.get(entity);
     }
 
-    Animation2DComponent* Scene2D::getAnimationComponent(Entity2D entity) {
+    Animation2DComponent* Scene2D::getAnimationComponent(Entity entity) {
         return mAnimationPool.get(entity);
     }
 
@@ -738,7 +722,7 @@ namespace segfault::scene {
         return mViewportHeight;
     }
 
-    bool Scene2D::isValid(Entity2D entity) const {
+    bool Scene2D::isValid(Entity entity) const {
         return entity.id != 0;
     }
 
@@ -769,8 +753,8 @@ namespace segfault::scene {
         return true;
     }
 
-    Entity2D SimpleScene2D::createSprite(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size) {
-        Entity2D entity = createEntity();
+    Entity SimpleScene2D::createSprite(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size) {
+        Entity entity = createEntity();
         
         Transform2DComponent& transform = addTransformComponent(entity);
         transform.setPosition(position);

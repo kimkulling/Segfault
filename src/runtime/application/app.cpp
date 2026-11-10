@@ -113,7 +113,7 @@ namespace segfault::application {
     App::~App() {
         if (mState != ModuleState::Shutdown) {
             logMessage(LogType::Error, "App not in state Shutdown.");
-            App::shutdown();
+            shutdown();
         }
     }
 
@@ -134,17 +134,13 @@ namespace segfault::application {
             return false;
         }
 
-        mRHI = new RHI;
 		mAppName = appName;
 
         return true;
     }
 
     bool App::initRenderer() {
-        if (mRHI == nullptr) {
-            return false;
-        }
-
+        mRHI = new RHI;
         if (!mRHI->init(mAppName, mSdlWindow)) {
             logMessage(LogType::Error, "Failed to init RHI.");
 			return false;

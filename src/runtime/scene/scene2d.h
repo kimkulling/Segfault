@@ -25,6 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "core/segfault.h"
 #include "core/ifilemanager.h"
 #include "renderer/RHI.h"
+#include "scene/scene.h"
 
 #include <unordered_map>
 #include <vector>
@@ -292,27 +293,6 @@ namespace segfault::scene {
         int32_t mRenderOrder{ 0 };
         Camera2D* mCamera{ nullptr };
         bool mUseOwnCamera{ false };
-    };
-
-    //---------------------------------------------------------------------------------------------
-    /// @brief Entity handle for 2D scene objects.
-    //---------------------------------------------------------------------------------------------
-    struct SEGFAULT_EXPORT Entity2D {
-        core::guid id{ 0 };
-
-        /// @brief Checks if the entity is valid.
-        /// @return True if the entity is valid, false otherwise.
-        bool isValid() const;
-
-        /// @brief Comparison operator.
-        /// @param[ in ] other The other entity to compare with.
-        /// @return True if the entities are equal, false otherwise.
-        bool operator == (const Entity2D& other) const;
-
-        /// @brief Comparison operator.
-        /// @param[ in ] other The other entity to compare with.
-        /// @return True if the entities are not equal, false otherwise.
-        bool operator != (const Entity2D& other) const;
     };
 
     //---------------------------------------------------------------------------------------------
@@ -618,83 +598,83 @@ namespace segfault::scene {
         /// @brief Creates a new 2D entity.
         /// @return A new entity handle.
         //-----------------------------------------------------------------------------------------
-        Entity2D createEntity();
+        Entity createEntity();
 
         //-----------------------------------------------------------------------------------------
         /// @brief Destroys an entity and all its components.
         /// @param[ in ] entity The entity to destroy.
         //-----------------------------------------------------------------------------------------
-        void destroyEntity(Entity2D entity);
+        void destroyEntity(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Adds a transform component to an entity.
         /// @param[ in ] entity The entity to add the component to.
         /// @return Reference to the added component.
         //-----------------------------------------------------------------------------------------
-        Transform2DComponent& addTransformComponent(Entity2D entity);
+        Transform2DComponent& addTransformComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Adds a sprite component to an entity.
         /// @param[ in ] entity The entity to add the component to.
         /// @return Reference to the added component.
         //-----------------------------------------------------------------------------------------
-        SpriteComponent& addSpriteComponent(Entity2D entity);
+        SpriteComponent& addSpriteComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Adds a text component to an entity.
         /// @param[ in ] entity The entity to add the component to.
         /// @return Reference to the added component.
         //-----------------------------------------------------------------------------------------
-        TextComponent& addTextComponent(Entity2D entity);
+        TextComponent& addTextComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Adds a render component to an entity.
         /// @param[ in ] entity The entity to add the component to.
         /// @return Reference to the added component.
         //-----------------------------------------------------------------------------------------
-        Render2DComponent& addRenderComponent(Entity2D entity);
+        Render2DComponent& addRenderComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Adds an animation component to an entity.
         /// @param[ in ] entity The entity to add the component to.
         /// @return Reference to the added component.
         //-----------------------------------------------------------------------------------------
-        Animation2DComponent& addAnimationComponent(Entity2D entity);
+        Animation2DComponent& addAnimationComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Gets a transform component from an entity.
         /// @param[ in ] entity The entity to get the component from.
         /// @return Pointer to the component, or nullptr if not found.
         //-----------------------------------------------------------------------------------------
-        Transform2DComponent* getTransformComponent(Entity2D entity);
+        Transform2DComponent* getTransformComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Gets a sprite component from an entity.
         /// @param[ in ] entity The entity to get the component from.
         /// @return Pointer to the component, or nullptr if not found.
         //-----------------------------------------------------------------------------------------
-        SpriteComponent* getSpriteComponent(Entity2D entity);
+        SpriteComponent* getSpriteComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Gets a text component from an entity.
         /// @param[ in ] entity The entity to get the component from.
         /// @return Pointer to the component, or nullptr if not found.
         //-----------------------------------------------------------------------------------------
-        TextComponent* getTextComponent(Entity2D entity);
+        TextComponent* getTextComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Gets a render component from an entity.
         /// @param[ in ] entity The entity to get the component from.
         /// @return Pointer to the component, or nullptr if not found.
         //-----------------------------------------------------------------------------------------
-        Render2DComponent* getRenderComponent(Entity2D entity);
+        Render2DComponent* getRenderComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Gets an animation component from an entity.
         /// @param[ in ] entity The entity to get the component from.
         /// @return Pointer to the component, or nullptr if not found.
         //-----------------------------------------------------------------------------------------
-        Animation2DComponent* getAnimationComponent(Entity2D entity);
+        Animation2DComponent* getAnimationComponent(Entity entity);
 
         //-----------------------------------------------------------------------------------------
         /// @brief Creates a new layer.
@@ -759,7 +739,7 @@ namespace segfault::scene {
         /// @param[ in ] entity The entity to check.
         /// @return True if the entity is valid, false otherwise.
         //-----------------------------------------------------------------------------------------
-        bool isValid(Entity2D entity) const;
+        bool isValid(Entity entity) const;
 
         //-----------------------------------------------------------------------------------------
         /// @brief Gets the scene name.
@@ -784,7 +764,7 @@ namespace segfault::scene {
         template<typename T>
         class ComponentPool2D {
         public:
-            T& add(Entity2D entity) {
+            T& add(Entity entity) {
                 auto it = mEntityToIndex.find(entity.id);
                 if (it != mEntityToIndex.end()) {
                     return mDense[it->second];
@@ -796,12 +776,12 @@ namespace segfault::scene {
                 return mDense[idx];
             }
 
-            T* get(Entity2D entity) {
+            T* get(Entity entity) {
                 auto it = mEntityToIndex.find(entity.id);
                 return it == mEntityToIndex.end() ? nullptr : &mDense[it->second];
             }
 
-            void remove(Entity2D entity) {
+            void remove(Entity entity) {
                 auto it = mEntityToIndex.find(entity.id);
                 if (it != mEntityToIndex.end()) {
                     uint32_t idx = it->second;
@@ -817,7 +797,7 @@ namespace segfault::scene {
                 }
             }
 
-            bool has(Entity2D entity) const {
+            bool has(Entity entity) const {
                 return mEntityToIndex.find(entity.id) != mEntityToIndex.end();
             }
 
@@ -826,7 +806,7 @@ namespace segfault::scene {
 
         private:
             std::vector<T> mDense;
-            std::vector<Entity2D> mIndexToEntity;
+            std::vector<Entity> mIndexToEntity;
             std::unordered_map<core::guid, uint32_t> mEntityToIndex;
         };
 
@@ -872,7 +852,7 @@ namespace segfault::scene {
         /// @param[ in ] position The position of the sprite.
         /// @param[ in ] size The size of the sprite.
         /// @return The created entity.
-        Entity2D createSprite(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size);
+        Entity createSprite(core::guid textureHandle, const glm::vec2& position, const glm::vec2& size);
     };
 
 } // namespace segfault::scene

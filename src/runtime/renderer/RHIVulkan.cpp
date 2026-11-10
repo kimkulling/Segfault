@@ -1124,11 +1124,12 @@ namespace segfault::renderer {
 
     void RHIImpl::createTextureImage() {
         int texWidth, texHeight, texChannels;
-        stbi_uc *pixels = stbi_load("textures/SegFault.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		std::string_view texturePath = "textures/SegFault.jpg";
+        stbi_uc *pixels = stbi_load(texturePath.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
         VkDeviceSize imageSize = texWidth * texHeight * 4;
 
         if (pixels == nullptr) {
-            core::logMessage(core::LogType::Error, "failed to load texture image!");
+            core::logMessage(core::LogType::Error, std::string("failed to load texture image from path: " + std::string(texturePath)).c_str());
             throw SegfaultException("failed to load texture image!");
         }
 

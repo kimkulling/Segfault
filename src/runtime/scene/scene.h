@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <unordered_map>
 
@@ -58,8 +59,8 @@ namespace segfault::scene {
     };
 
     struct MeshRendererComponent {
-        guid mMeshHandle{0};
-        guid mMaterialHandle{0};
+        core::guid mMeshHandle{0};
+        core::guid mMaterialHandle{0};
         bool mVisible{true};
     };
 
