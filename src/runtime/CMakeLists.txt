@@ -38,6 +38,8 @@ SET(segfault_renderer_src
     renderer/vulkanutils.cpp
     renderer/vulkanutils.h
     renderer/vulkantypes.h
+    renderer/texturemanager.cpp
+    renderer/texturemanager.h
 )
 
 SET(segfault_ai_src
