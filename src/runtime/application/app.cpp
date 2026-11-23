@@ -136,11 +136,19 @@ namespace segfault::application {
 
 		mAppName = appName;
 
+        // Create the RHI up front so examples can add primitives via getRHI()
+        // before the renderer (and its GPU buffers) are initialized.
+        mRHI = new RHI;
+
         return true;
     }
 
     bool App::initRenderer() {
-        mRHI = new RHI;
+        if (mRHI == nullptr) {
+            logMessage(LogType::Error, "initRenderer called before App::init.");
+            return false;
+        }
+
         if (!mRHI->init(mAppName, mSdlWindow)) {
             logMessage(LogType::Error, "Failed to init RHI.");
 			return false;

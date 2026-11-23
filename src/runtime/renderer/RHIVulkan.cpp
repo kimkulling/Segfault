@@ -194,6 +194,7 @@ namespace segfault::renderer {
         void createDescriptorPool();
         void createDescriptorSets();
         void addPrimitive(const Mesh& mesh);
+        void rebuildGeometryBuffers();
 
         VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
@@ -932,6 +933,29 @@ namespace segfault::renderer {
         mMeshesDirty = true;
     }
 
+    void RHIImpl::rebuildGeometryBuffers() {
+        // Primitives were added after init; recreate the GPU buffers so the draw
+        // call in recordCommandBuffer() matches the current mesh set.
+        vkDeviceWaitIdle(mDevice);
+
+        if (mVertexBuffer != VK_NULL_HANDLE) {
+            vkDestroyBuffer(mDevice, mVertexBuffer, nullptr);
+            vkFreeMemory(mDevice, mVertexBufferMemory, nullptr);
+            mVertexBuffer = VK_NULL_HANDLE;
+            mVertexBufferMemory = VK_NULL_HANDLE;
+        }
+        if (mIndexBuffer != VK_NULL_HANDLE) {
+            vkDestroyBuffer(mDevice, mIndexBuffer, nullptr);
+            vkFreeMemory(mDevice, mIndexBufferMemory, nullptr);
+            mIndexBuffer = VK_NULL_HANDLE;
+            mIndexBufferMemory = VK_NULL_HANDLE;
+        }
+
+        createVertexBuffer();
+        createIndexBuffer();
+        mMeshesDirty = false;
+    }
+
     void RHIImpl::createSyncObjects() {
         mImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
         mRenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -981,6 +1005,10 @@ namespace segfault::renderer {
     }
 
     void RHIImpl::drawFrame() {
+        if (mMeshesDirty) {
+            rebuildGeometryBuffers();
+        }
+
         vkWaitForFences(mDevice, 1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
         uint32_t imageIndex{};
@@ -1531,12 +1559,15 @@ namespace segfault::renderer {
         }
 
         mImpl->mWindow = window;
-        
-        // Initialize with the default model (convert from Model to Mesh)
-        Mesh defaultMesh;
-        defaultMesh.vertices = gModel.vertices;
-        defaultMesh.indices = gModel.indices;
-        mImpl->mMeshes.push_back(defaultMesh);
+
+        // Fall back to the built-in model only when the caller did not supply any
+        // primitives via addPrimitive(); otherwise the user's meshes are used as-is.
+        if (mImpl->mMeshes.empty()) {
+            Mesh defaultMesh;
+            defaultMesh.vertices = gModel.vertices;
+            defaultMesh.indices = gModel.indices;
+            mImpl->mMeshes.push_back(defaultMesh);
+        }
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         mImpl->setupDebugMessenger(debugCreateInfo);
@@ -1611,6 +1642,10 @@ namespace segfault::renderer {
         mImpl->createDescriptorSets();
         mImpl->createCommandBuffers();
         mImpl->createSyncObjects();
+
+        // Buffers now reflect the meshes present at init time; any primitives added
+        // afterwards will be picked up on the next frame via the dirty flag.
+        mImpl->mMeshesDirty = false;
         return true;
     }
 
